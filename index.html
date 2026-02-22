@@ -257,6 +257,11 @@
         </div>
 
         <div style="padding:0 2rem 1.5rem;">
+            <div class="section" style="margin-bottom:0.75rem;">
+                <h3>Reminder Notes</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Write anything you want to remind yourself later.</p>
+                <textarea id="reminderNotes" placeholder="e.g. Bring soccer cleats tomorrow, finish book report by Friday..." rows="5" style="resize:vertical;min-height:100px;width:100%;box-sizing:border-box" oninput="debounceSaveReminder()" onblur="saveReminderNow()"></textarea>
+            </div>
             <div id="rulesToggle" class="toggle-bar" onclick="toggleRules()"><span>Rules</span><span class="chevron">▼</span></div>
             <div id="rulesContent" class="toggle-content rules-content">
                 <div class="toggle-inner rules-inner">
@@ -502,7 +507,8 @@
         config: { ...DEFAULT_CONFIG },
         dayCompletions: {},
         lastMonthlyReset: null,
-        monthlyPots: {}
+        monthlyPots: {},
+        reminderNotes: ''
     };
     function nowStr() {
         return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
@@ -528,7 +534,8 @@
                     config: { ...DEFAULT_CONFIG, ...(loaded.config || {}) },
                     dayCompletions: loaded.dayCompletions || {},
                     monthlyPots: loaded.monthlyPots || {},
-                    customChoresToday: loaded.customChoresToday || []
+                    customChoresToday: loaded.customChoresToday || [],
+                    reminderNotes: loaded.reminderNotes || ''
                 };
             }
         } catch (e) { console.warn("Cloud load failed:", e); }
@@ -750,6 +757,22 @@
         await saveAction();
     }
 
+    let reminderSaveTimeout = null;
+    function debounceSaveReminder() {
+        if (reminderSaveTimeout) clearTimeout(reminderSaveTimeout);
+        reminderSaveTimeout = setTimeout(saveReminderNow, 600);
+    }
+    async function saveReminderNow() {
+        if (reminderSaveTimeout) { clearTimeout(reminderSaveTimeout); reminderSaveTimeout = null; }
+        const el = document.getElementById('reminderNotes');
+        if (!el) return;
+        const val = (el.value || '').trim();
+        if (state.reminderNotes === val) return;
+        state.reminderNotes = val;
+        await saveAction();
+    }
+    window.saveReminderNow = saveReminderNow;
+
     async function logCustomChore() {
         const input = document.getElementById('customChoreInput');
         const msg = input.value.trim();
@@ -807,7 +830,7 @@
     async function confirmResetAllData() {
         const cfg = getCfg();
         const today = new Date().toLocaleDateString();
-        state = { pot: cfg.startingAllowance, streak: 0, tasks: [], history: [], lastCheck: today, completedToday: [], waivedToday: [], customChoresToday: [], config: state.config, dayCompletions: {}, lastMonthlyReset: getMonthKey(), monthlyPots: {} };
+        state = { pot: cfg.startingAllowance, streak: 0, tasks: [], history: [], lastCheck: today, completedToday: [], waivedToday: [], customChoresToday: [], config: state.config, dayCompletions: {}, lastMonthlyReset: getMonthKey(), monthlyPots: {}, reminderNotes: state.reminderNotes || '' };
         pendingCompleteTaskId = null;
         closeEditModal();
         closeResetDataModal();
@@ -1004,6 +1027,11 @@
                 <li>The allowance pot resets to <b>$${cfg.startingAllowance.toFixed(2)}</b> at the beginning of each month.</li>`;
         }
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/New_York' });
+
+        const reminderEl = document.getElementById('reminderNotes');
+        if (reminderEl && document.activeElement !== reminderEl) {
+            reminderEl.value = state.reminderNotes || '';
+        }
         
         const list = document.getElementById('taskList');
         list.innerHTML = '';
