@@ -21,7 +21,6 @@
         }
         .container { max-width: 900px; margin: 0 auto; }
         
-        /* HEADER WITH LOGO */
         header { 
             display: flex;
             flex-direction: column;
@@ -47,6 +46,7 @@
             border: 4px solid rgba(255,255,255,0.3);
             object-fit: cover;
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            background: #cbd5e1; /* fallback color */
         }
 
         .header-title {
@@ -69,14 +69,16 @@
         .parent-active .parent-only { display: block; }
         .parent-zone { background: #fffbeb; border: 2px dashed #fcd34d; padding: 1rem; border-radius: 12px; margin-top: 1rem; }
         
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-waive { background: #fef3c7; color: #92400e; font-size: 0.75rem; }
         .btn-lock { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(5px); }
         .btn-lock.active { background: var(--danger); }
 
         .streak-badge { background: #fbbf24; color: #78350f; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; }
         .history-list { max-height: 250px; overflow-y: auto; }
         .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--success); }
     </style>
 </head>
 <body id="bodyTag">
@@ -84,7 +86,7 @@
 <div class="container">
     <header>
         <div class="profile-container">
-            <img src="guhanprofile.JPG" alt="Guhan" class="profile-pic">
+            <img src="profile.jpg" alt="Guhan" class="profile-pic" onerror="this.style.display='none'">
             <h1 class="header-title">Guhan's Chore & Allowance</h1>
         </div>
         <p id="todayDate" style="opacity: 0.9; margin: 0; font-weight: 500;"></p>
@@ -102,7 +104,7 @@
             </div>
             
             <div class="parent-only parent-zone">
-                <p style="margin: 0 0 8px 0; font-size: 0.8rem; font-weight: bold;">Manual Adjustment:</p>
+                <p style="margin: 0 0 8px 0; font-size: 0.8rem; font-weight: bold;">Manual Balance Adjustment:</p>
                 <div style="display: flex; gap: 8px;">
                     <input type="number" id="adjAmt" placeholder="$" style="width:80px; padding:8px; border-radius:6px; border:1px solid #ccc">
                     <button class="btn" onclick="manualAdjust(true)" style="background:var(--success); color:white">+</button>
@@ -142,9 +144,10 @@
 </div>
 
 <script>
-    const PIN_HASH = "f9876e6d302344799042c069bc43f1146746816e8851493f140026e6414a3ec4"; 
+    // Security: Verified SHA-256 Hash for "Admin123+"
+    const PIN_HASH = "8f170f7f272f106412f91361c71387d85d713915f03d274070a2f45ec0614838"; 
 
-    let state = JSON.parse(localStorage.getItem('guhanChore_v1')) || {
+    let state = JSON.parse(localStorage.getItem('guhanChore_vFinal')) || {
         pot: 150, streak: 0, tasks: [], history: [], lastCheck: new Date().toLocaleDateString(), completedToday: [], waivedToday: []
     };
 
@@ -156,15 +159,17 @@
         } else {
             const pass = prompt("Enter Parent Password:");
             if (!pass) return;
+
             const msgUint8 = new TextEncoder().encode(pass);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
             if (hashHex === PIN_HASH) {
                 document.body.classList.add('parent-active');
                 document.getElementById('lockBtn').innerText = "Lock Parent Mode";
                 document.getElementById('lockBtn').classList.add('active');
-            } else { alert("Wrong Password"); }
+            } else { alert("Incorrect Password"); }
         }
     }
 
@@ -185,6 +190,7 @@
     }
 
     function waiveTask(taskId, name) {
+        if (state.waivedToday.includes(taskId)) return;
         state.waivedToday.push(taskId);
         state.history.unshift({ date: "OVERRIDE", msg: `Waived: ${name}`, amt: "—", class: "" });
         saveAndRender();
@@ -195,7 +201,7 @@
         const amt = parseFloat(input.value);
         if (isNaN(amt)) return;
         state.pot = isAdd ? state.pot + amt : state.pot - amt;
-        state.history.unshift({ date: "Manual", msg: "Parent Adjustment", amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
+        state.history.unshift({ date: "Manual", msg: "Adjustment", amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
         input.value = '';
         saveAndRender();
     }
@@ -212,12 +218,12 @@
                     state.streak++;
                     if (state.streak % 5 === 0) {
                         state.pot += 5;
-                        state.history.unshift({ date: "Bonus", msg: "5-Day Streak reached!", amt: "+$5.00", class: "amt-pos" });
+                        state.history.unshift({ date: "Bonus", msg: "5-Day Streak!", amt: "+$5.00", class: "amt-pos" });
                     }
                 } else {
                     state.pot -= 5;
                     state.streak = 0;
-                    state.history.unshift({ date: "Deduction", msg: "Missed Daily Chores", amt: "-$5.00", class: "amt-neg" });
+                    state.history.unshift({ date: "Daily", msg: "Missed Chores", amt: "-$5.00", class: "amt-neg" });
                 }
             }
             state.completedToday = []; state.waivedToday = []; state.lastCheck = today;
@@ -226,7 +232,7 @@
     }
 
     function saveAndRender() {
-        localStorage.setItem('guhanChore_v1', JSON.stringify(state));
+        localStorage.setItem('guhanChore_vFinal', JSON.stringify(state));
         document.getElementById('allowancePot').innerText = `$${state.pot.toFixed(2)}`;
         document.getElementById('streakCount').innerText = state.streak;
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -242,8 +248,11 @@
                     <input type="checkbox" ${isDone || isWaived ? 'checked' : ''} onchange="toggleTask(${task.id})">
                     <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:#94a3b8' : ''}">${task.name} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
                     <button class="parent-only btn btn-waive" onclick="waiveTask(${task.id}, '${task.name}')">Waive</button>
+                    <button class="parent-only btn" style="background:#fee2e2;color:#991b1b;font-size:0.7rem" onclick="if(confirm('Delete?')){state.tasks=state.tasks.filter(t=>t.id!=${task.id});saveAndRender();}">Del</button>
                 </div>`;
         });
+        if(list.innerHTML === '') list.innerHTML = "<p style='text-align:center;color:#94a3b8'>No chores for today!</p>";
+
         const histDiv = document.getElementById('historyLog');
         histDiv.innerHTML = state.history.slice(0, 20).map(h => `
             <div class="history-item">
