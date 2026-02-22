@@ -136,9 +136,9 @@
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
     const PARENT_PASS = "Admin123+";
 
-    let supabase = null;
+    let supabaseClient = null;
     try {
-        if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { console.warn("Supabase init failed:", e); }
 
     let state = {
@@ -149,13 +149,13 @@
 
     // --- 2. DATA SYNC ---
     async function loadCloudData() {
-        if (!supabase) {
+        if (!supabaseClient) {
             checkDailyLogic();
             renderUI();
             return;
         }
         try {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('chore_app_state')
                 .select('app_data')
                 .eq('app_name', 'GuhanApp')
@@ -169,9 +169,9 @@
     }
 
     async function syncToCloud() {
-        if (!supabase) return;
+        if (!supabaseClient) return;
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('chore_app_state')
                 .update({ app_data: state })
                 .eq('app_name', 'GuhanApp');
