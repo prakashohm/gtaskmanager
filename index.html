@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guhan's Chore Tracker</title>
+    <title>Guhan's Chore Tracker (Sync)</title>
     <style>
         :root { 
             --primary: #4f46e5; --accent: #0ea5e9; --danger: #f43f5e; 
@@ -34,10 +34,8 @@
         .task-item { display: flex; align-items: center; gap: 12px; padding: 1rem; margin-bottom: 8px; border-radius: 10px; background: #f8fafc; border-left: 4px solid var(--accent); }
         .task-name { flex-grow: 1; font-weight: 600; }
 
-        /* Parent Mode Controls */
         .parent-only { display: none !important; }
         .parent-active .parent-only { display: block !important; }
-        .parent-active .parent-flex { display: flex !important; }
         .parent-zone { background: #fffbeb; border: 2px dashed #fcd34d; padding: 1.2rem; border-radius: 12px; margin-top: 1rem; }
         
         .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
@@ -49,7 +47,6 @@
         .streak-badge { background: #fbbf24; color: #78350f; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; }
         .history-list { max-height: 250px; overflow-y: auto; font-size: 0.9rem; }
         .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f1f5f9; }
-        input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--success); }
     </style>
 </head>
 <body id="bodyTag">
@@ -68,7 +65,7 @@
         <div class="card">
             <h3 style="margin-top:0; color: var(--primary)">Allowance Pot</h3>
             <div class="pot-display">
-                <div id="allowancePot" class="pot-value">$150.00</div>
+                <div id="allowancePot" class="pot-value">...</div>
             </div>
             <div style="text-align: center; margin-top: 15px;">
                 <span class="streak-badge">🔥 <span id="streakCount">0</span> DAY STREAK</span>
@@ -87,7 +84,7 @@
         <div class="card parent-only" style="border: 2px solid var(--primary); background: #f5f3ff;">
             <h3 style="margin-top:0; color: var(--primary)">Assign New Chore</h3>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <input type="text" id="taskName" placeholder="What needs to be done?" style="padding:12px; border-radius:8px; border:1px solid #ddd">
+                <input type="text" id="taskName" placeholder="Task description..." style="padding:12px; border-radius:8px; border:1px solid #ddd">
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.8rem;">
                     <label><input type="checkbox" class="day-check" value="1" checked> M</label>
                     <label><input type="checkbox" class="day-check" value="2" checked> T</label>
@@ -105,7 +102,7 @@
     <div class="dashboard">
         <div class="card">
             <h3 style="margin-top:0; color: var(--accent)">Today's Goals</h3>
-            <div id="taskList"></div>
+            <div id="taskList">Loading chores...</div>
         </div>
         <div class="card">
             <h3 style="margin-top:0; color: #64748b">Activity Log</h3>
@@ -114,13 +111,71 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const PARENT_PASS = "Admin123+"; // Simplified password check
+    // --- 1. CONFIGURATION ---
+    const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
+    const PARENT_PASS = "Admin123+";
 
-    let state = JSON.parse(localStorage.getItem('guhanState_vFinal')) || {
-        pot: 150, streak: 0, tasks: [], history: [], lastCheck: new Date().toLocaleDateString(), completedToday: [], waivedToday: []
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let state = {
+        pot: 150, streak: 0, tasks: [], history: [], 
+        lastCheck: new Date().toLocaleDateString(), 
+        completedToday: [], waivedToday: []
     };
 
+    // --- 2. DATA SYNC ---
+    async function loadCloudData() {
+        const { data, error } = await supabase
+            .from('chore_app_state')
+            .select('app_data')
+            .eq('app_name', 'GuhanApp')
+            .single();
+        
+        if (data && data.app_data && Object.keys(data.app_data).length > 0) {
+            state = data.app_data;
+        }
+        checkDailyLogic();
+        renderUI();
+    }
+
+    async function syncToCloud() {
+        const { error } = await supabase
+            .from('chore_app_state')
+            .update({ app_data: state })
+            .eq('app_name', 'GuhanApp');
+        if (error) console.error("Cloud Error:", error);
+    }
+
+    // --- 3. CORE LOGIC ---
+    function checkDailyLogic() {
+        const today = new Date().toLocaleDateString();
+        if (state.lastCheck !== today) {
+            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const yDay = yesterday.getDay();
+            const yTasks = state.tasks.filter(t => t.days.includes(yDay));
+            
+            if (yTasks.length > 0) {
+                const finished = yTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+                if (finished.length === yTasks.length) {
+                    state.streak++;
+                    if (state.streak > 0 && state.streak % 5 === 0) {
+                        state.pot += 5;
+                        state.history.unshift({ date: "BONUS", msg: "5-Day Streak!", amt: "+$5.00", class: "amt-pos" });
+                    }
+                } else {
+                    state.pot -= 5;
+                    state.streak = 0;
+                    state.history.unshift({ date: "DAILY", msg: "Missed Chores", amt: "-$5.00", class: "amt-neg" });
+                }
+            }
+            state.completedToday = []; state.waivedToday = []; state.lastCheck = today;
+        }
+    }
+
+    // --- 4. UI ACTIONS ---
     function toggleParentMode() {
         if (document.body.classList.contains('parent-active')) {
             document.body.classList.remove('parent-active');
@@ -132,71 +187,47 @@
                 document.body.classList.add('parent-active');
                 document.getElementById('lockBtn').innerText = "Lock Parent Mode";
                 document.getElementById('lockBtn').classList.add('active');
-            } else if (pass !== null) {
-                alert("Incorrect Password!");
-            }
+            } else if (pass !== null) { alert("Incorrect!"); }
         }
     }
 
-    function addTask() {
-        const input = document.getElementById('taskName');
+    async function addTask() {
+        const name = document.getElementById('taskName').value;
         const days = Array.from(document.querySelectorAll('.day-check:checked')).map(i => parseInt(i.value));
-        if (!input.value) return;
-        state.tasks.push({ id: Date.now(), name: input.value, days });
-        input.value = '';
-        saveAndRender();
+        if (!name) return;
+        state.tasks.push({ id: Date.now(), name, days });
+        document.getElementById('taskName').value = '';
+        await saveAction();
     }
 
-    function toggleTask(taskId) {
+    async function toggleTask(taskId) {
         const idx = state.completedToday.indexOf(taskId);
         if (idx > -1) state.completedToday.splice(idx, 1);
         else state.completedToday.push(taskId);
-        saveAndRender();
+        await saveAction();
     }
 
-    function waiveTask(taskId, name) {
+    async function waiveTask(taskId, name) {
         state.waivedToday.push(taskId);
-        state.history.unshift({ date: "WAIVED", msg: name, amt: "—", class: "" });
-        saveAndRender();
+        state.history.unshift({ date: "WAIVE", msg: name, amt: "—", class: "" });
+        await saveAction();
     }
 
-    function manualAdjust(isAdd) {
-        const input = document.getElementById('adjAmt');
-        const amt = parseFloat(input.value);
-        if (isNaN(amt)) return;
-        state.pot = isAdd ? state.pot + amt : state.pot - amt;
-        state.history.unshift({ date: "MANUAL", msg: "Adjustment", amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
-        input.value = '';
-        saveAndRender();
+    async function manualAdjust(isAdd) {
+        const val = parseFloat(document.getElementById('adjAmt').value);
+        if (isNaN(val)) return;
+        state.pot = isAdd ? state.pot + val : state.pot - val;
+        state.history.unshift({ date: "MANUAL", msg: "Adjustment", amt: (isAdd ? "+" : "-") + "$" + val.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
+        document.getElementById('adjAmt').value = '';
+        await saveAction();
     }
 
-    function checkDailyLogic() {
-        const today = new Date().toLocaleDateString();
-        if (state.lastCheck !== today) {
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            const yDay = yesterday.getDay();
-            const yTasks = state.tasks.filter(t => t.days.includes(yDay));
-            if (yTasks.length > 0) {
-                const finished = yTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
-                if (finished.length === yTasks.length) {
-                    state.streak++;
-                    if (state.streak % 5 === 0) {
-                        state.pot += 5;
-                        state.history.unshift({ date: "BONUS", msg: "5-Day Streak!", amt: "+$5.00", class: "amt-pos" });
-                    }
-                } else {
-                    state.pot -= 5;
-                    state.streak = 0;
-                    state.history.unshift({ date: "DAILY", msg: "Missed Chores", amt: "-$5.00", class: "amt-neg" });
-                }
-            }
-            state.completedToday = []; state.waivedToday = []; state.lastCheck = today;
-            saveAndRender();
-        }
+    async function saveAction() {
+        renderUI();
+        await syncToCloud();
     }
 
-    function saveAndRender() {
-        localStorage.setItem('guhanState_vFinal', JSON.stringify(state));
+    function renderUI() {
         document.getElementById('allowancePot').innerText = `$${state.pot.toFixed(2)}`;
         document.getElementById('streakCount').innerText = state.streak;
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -204,7 +235,6 @@
         const list = document.getElementById('taskList');
         list.innerHTML = '';
         const todayNum = new Date().getDay();
-        
         state.tasks.filter(t => t.days.includes(todayNum)).forEach(task => {
             const isDone = state.completedToday.includes(task.id);
             const isWaived = state.waivedToday.includes(task.id);
@@ -214,7 +244,7 @@
                     <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:#94a3b8' : ''}">${task.name} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
                     <div class="parent-only" style="display:flex; gap:5px;">
                         <button class="btn btn-waive" onclick="waiveTask(${task.id}, '${task.name}')">Waive</button>
-                        <button class="btn" style="background:#fee2e2;color:#991b1b;padding:5px;font-size:0.7rem" onclick="state.tasks=state.tasks.filter(t=>t.id!=${task.id});saveAndRender()">Del</button>
+                        <button class="btn" style="background:#fee2e2;color:#991b1b;padding:5px;font-size:0.7rem" onclick="state.tasks=state.tasks.filter(t=>t.id!=${task.id});saveAction()">Del</button>
                     </div>
                 </div>`;
         });
@@ -228,8 +258,9 @@
                 <span class="${h.class || ''}">${h.amt}</span>
             </div>`).join('');
     }
-    checkDailyLogic();
-    saveAndRender();
+
+    // Startup
+    loadCloudData();
 </script>
 </body>
 </html>
