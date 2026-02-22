@@ -6,56 +6,25 @@
     <title>Guhan's Chore Tracker</title>
     <style>
         :root { 
-            --primary: #4f46e5; 
-            --accent: #0ea5e9;
-            --danger: #f43f5e; 
-            --success: #10b981; 
-            --bg: #eef2ff; 
-            --card-bg: #ffffff;
-            --text-dark: #1e1b4b;
+            --primary: #4f46e5; --accent: #0ea5e9; --danger: #f43f5e; 
+            --success: #10b981; --bg: #eef2ff; --card-bg: #ffffff; --text-dark: #1e1b4b;
         }
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--bg); 
-            margin: 0; padding: 1.5rem; color: var(--text-dark); 
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 1.5rem; color: var(--text-dark); }
         .container { max-width: 900px; margin: 0 auto; }
         
         header { 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 2rem; 
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white; padding: 2rem; border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
-            position: relative;
+            display: flex; flex-direction: column; align-items: center;
+            margin-bottom: 2rem; background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; padding: 2rem; border-radius: 24px; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
         }
 
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 15px;
+        .profile-container { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+        .profile-pic { 
+            width: 90px; height: 90px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.4);
+            object-fit: cover; background: #e2e8f0;
         }
 
-        .profile-pic {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 4px solid rgba(255,255,255,0.3);
-            object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            background: #cbd5e1; /* fallback color */
-        }
-
-        .header-title {
-            margin: 0; 
-            font-size: 2rem; 
-            letter-spacing: -1px;
-            font-weight: 800;
-        }
-        
+        .header-title { margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
         .card { background: var(--card-bg); padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         
@@ -65,19 +34,21 @@
         .task-item { display: flex; align-items: center; gap: 12px; padding: 1rem; margin-bottom: 8px; border-radius: 10px; background: #f8fafc; border-left: 4px solid var(--accent); }
         .task-name { flex-grow: 1; font-weight: 600; }
 
-        .parent-only { display: none; }
-        .parent-active .parent-only { display: block; }
-        .parent-zone { background: #fffbeb; border: 2px dashed #fcd34d; padding: 1rem; border-radius: 12px; margin-top: 1rem; }
+        /* Parent Mode Controls */
+        .parent-only { display: none !important; }
+        .parent-active .parent-only { display: block !important; }
+        .parent-active .parent-flex { display: flex !important; }
+        .parent-zone { background: #fffbeb; border: 2px dashed #fcd34d; padding: 1.2rem; border-radius: 12px; margin-top: 1rem; }
         
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn { padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; width: 100%; }
-        .btn-waive { background: #fef3c7; color: #92400e; font-size: 0.75rem; }
         .btn-lock { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); backdrop-filter: blur(5px); }
         .btn-lock.active { background: var(--danger); }
+        .btn-waive { background: #fef3c7; color: #92400e; font-size: 0.75rem; }
 
         .streak-badge { background: #fbbf24; color: #78350f; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; }
-        .history-list { max-height: 250px; overflow-y: auto; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .history-list { max-height: 250px; overflow-y: auto; font-size: 0.9rem; }
+        .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #f1f5f9; }
         input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--success); }
     </style>
 </head>
@@ -86,8 +57,8 @@
 <div class="container">
     <header>
         <div class="profile-container">
-            <img src="profile.jpg" alt="Guhan" class="profile-pic" onerror="this.style.display='none'">
-            <h1 class="header-title">Guhan's Chore & Allowance</h1>
+            <img src="profile.jpg" alt="Guhan" class="profile-pic" onerror="this.src='https://ui-avatars.com/api/?name=Guhan&background=random'">
+            <h1 class="header-title">Guhan's Chores</h1>
         </div>
         <p id="todayDate" style="opacity: 0.9; margin: 0; font-weight: 500;"></p>
         <button id="lockBtn" class="btn btn-lock" onclick="toggleParentMode()" style="margin-top:20px">Unlock Parent Mode</button>
@@ -95,7 +66,7 @@
     
     <div class="dashboard">
         <div class="card">
-            <h3 style="margin-top:0; color: var(--primary)">Current Pot</h3>
+            <h3 style="margin-top:0; color: var(--primary)">Allowance Pot</h3>
             <div class="pot-display">
                 <div id="allowancePot" class="pot-value">$150.00</div>
             </div>
@@ -104,7 +75,7 @@
             </div>
             
             <div class="parent-only parent-zone">
-                <p style="margin: 0 0 8px 0; font-size: 0.8rem; font-weight: bold;">Manual Balance Adjustment:</p>
+                <p style="margin: 0 0 8px 0; font-size: 0.8rem; font-weight: bold;">Manual Adjustment:</p>
                 <div style="display: flex; gap: 8px;">
                     <input type="number" id="adjAmt" placeholder="$" style="width:80px; padding:8px; border-radius:6px; border:1px solid #ccc">
                     <button class="btn" onclick="manualAdjust(true)" style="background:var(--success); color:white">+</button>
@@ -113,10 +84,10 @@
             </div>
         </div>
         
-        <div class="card parent-only" style="border: 2px solid var(--primary);">
+        <div class="card parent-only" style="border: 2px solid var(--primary); background: #f5f3ff;">
             <h3 style="margin-top:0; color: var(--primary)">Assign New Chore</h3>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <input type="text" id="taskName" placeholder="Task Name..." style="padding:12px; border-radius:8px; border:1px solid #ddd">
+                <input type="text" id="taskName" placeholder="What needs to be done?" style="padding:12px; border-radius:8px; border:1px solid #ddd">
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.8rem;">
                     <label><input type="checkbox" class="day-check" value="1" checked> M</label>
                     <label><input type="checkbox" class="day-check" value="2" checked> T</label>
@@ -144,32 +115,26 @@
 </div>
 
 <script>
-    // Security: Verified SHA-256 Hash for "Admin123+"
-    const PIN_HASH = "8f170f7f272f106412f91361c71387d85d713915f03d274070a2f45ec0614838"; 
+    const PARENT_PASS = "Admin123+"; // Simplified password check
 
-    let state = JSON.parse(localStorage.getItem('guhanChore_vFinal')) || {
+    let state = JSON.parse(localStorage.getItem('guhanState_vFinal')) || {
         pot: 150, streak: 0, tasks: [], history: [], lastCheck: new Date().toLocaleDateString(), completedToday: [], waivedToday: []
     };
 
-    async function toggleParentMode() {
+    function toggleParentMode() {
         if (document.body.classList.contains('parent-active')) {
             document.body.classList.remove('parent-active');
             document.getElementById('lockBtn').innerText = "Unlock Parent Mode";
             document.getElementById('lockBtn').classList.remove('active');
         } else {
             const pass = prompt("Enter Parent Password:");
-            if (!pass) return;
-
-            const msgUint8 = new TextEncoder().encode(pass);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashHex === PIN_HASH) {
+            if (pass === PARENT_PASS) {
                 document.body.classList.add('parent-active');
                 document.getElementById('lockBtn').innerText = "Lock Parent Mode";
                 document.getElementById('lockBtn').classList.add('active');
-            } else { alert("Incorrect Password"); }
+            } else if (pass !== null) {
+                alert("Incorrect Password!");
+            }
         }
     }
 
@@ -190,9 +155,8 @@
     }
 
     function waiveTask(taskId, name) {
-        if (state.waivedToday.includes(taskId)) return;
         state.waivedToday.push(taskId);
-        state.history.unshift({ date: "OVERRIDE", msg: `Waived: ${name}`, amt: "—", class: "" });
+        state.history.unshift({ date: "WAIVED", msg: name, amt: "—", class: "" });
         saveAndRender();
     }
 
@@ -201,7 +165,7 @@
         const amt = parseFloat(input.value);
         if (isNaN(amt)) return;
         state.pot = isAdd ? state.pot + amt : state.pot - amt;
-        state.history.unshift({ date: "Manual", msg: "Adjustment", amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
+        state.history.unshift({ date: "MANUAL", msg: "Adjustment", amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), class: isAdd ? "amt-pos" : "amt-neg" });
         input.value = '';
         saveAndRender();
     }
@@ -218,12 +182,12 @@
                     state.streak++;
                     if (state.streak % 5 === 0) {
                         state.pot += 5;
-                        state.history.unshift({ date: "Bonus", msg: "5-Day Streak!", amt: "+$5.00", class: "amt-pos" });
+                        state.history.unshift({ date: "BONUS", msg: "5-Day Streak!", amt: "+$5.00", class: "amt-pos" });
                     }
                 } else {
                     state.pot -= 5;
                     state.streak = 0;
-                    state.history.unshift({ date: "Daily", msg: "Missed Chores", amt: "-$5.00", class: "amt-neg" });
+                    state.history.unshift({ date: "DAILY", msg: "Missed Chores", amt: "-$5.00", class: "amt-neg" });
                 }
             }
             state.completedToday = []; state.waivedToday = []; state.lastCheck = today;
@@ -232,14 +196,15 @@
     }
 
     function saveAndRender() {
-        localStorage.setItem('guhanChore_vFinal', JSON.stringify(state));
+        localStorage.setItem('guhanState_vFinal', JSON.stringify(state));
         document.getElementById('allowancePot').innerText = `$${state.pot.toFixed(2)}`;
         document.getElementById('streakCount').innerText = state.streak;
-        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         
         const list = document.getElementById('taskList');
         list.innerHTML = '';
         const todayNum = new Date().getDay();
+        
         state.tasks.filter(t => t.days.includes(todayNum)).forEach(task => {
             const isDone = state.completedToday.includes(task.id);
             const isWaived = state.waivedToday.includes(task.id);
@@ -247,17 +212,19 @@
                 <div class="task-item">
                     <input type="checkbox" ${isDone || isWaived ? 'checked' : ''} onchange="toggleTask(${task.id})">
                     <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:#94a3b8' : ''}">${task.name} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
-                    <button class="parent-only btn btn-waive" onclick="waiveTask(${task.id}, '${task.name}')">Waive</button>
-                    <button class="parent-only btn" style="background:#fee2e2;color:#991b1b;font-size:0.7rem" onclick="if(confirm('Delete?')){state.tasks=state.tasks.filter(t=>t.id!=${task.id});saveAndRender();}">Del</button>
+                    <div class="parent-only" style="display:flex; gap:5px;">
+                        <button class="btn btn-waive" onclick="waiveTask(${task.id}, '${task.name}')">Waive</button>
+                        <button class="btn" style="background:#fee2e2;color:#991b1b;padding:5px;font-size:0.7rem" onclick="state.tasks=state.tasks.filter(t=>t.id!=${task.id});saveAndRender()">Del</button>
+                    </div>
                 </div>`;
         });
         if(list.innerHTML === '') list.innerHTML = "<p style='text-align:center;color:#94a3b8'>No chores for today!</p>";
 
         const histDiv = document.getElementById('historyLog');
-        histDiv.innerHTML = state.history.slice(0, 20).map(h => `
+        histDiv.innerHTML = state.history.slice(0, 15).map(h => `
             <div class="history-item">
-                <span style="font-weight:bold; color:#94a3b8">${h.date}</span>
-                <span style="flex-grow:1; margin-left:15px">${h.msg}</span>
+                <span style="font-weight:bold; color:#94a3b8; font-size:0.7rem">${h.date}</span>
+                <span style="flex-grow:1; margin-left:10px">${h.msg}</span>
                 <span class="${h.class || ''}">${h.amt}</span>
             </div>`).join('');
     }
