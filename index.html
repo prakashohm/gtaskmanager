@@ -118,7 +118,10 @@
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
     const PARENT_PASS = "Admin123+";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabase = null;
+    try {
+        if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) { console.warn("Supabase init failed:", e); }
 
     let state = {
         pot: 150, streak: 0, tasks: [], history: [], 
@@ -128,25 +131,34 @@
 
     // --- 2. DATA SYNC ---
     async function loadCloudData() {
-        const { data, error } = await supabase
-            .from('chore_app_state')
-            .select('app_data')
-            .eq('app_name', 'GuhanApp')
-            .single();
-        
-        if (data && data.app_data && Object.keys(data.app_data).length > 0) {
-            state = data.app_data;
+        if (!supabase) {
+            checkDailyLogic();
+            renderUI();
+            return;
         }
+        try {
+            const { data, error } = await supabase
+                .from('chore_app_state')
+                .select('app_data')
+                .eq('app_name', 'GuhanApp')
+                .single();
+            if (data && data.app_data && Object.keys(data.app_data).length > 0) {
+                state = data.app_data;
+            }
+        } catch (e) { console.warn("Cloud load failed:", e); }
         checkDailyLogic();
         renderUI();
     }
 
     async function syncToCloud() {
-        const { error } = await supabase
-            .from('chore_app_state')
-            .update({ app_data: state })
-            .eq('app_name', 'GuhanApp');
-        if (error) console.error("Cloud Error:", error);
+        if (!supabase) return;
+        try {
+            const { error } = await supabase
+                .from('chore_app_state')
+                .update({ app_data: state })
+                .eq('app_name', 'GuhanApp');
+            if (error) console.error("Cloud Error:", error);
+        } catch (e) { console.warn("Cloud sync failed:", e); }
     }
 
     // --- 3. CORE LOGIC ---
