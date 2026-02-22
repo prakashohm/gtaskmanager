@@ -28,6 +28,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 - **Custom Chores** — Log extra chores (optional, no allowance impact)
 - **Past Week** — View completion status for the last 7 days
 - **Past Months** — See saved allowance from previous months
+- **Reminder Notes** — Full-width open text area to write anything to remind yourself later (auto-saved, synced to cloud)
 - **Rules** — Collapsible panel explaining how the system works
 
 ### Parent Mode (Password Protected)
@@ -202,6 +203,7 @@ No build step required.
 2. Complete a chore → click checkbox → optional comment → Confirm.
 3. Waive a chore (if parent allows) → "Waive" button.
 4. Log extra chore (optional) → type in "Log a chore I did..." → Log it.
+5. Reminder Notes → write anything to remember later (auto-saved).
 
 ### Parent Flow
 
@@ -241,7 +243,8 @@ No build step required.
   lastMonthlyReset: string, // "YYYY-MM"
   monthlyPots: {            // Saved pot at month end
     "YYYY-MM": number
-  }
+  },
+  reminderNotes: string    // Kid's free-form reminder notes (auto-saved)
 }
 ```
 
