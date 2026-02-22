@@ -135,6 +135,15 @@
         
         .past-week-day { background: linear-gradient(135deg, rgba(8, 145, 178, 0.07) 0%, rgba(245, 158, 11, 0.03) 100%); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 6px; border: 1px solid rgba(8, 145, 178, 0.06); }
         .past-week-day-title { font-weight: 700; font-size: 0.8rem; color: var(--primary); margin-bottom: 0.4rem; }
+
+        .chores-matrix { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .chores-matrix th, .chores-matrix td { padding: 0.5rem 0.6rem; text-align: center; border: 1px solid rgba(8, 145, 178, 0.08); }
+        .chores-matrix th { background: linear-gradient(135deg, rgba(8, 145, 178, 0.08) 0%, rgba(8, 145, 178, 0.04) 100%); font-weight: 700; font-size: 0.7rem; color: var(--primary); text-transform: uppercase; }
+        .chores-matrix td.task-cell { text-align: left; font-weight: 600; max-width: 140px; }
+        .chores-matrix .day-cell { min-width: 28px; }
+        .chores-matrix .day-on { color: var(--success); font-weight: 700; }
+        .chores-matrix .day-off { color: var(--text-muted); opacity: 0.5; }
+        .chores-matrix .actions-cell { text-align: right; white-space: nowrap; }
         
         input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea { 
             padding: 0.6rem 0.9rem; border-radius: 12px; border: 1px solid rgba(8, 145, 178, 0.25); font-size: 0.95rem; font-family: inherit;
@@ -161,7 +170,7 @@
             <div class="header-left">
                 <div class="profile-container">
                     <div class="profile-pic-wrap"><img src="guhan.png" alt="Guhan" class="profile-pic" style="object-position: 80% 15%;"></div>
-                    <h1 class="header-title">Guhan's Chores</h1>
+                    <h1 class="header-title">Guhan's RewardHub</h1>
                 </div>
                 <p id="todayDate"></p>
             </div>
@@ -1061,21 +1070,25 @@
         }
 
         const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const dayCodes = ['S','M','T','W','T','F','S'];
         const allList = document.getElementById('allTasksList');
         if (allList) {
-            allList.innerHTML = state.tasks.length === 0 
-                ? "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>"
-                : state.tasks.map(t => {
-                    const daysStr = [...t.days].sort((a,b)=>a-b).map(d => dayNames[d]).join(' ');
-                    return `<div class="task-item" style="margin-bottom:8px;">
-                        <span class="task-name">${t.name}</span>
-                        <span style="font-size:0.75rem;color:var(--text-muted)">${daysStr}</span>
-                        <div style="display:flex;gap:4px;">
-                            <button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:5px 8px;font-size:0.7rem" onclick="openEditTask(${t.id})">Edit</button>
-                            <button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:5px 8px;font-size:0.7rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button>
-                        </div>
-                    </div>`;
+            if (state.tasks.length === 0) {
+                allList.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>";
+            } else {
+                const headerRow = `<thead><tr><th class="task-cell">Task</th>${dayNames.map((d,i) => `<th class="day-cell" title="${d}">${dayCodes[i]}</th>`).join('')}<th class="actions-cell">Actions</th></tr></thead>`;
+                const bodyRows = state.tasks.map(t => {
+                    const dayCells = [0,1,2,3,4,5,6].map(d => {
+                        const on = t.days.includes(d);
+                        return `<td class="day-cell ${on ? 'day-on' : 'day-off'}">${on ? '✓' : '—'}</td>`;
+                    }).join('');
+                    return `<tr>
+                        <td class="task-cell">${t.name}</td>${dayCells}
+                        <td class="actions-cell"><button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" onclick="openEditTask(${t.id})">Edit</button><button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button></td>
+                    </tr>`;
                 }).join('');
+                allList.innerHTML = `<div style="overflow-x:auto"><table class="chores-matrix">${headerRow}<tbody>${bodyRows}</tbody></table></div>`;
+            }
         }
 
         const histDiv = document.getElementById('historyLog');
