@@ -54,11 +54,12 @@
         .header-left { display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
         .thirukural { font-size: 0.95rem; font-style: italic; color: var(--text-muted); margin: 0; max-width: 420px; line-height: 1.6; text-align: right; }
         .profile-container { display: flex; align-items: center; justify-content: flex-start; gap: 1rem; margin-bottom: 0; }
-        .profile-pic { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(8, 145, 178, 0.4); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); }
+        .profile-pic-wrap { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(8, 145, 178, 0.4); box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2); flex-shrink: 0; }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; object-position: 70% 15%; display: block; }
         .header-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
         #todayDate { font-size: 0.9rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; }
         
-        .flow-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: stretch; padding: 0 1.5rem 1.5rem; }
+        .flow-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: stretch; padding: 0 2rem 1.5rem; }
         .flow-main { padding: 1.75rem 0.5rem 1.75rem 0; }
         .flow-side { padding: 1.75rem 0 1.75rem 0.5rem; display: flex; flex-direction: column; min-height: 0; }
         .flow-side .section { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -70,6 +71,7 @@
         .flow-main .section:nth-of-type(2) { background: linear-gradient(135deg, rgba(8, 145, 178, 0.05) 0%, rgba(16, 185, 129, 0.04) 100%); }
         .flow-main .section:nth-of-type(3) { background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(8, 145, 178, 0.05) 100%); }
         .flow-side .section { background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(245, 158, 11, 0.03) 100%); }
+        .chores-management { background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(8, 145, 178, 0.05) 100%); }
         .section h3 { margin: 0 0 0.9rem 0; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.12em; }
         
         .pot-inline { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 0; }
@@ -134,6 +136,15 @@
         
         .past-week-day { background: linear-gradient(135deg, rgba(8, 145, 178, 0.07) 0%, rgba(245, 158, 11, 0.03) 100%); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 6px; border: 1px solid rgba(8, 145, 178, 0.06); }
         .past-week-day-title { font-weight: 700; font-size: 0.8rem; color: var(--primary); margin-bottom: 0.4rem; }
+
+        .chores-matrix { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .chores-matrix th, .chores-matrix td { padding: 0.5rem 0.6rem; text-align: center; border: 1px solid rgba(8, 145, 178, 0.08); }
+        .chores-matrix th { background: linear-gradient(135deg, rgba(8, 145, 178, 0.08) 0%, rgba(8, 145, 178, 0.04) 100%); font-weight: 700; font-size: 0.7rem; color: var(--primary); text-transform: uppercase; }
+        .chores-matrix td.task-cell { text-align: left; font-weight: 600; max-width: 140px; }
+        .chores-matrix .day-cell { min-width: 28px; }
+        .chores-matrix .day-on { color: var(--success); font-weight: 700; }
+        .chores-matrix .day-off { color: var(--text-muted); opacity: 0.5; }
+        .chores-matrix .actions-cell { text-align: right; white-space: nowrap; }
         
         input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea { 
             padding: 0.6rem 0.9rem; border-radius: 12px; border: 1px solid rgba(8, 145, 178, 0.25); font-size: 0.95rem; font-family: inherit;
@@ -149,7 +160,7 @@
         .pot-title svg { flex-shrink: 0; opacity: 0.95; color: var(--primary); }
         .top-row { display: flex; justify-content: center; padding: 1rem 2rem; }
         .top-cell { min-width: 0; padding: 1.25rem; border-radius: 14px; border: 1px solid rgba(8, 145, 178, 0.1); background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(8, 145, 178, 0.02) 100%); }
-        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 1rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0 0 0 0; margin-top: 0.5rem; } }
+        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0 0 0 0; margin-top: 0.5rem; } }
     </style>
 </head>
 <body id="bodyTag">
@@ -159,8 +170,8 @@
         <header>
             <div class="header-left">
                 <div class="profile-container">
-                    <img src="profile.jpg" alt="Guhan" class="profile-pic" onerror="this.src='https://ui-avatars.com/api/?name=Guhan&background=random'">
-                    <h1 class="header-title">Guhan's Chores</h1>
+                    <div class="profile-pic-wrap"><img src="guhan.png" alt="Guhan" class="profile-pic" style="object-position: 80% 15%;"></div>
+                    <h1 class="header-title">Guhan's RewardHub</h1>
                 </div>
                 <p id="todayDate"></p>
             </div>
@@ -216,29 +227,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="section chores-management parent-only">
-                    <h3>Add Chore</h3>
-                    <input type="text" id="taskName" placeholder="New chore..." style="margin-bottom:8px">
-                    <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:8px;">
-                        <label><input type="checkbox" class="day-check" value="1" checked> M</label>
-                        <label><input type="checkbox" class="day-check" value="2" checked> T</label>
-                        <label><input type="checkbox" class="day-check" value="3" checked> W</label>
-                        <label><input type="checkbox" class="day-check" value="4" checked> T</label>
-                        <label><input type="checkbox" class="day-check" value="5" checked> F</label>
-                        <label><input type="checkbox" class="day-check" value="6"> S</label>
-                        <label><input type="checkbox" class="day-check" value="0"> S</label>
-                    </div>
-                    <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
-                    <h3 style="margin-top:1rem">All Chores</h3>
-                    <div id="allTasksList" class="history-list">Loading...</div>
-                    <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">View past chores</button>
-                </div>
             </div>
             <div class="flow-side parent-only">
                 <div class="section">
                     <h3>Activity Log</h3>
                     <div id="historyLog" class="history-list"></div>
                 </div>
+            </div>
+        </div>
+
+        <div class="parent-only" style="padding:0 2rem 1rem;">
+            <div class="section chores-management">
+                <h3>Add Chore</h3>
+                <input type="text" id="taskName" placeholder="New chore..." style="margin-bottom:8px">
+                <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:8px;">
+                    <label><input type="checkbox" class="day-check" value="1" checked> M</label>
+                    <label><input type="checkbox" class="day-check" value="2" checked> T</label>
+                    <label><input type="checkbox" class="day-check" value="3" checked> W</label>
+                    <label><input type="checkbox" class="day-check" value="4" checked> T</label>
+                    <label><input type="checkbox" class="day-check" value="5" checked> F</label>
+                    <label><input type="checkbox" class="day-check" value="6"> S</label>
+                    <label><input type="checkbox" class="day-check" value="0"> S</label>
+                </div>
+                <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
+                <h3 style="margin-top:1rem">All Chores</h3>
+                <div id="allTasksList" class="history-list">Loading...</div>
+                <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">View past chores</button>
             </div>
         </div>
 
@@ -1060,21 +1074,25 @@
         }
 
         const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const dayCodes = ['S','M','T','W','T','F','S'];
         const allList = document.getElementById('allTasksList');
         if (allList) {
-            allList.innerHTML = state.tasks.length === 0 
-                ? "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>"
-                : state.tasks.map(t => {
-                    const daysStr = [...t.days].sort((a,b)=>a-b).map(d => dayNames[d]).join(' ');
-                    return `<div class="task-item" style="margin-bottom:8px;">
-                        <span class="task-name">${t.name}</span>
-                        <span style="font-size:0.75rem;color:var(--text-muted)">${daysStr}</span>
-                        <div style="display:flex;gap:4px;">
-                            <button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:5px 8px;font-size:0.7rem" onclick="openEditTask(${t.id})">Edit</button>
-                            <button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:5px 8px;font-size:0.7rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button>
-                        </div>
-                    </div>`;
+            if (state.tasks.length === 0) {
+                allList.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>";
+            } else {
+                const headerRow = `<thead><tr><th class="task-cell">Task</th>${dayNames.map((d,i) => `<th class="day-cell" title="${d}">${dayCodes[i]}</th>`).join('')}<th class="actions-cell">Actions</th></tr></thead>`;
+                const bodyRows = state.tasks.map(t => {
+                    const dayCells = [0,1,2,3,4,5,6].map(d => {
+                        const on = t.days.includes(d);
+                        return `<td class="day-cell ${on ? 'day-on' : 'day-off'}">${on ? '✓' : '—'}</td>`;
+                    }).join('');
+                    return `<tr>
+                        <td class="task-cell">${t.name}</td>${dayCells}
+                        <td class="actions-cell"><button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" onclick="openEditTask(${t.id})">Edit</button><button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button></td>
+                    </tr>`;
                 }).join('');
+                allList.innerHTML = `<div style="overflow-x:auto"><table class="chores-matrix">${headerRow}<tbody>${bodyRows}</tbody></table></div>`;
+            }
         }
 
         const histDiv = document.getElementById('historyLog');
