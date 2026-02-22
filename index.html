@@ -113,6 +113,24 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // --- UI HANDLERS (defined first so onclick always works) ---
+    function toggleParentMode() {
+        const PARENT_PASS = "Admin123+";
+        if (document.body.classList.contains('parent-active')) {
+            document.body.classList.remove('parent-active');
+            document.getElementById('lockBtn').innerText = "Unlock Parent Mode";
+            document.getElementById('lockBtn').classList.remove('active');
+        } else {
+            const pass = prompt("Enter Parent Password:");
+            if (pass === PARENT_PASS) {
+                document.body.classList.add('parent-active');
+                document.getElementById('lockBtn').innerText = "Lock Parent Mode";
+                document.getElementById('lockBtn').classList.add('active');
+            } else if (pass !== null) { alert("Incorrect!"); }
+        }
+    }
+    window.toggleParentMode = toggleParentMode;
+
     // --- 1. CONFIGURATION ---
     const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
@@ -188,21 +206,6 @@
     }
 
     // --- 4. UI ACTIONS ---
-    function toggleParentMode() {
-        if (document.body.classList.contains('parent-active')) {
-            document.body.classList.remove('parent-active');
-            document.getElementById('lockBtn').innerText = "Unlock Parent Mode";
-            document.getElementById('lockBtn').classList.remove('active');
-        } else {
-            const pass = prompt("Enter Parent Password:");
-            if (pass === PARENT_PASS) {
-                document.body.classList.add('parent-active');
-                document.getElementById('lockBtn').innerText = "Lock Parent Mode";
-                document.getElementById('lockBtn').classList.add('active');
-            } else if (pass !== null) { alert("Incorrect!"); }
-        }
-    }
-
     async function addTask() {
         const name = document.getElementById('taskName').value;
         const days = Array.from(document.querySelectorAll('.day-check:checked')).map(i => parseInt(i.value));
