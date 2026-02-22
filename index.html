@@ -59,7 +59,7 @@
         .header-title { margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
         #todayDate { font-size: 0.9rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 500; }
         
-        .flow-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: stretch; padding: 0 1.5rem 1.5rem; }
+        .flow-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: stretch; padding: 0 2rem 1.5rem; }
         .flow-main { padding: 1.75rem 0.5rem 1.75rem 0; }
         .flow-side { padding: 1.75rem 0 1.75rem 0.5rem; display: flex; flex-direction: column; min-height: 0; }
         .flow-side .section { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -71,6 +71,7 @@
         .flow-main .section:nth-of-type(2) { background: linear-gradient(135deg, rgba(8, 145, 178, 0.05) 0%, rgba(16, 185, 129, 0.04) 100%); }
         .flow-main .section:nth-of-type(3) { background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(8, 145, 178, 0.05) 100%); }
         .flow-side .section { background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(245, 158, 11, 0.03) 100%); }
+        .chores-management { background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(8, 145, 178, 0.05) 100%); }
         .section h3 { margin: 0 0 0.9rem 0; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.12em; }
         
         .pot-inline { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 0; }
@@ -159,7 +160,7 @@
         .pot-title svg { flex-shrink: 0; opacity: 0.95; color: var(--primary); }
         .top-row { display: flex; justify-content: center; padding: 1rem 2rem; }
         .top-cell { min-width: 0; padding: 1.25rem; border-radius: 14px; border: 1px solid rgba(8, 145, 178, 0.1); background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(8, 145, 178, 0.02) 100%); }
-        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 1rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0 0 0 0; margin-top: 0.5rem; } }
+        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0 0 0 0; margin-top: 0.5rem; } }
     </style>
 </head>
 <body id="bodyTag">
@@ -226,29 +227,32 @@
                         </div>
                     </div>
                 </div>
-                <div class="section chores-management parent-only">
-                    <h3>Add Chore</h3>
-                    <input type="text" id="taskName" placeholder="New chore..." style="margin-bottom:8px">
-                    <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:8px;">
-                        <label><input type="checkbox" class="day-check" value="1" checked> M</label>
-                        <label><input type="checkbox" class="day-check" value="2" checked> T</label>
-                        <label><input type="checkbox" class="day-check" value="3" checked> W</label>
-                        <label><input type="checkbox" class="day-check" value="4" checked> T</label>
-                        <label><input type="checkbox" class="day-check" value="5" checked> F</label>
-                        <label><input type="checkbox" class="day-check" value="6"> S</label>
-                        <label><input type="checkbox" class="day-check" value="0"> S</label>
-                    </div>
-                    <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
-                    <h3 style="margin-top:1rem">All Chores</h3>
-                    <div id="allTasksList" class="history-list">Loading...</div>
-                    <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">View past chores</button>
-                </div>
             </div>
             <div class="flow-side parent-only">
                 <div class="section">
                     <h3>Activity Log</h3>
                     <div id="historyLog" class="history-list"></div>
                 </div>
+            </div>
+        </div>
+
+        <div class="parent-only" style="padding:0 2rem 1rem;">
+            <div class="section chores-management">
+                <h3>Add Chore</h3>
+                <input type="text" id="taskName" placeholder="New chore..." style="margin-bottom:8px">
+                <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:8px;">
+                    <label><input type="checkbox" class="day-check" value="1" checked> M</label>
+                    <label><input type="checkbox" class="day-check" value="2" checked> T</label>
+                    <label><input type="checkbox" class="day-check" value="3" checked> W</label>
+                    <label><input type="checkbox" class="day-check" value="4" checked> T</label>
+                    <label><input type="checkbox" class="day-check" value="5" checked> F</label>
+                    <label><input type="checkbox" class="day-check" value="6"> S</label>
+                    <label><input type="checkbox" class="day-check" value="0"> S</label>
+                </div>
+                <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
+                <h3 style="margin-top:1rem">All Chores</h3>
+                <div id="allTasksList" class="history-list">Loading...</div>
+                <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">View past chores</button>
             </div>
         </div>
 
