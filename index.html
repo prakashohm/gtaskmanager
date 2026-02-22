@@ -3,229 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chore & Allowance Tracker</title>
+    <title>Chore Tracker - Secure</title>
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --success: #22c55e; --bg: #f8fafc; --border: #e2e8f0; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 2rem; color: #1e293b; line-height: 1.5; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 1rem; color: #1e293b; }
         .container { max-width: 900px; margin: 0 auto; }
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        .card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        .pot-value { font-size: 3rem; font-weight: bold; color: var(--primary); margin: 0.5rem 0; }
-        .task-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
-        .streak-badge { background: #dcfce7; color: #166534; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .card { background: white; padding: 1.2rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); position: relative; }
+        .pot-value { font-size: 2.5rem; font-weight: bold; color: var(--primary); }
+        .task-item { display: flex; align-items: center; gap: 10px; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+        .task-name { flex-grow: 1; font-weight: 500; }
         
-        /* History Styles */
-        .history-list { max-height: 300px; overflow-y: auto; font-size: 0.9rem; }
-        .history-item { display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #f1f5f9; }
-        .hist-date { color: #64748b; font-weight: 500; }
-        .hist-msg { flex-grow: 1; margin: 0 1rem; }
+        /* Parent Security Styles */
+        .parent-only { display: none; }
+        .parent-active .parent-only { display: inline-block; }
+        .parent-btn { background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600; }
+        
+        .history-list { max-height: 250px; overflow-y: auto; font-size: 0.85rem; background: #ffffff; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+        .history-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f1f5f9; }
         .amt-neg { color: var(--danger); font-weight: bold; }
         .amt-pos { color: var(--success); font-weight: bold; }
-
-        input, select, button { padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.9rem; }
-        button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: 600; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
-        button.secondary { background: #64748b; margin-top: 10px; }
-        .day-btn { display: inline-block; width: 30px; margin: 2px; }
+        
+        .lock-btn { background: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .lock-btn.active { background: var(--danger); }
+        input, select { padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; }
+        .streak-badge { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
     </style>
 </head>
-<body>
+<body id="bodyTag">
 
 <div class="container">
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1>Chore System</h1>
-        <div id="todayDate" style="font-weight: 600; color: #64748b;"></div>
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h1 style="margin:0; font-size: 1.5rem;">Chore & Allowance System</h1>
+            <small id="todayDate" style="color: #64748b;"></small>
+        </div>
+        <button id="lockBtn" class="lock-btn" onclick="toggleParentMode()">Unlock Parent Mode</button>
     </header>
     
     <div class="dashboard">
         <div class="card">
-            <h3 style="margin-top:0">Monthly Allowance Pot</h3>
+            <h3 style="margin-top:0">Allowance Pot</h3>
             <div id="allowancePot" class="pot-value">$150.00</div>
-            <div>Current Streak: <span id="streakCount" class="streak-badge">0 days</span></div>
+            <div style="margin-top: 10px;">
+                <span class="streak-badge"><span id="streakCount">0</span> Day Streak</span>
+            </div>
+            
+            <div class="parent-only" style="margin-top:20px; border-top: 1px dashed #cbd5e1; padding-top: 10px; width: 100%;">
+                <p style="margin: 0 0 5px 0; font-size: 0.8rem; font-weight: bold;">Manual Adjust:</p>
+                <input type="number" id="adjAmt" placeholder="$0.00" style="width:70px">
+                <button class="parent-btn" onclick="manualAdjust(true)" style="background:var(--success); color:white; border:none;">+</button>
+                <button class="parent-btn" onclick="manualAdjust(false)" style="background:var(--danger); color:white; border:none;">-</button>
+            </div>
         </div>
         
-        <div class="card">
-            <h3 style="margin-top:0">New Task</h3>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <input type="text" id="taskName" placeholder="e.g., Clean Kitchen">
-                <select id="taskType" onchange="toggleDayPicker()">
-                    <option value="recurring">Recurring (Weekly)</option>
-                    <option value="once">One-Time (Today)</option>
-                </select>
-                <div id="daySelector">
-                    <div style="font-size: 0.8rem; margin-bottom: 4px;">Applicable Days:</div>
-                    <label><input type="checkbox" value="1" checked> M</label>
-                    <label><input type="checkbox" value="2" checked> T</label>
-                    <label><input type="checkbox" value="3" checked> W</label>
-                    <label><input type="checkbox" value="4" checked> T</label>
-                    <label><input type="checkbox" value="5" checked> F</label>
-                    <label><input type="checkbox" value="6"> S</label>
-                    <label><input type="checkbox" value="0"> S</label>
+        <div class="card parent-only" style="background: #fffbeb;">
+            <h3 style="margin-top:0">Create New Chore</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <input type="text" id="taskName" placeholder="e.g., Take out trash">
+                <div>
+                    <p style="margin:0 0 5px 0; font-size: 0.8rem;">Repeat on:</p>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        <label><input type="checkbox" class="day-check" value="1" checked> M</label>
+                        <label><input type="checkbox" class="day-check" value="2" checked> T</label>
+                        <label><input type="checkbox" class="day-check" value="3" checked> W</label>
+                        <label><input type="checkbox" class="day-check" value="4" checked> T</label>
+                        <label><input type="checkbox" class="day-check" value="5" checked> F</label>
+                        <label><input type="checkbox" class="day-check" value="6"> S</label>
+                        <label><input type="checkbox" class="day-check" value="0"> S</label>
+                    </div>
                 </div>
-                <button onclick="addTask()">Add Task</button>
+                <button onclick="addTask()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">Save Task</button>
             </div>
         </div>
     </div>
 
     <div class="dashboard">
         <div class="card">
-            <h3 style="margin-top:0">Today's Chores</h3>
+            <h3 style="margin-top:0">Today's To-Do</h3>
             <div id="taskList"></div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0">Activity & History</h3>
-            <div id="historyLog" class="history-list">
-                </div>
+            <h3 style="margin-top:0">Transaction History</h3>
+            <div id="historyLog" class="history-list"></div>
         </div>
-    </div>
-
-    <div style="margin-top: 20px; text-align: center;">
-        <button class="secondary" onclick="resetMonth()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">Reset Allowance to $150</button>
-        <button class="secondary" onclick="clearAllData()" style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; margin-left: 10px;">Clear All Data</button>
     </div>
 </div>
 
 <script>
-    // Initialize State
-    let state = JSON.parse(localStorage.getItem('choreTrackerState')) || {
-        pot: 150,
-        streak: 0,
-        tasks: [],
-        history: [{ date: new Date().toLocaleDateString(), msg: "System Initialized", amt: "" }],
-        lastCheck: new Date().toLocaleDateString(),
-        completedToday: []
+    // Security: SHA-256 Hash of "Admin123+"
+    const PIN_HASH = "f9876e6d302344799042c069bc43f1146746816e8851493f140026e6414a3ec4"; 
+
+    let state = JSON.parse(localStorage.getItem('choreState_v3')) || {
+        pot: 150, streak: 0, tasks: [], history: [], lastCheck: new Date().toLocaleDateString(), completedToday: [], waivedToday: []
     };
 
-    function toggleDayPicker() {
-        const type = document.getElementById('taskType').value;
-        document.getElementById('daySelector').style.display = type === 'once' ? 'none' : 'block';
+    async function toggleParentMode() {
+        if (document.body.classList.contains('parent-active')) {
+            document.body.classList.remove('parent-active');
+            document.getElementById('lockBtn').innerText = "Unlock Parent Mode";
+            document.getElementById('lockBtn').classList.remove('active');
+        } else {
+            const pass = prompt("Enter Parent PIN:");
+            if (!pass) return;
+
+            const msgUint8 = new TextEncoder().encode(pass);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (hashHex === PIN_HASH) {
+                document.body.classList.add('parent-active');
+                document.getElementById('lockBtn').innerText = "Lock Parent Mode";
+                document.getElementById('lockBtn').classList.add('active');
+            } else {
+                alert("Incorrect Password");
+            }
+        }
     }
 
     function addTask() {
-        const name = document.getElementById('taskName').value;
-        const type = document.getElementById('taskType').value;
-        const days = Array.from(document.querySelectorAll('#daySelector input:checked')).map(i => parseInt(i.value));
+        const nameInput = document.getElementById('taskName');
+        const days = Array.from(document.querySelectorAll('.day-check:checked')).map(i => parseInt(i.value));
+        if (!nameInput.value) return;
         
-        if (!name) return alert("Please enter a task name");
-
-        state.tasks.push({
-            id: Date.now(),
-            name,
-            type,
-            days: type === 'once' ? [new Date().getDay()] : days
-        });
-        
-        document.getElementById('taskName').value = '';
+        state.tasks.push({ id: Date.now(), name: nameInput.value, days });
+        nameInput.value = '';
         saveAndRender();
     }
 
     function toggleTask(taskId) {
-        const index = state.completedToday.indexOf(taskId);
-        if (index > -1) state.completedToday.splice(index, 1);
+        const idx = state.completedToday.indexOf(taskId);
+        if (idx > -1) state.completedToday.splice(idx, 1);
         else state.completedToday.push(taskId);
         saveAndRender();
     }
 
-    function checkDailyLogic() {
-        const todayStr = new Date().toLocaleDateString();
-        
-        if (state.lastCheck !== todayStr) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yDayNum = yesterday.getDay();
-            const yDateStr = yesterday.toLocaleDateString();
+    function waiveTask(taskId, taskName) {
+        if (!state.waivedToday.includes(taskId)) {
+            state.waivedToday.push(taskId);
+            state.history.unshift({ date: "OVERRIDE", msg: `Waived: ${taskName}`, amt: "—", class: "" });
+            saveAndRender();
+        }
+    }
 
-            // Find tasks that were due yesterday
-            const yTasks = state.tasks.filter(t => t.days.includes(yDayNum));
+    function manualAdjust(isAdd) {
+        const input = document.getElementById('adjAmt');
+        const amt = parseFloat(input.value);
+        if (isNaN(amt)) return;
+        
+        state.pot = isAdd ? state.pot + amt : state.pot - amt;
+        state.history.unshift({ 
+            date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'}), 
+            msg: "Parent Adjustment", 
+            amt: (isAdd ? "+" : "-") + "$" + amt.toFixed(2), 
+            class: isAdd ? "amt-pos" : "amt-neg" 
+        });
+        input.value = '';
+        saveAndRender();
+    }
+
+    function checkDailyLogic() {
+        const today = new Date().toLocaleDateString();
+        if (state.lastCheck !== today) {
+            const yesterday = new Date(); 
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yDay = yesterday.getDay();
+            const yDateStr = yesterday.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+            
+            const yTasks = state.tasks.filter(t => t.days.includes(yDay));
             
             if (yTasks.length > 0) {
-                // If they completed all assigned tasks
-                if (state.completedToday.length >= yTasks.length) {
+                const finished = yTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+                
+                if (finished.length === yTasks.length) {
                     state.streak++;
-                    state.history.unshift({ date: yDateStr, msg: "All chores completed!", amt: "+0" });
-                    
-                    // 5-day streak bonus
                     if (state.streak > 0 && state.streak % 5 === 0) {
                         state.pot += 5;
                         state.history.unshift({ date: yDateStr, msg: "5-Day Streak Bonus!", amt: "+$5.00", class: "amt-pos" });
                     }
                 } else {
-                    // Missed tasks
                     state.pot -= 5;
                     state.streak = 0;
-                    state.history.unshift({ date: yDateStr, msg: "Chores missed", amt: "-$5.00", class: "amt-neg" });
+                    state.history.unshift({ date: yDateStr, msg: "Chores Not Completed", amt: "-$5.00", class: "amt-neg" });
                 }
             }
-
-            // Cleanup: Remove "once" tasks from yesterday
-            state.tasks = state.tasks.filter(t => t.type !== 'once');
-            
             state.completedToday = []; 
-            state.lastCheck = todayStr;
+            state.waivedToday = []; 
+            state.lastCheck = today;
             saveAndRender();
-        }
-    }
-
-    function resetMonth() {
-        if(confirm("Reset allowance pot to $150?")) {
-            state.pot = 150;
-            state.streak = 0;
-            state.history.unshift({ date: new Date().toLocaleDateString(), msg: "Month Reset", amt: "$150.00" });
-            saveAndRender();
-        }
-    }
-
-    function clearAllData() {
-        if(confirm("Delete everything? This cannot be undone.")) {
-            localStorage.removeItem('choreTrackerState');
-            location.reload();
         }
     }
 
     function saveAndRender() {
-        localStorage.setItem('choreTrackerState', JSON.stringify(state));
-        
-        // Render Dashboard
+        localStorage.setItem('choreState_v3', JSON.stringify(state));
         document.getElementById('allowancePot').innerText = `$${state.pot.toFixed(2)}`;
-        document.getElementById('streakCount').innerText = `${state.streak} days`;
+        document.getElementById('streakCount').innerText = state.streak;
         document.getElementById('todayDate').innerText = new Date().toDateString();
         
-        // Render Tasks
         const list = document.getElementById('taskList');
         list.innerHTML = '';
         const todayNum = new Date().getDay();
+        
         const todaysTasks = state.tasks.filter(t => t.days.includes(todayNum));
-
         todaysTasks.forEach(task => {
             const isDone = state.completedToday.includes(task.id);
+            const isWaived = state.waivedToday.includes(task.id);
             list.innerHTML += `
                 <div class="task-item">
-                    <span style="${isDone ? 'text-decoration: line-through; color: #94a3b8;' : ''}">${task.name}</span>
-                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTask(${task.id})">
-                </div>
-            `;
+                    <input type="checkbox" ${isDone || isWaived ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                    <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:#94a3b8' : ''}">${task.name} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
+                    <button class="parent-only parent-btn" onclick="waiveTask(${task.id}, '${task.name}')">Waive</button>
+                    <button class="parent-only parent-btn" style="background:#fee2e2;color:#991b1b;border-color:#fecaca" onclick="if(confirm('Delete?')) { state.tasks=state.tasks.filter(t=>t.id!=${task.id}); saveAndRender(); }">Delete</button>
+                </div>`;
         });
-        if (todaysTasks.length === 0) list.innerHTML = "<p style='color: #64748b; font-style: italic;'>No chores for today. Enjoy!</p>";
+        if(todaysTasks.length === 0) list.innerHTML = "<p style='color:#64748b; font-style:italic;'>No chores for today!</p>";
 
-        // Render History
         const histDiv = document.getElementById('historyLog');
-        histDiv.innerHTML = '';
-        state.history.forEach(item => {
-            histDiv.innerHTML += `
-                <div class="history-item">
-                    <span class="hist-date">${item.date}</span>
-                    <span class="hist-msg">${item.msg}</span>
-                    <span class="${item.class || ''}">${item.amt}</span>
-                </div>
-            `;
-        });
+        histDiv.innerHTML = state.history.map(h => `
+            <div class="history-item">
+                <span style="color:#64748b; font-size:0.75rem;">${h.date}</span>
+                <span style="flex-grow:1; margin-left:10px;">${h.msg}</span>
+                <span class="${h.class || ''}">${h.amt}</span>
+            </div>`).join('');
     }
 
-    // Run check on load
     checkDailyLogic();
     saveAndRender();
 </script>
-
 </body>
 </html>
