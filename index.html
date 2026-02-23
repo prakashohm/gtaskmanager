@@ -501,7 +501,7 @@
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
     let state = {
         pot: 150, streak: 0, tasks: [], history: [], 
-        lastCheck: new Date().toLocaleDateString(), 
+        lastCheck: (() => new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' }))(), 
         completedToday: [], waivedToday: [],
         customChoresToday: [],
         config: { ...DEFAULT_CONFIG },
@@ -510,8 +510,29 @@
         monthlyPots: {},
         reminderNotes: ''
     };
+    const EST = 'America/New_York';
     function nowStr() {
-        return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
+        return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: EST });
+    }
+    function getTodayEST() {
+        return new Date().toLocaleDateString('en-US', { timeZone: EST });
+    }
+    function getDateESTOffset(offsetDays) {
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
+        const p = formatter.formatToParts(new Date());
+        const y = parseInt(p.find(x => x.type === 'year').value);
+        const m = parseInt(p.find(x => x.type === 'month').value) - 1;
+        const d = parseInt(p.find(x => x.type === 'day').value);
+        const d2 = new Date(y, m, d + offsetDays);
+        return d2.toLocaleDateString('en-US');
+    }
+    function getDayNumEST(offsetDays) {
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
+        const p = formatter.formatToParts(new Date());
+        const y = parseInt(p.find(x => x.type === 'year').value);
+        const m = parseInt(p.find(x => x.type === 'month').value) - 1;
+        const d = parseInt(p.find(x => x.type === 'day').value);
+        return new Date(y, m, d + offsetDays).getDay();
     }
 
     // --- 2. DATA SYNC ---
@@ -557,12 +578,16 @@
     // --- 3. CORE LOGIC ---
     function getCfg() { return { ...DEFAULT_CONFIG, ...state.config }; }
     function getMonthKey(d) {
-        const x = d || new Date();
-        return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0');
+        if (d) return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric' });
+        const p = formatter.formatToParts(new Date());
+        const y = p.find(x => x.type === 'year').value;
+        const m = p.find(x => x.type === 'month').value;
+        return y + '-' + m.padStart(2, '0');
     }
     function checkMonthlyReset() {
         const currentMonth = getMonthKey();
-        const lastMonth = state.lastMonthlyReset || getMonthKey(new Date(state.lastCheck));
+        const lastMonth = state.lastMonthlyReset || (parseLocaleDateKey(state.lastCheck) ? getMonthKey(parseLocaleDateKey(state.lastCheck)) : getMonthKey());
         if (lastMonth !== currentMonth) {
             const cfg = getCfg();
             state.monthlyPots[lastMonth] = state.pot;
@@ -583,9 +608,11 @@
         return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     }
     function getPreviousMonthKey() {
-        const d = new Date();
-        d.setMonth(d.getMonth() - 1);
-        return getMonthKey(d);
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric' });
+        const p = formatter.formatToParts(new Date());
+        const y = parseInt(p.find(x => x.type === 'year').value);
+        const m = parseInt(p.find(x => x.type === 'month').value);
+        return getMonthKey(new Date(y, m - 2, 1));
     }
     function parseLocaleDateKey(key) {
         if (!key) return null;
@@ -612,7 +639,7 @@
     function recalculateAllowanceFromDate(changedDateKeys) {
         if (!changedDateKeys || changedDateKeys.length === 0) return;
         const cfg = getCfg();
-        const todayKey = new Date().toLocaleDateString();
+        const todayKey = getTodayEST();
         const earliest = changedDateKeys.sort().filter(k => k !== todayKey)[0];
         if (!earliest) return;
         const earliestDate = parseLocaleDateKey(earliest);
@@ -659,12 +686,11 @@
     }
     function checkDailyLogic() {
         checkMonthlyReset();
-        const today = new Date().toLocaleDateString();
+        const today = getTodayEST();
         if (state.lastCheck !== today) {
             state.dayCompletions[state.lastCheck] = { completed: [...state.completedToday], waived: [...state.waivedToday] };
             state.customChoresToday = [];
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            const yDay = yesterday.getDay();
+            const yDay = getDayNumEST(-1);
             const yTasks = state.tasks.filter(t => t.days.includes(yDay));
             const cfg = getCfg();
             if (yTasks.length > 0) {
@@ -829,7 +855,7 @@
     }
     async function confirmResetAllData() {
         const cfg = getCfg();
-        const today = new Date().toLocaleDateString();
+        const today = getTodayEST();
         state = { pot: cfg.startingAllowance, streak: 0, tasks: [], history: [], lastCheck: today, completedToday: [], waivedToday: [], customChoresToday: [], config: state.config, dayCompletions: {}, lastMonthlyReset: getMonthKey(), monthlyPots: {}, reminderNotes: state.reminderNotes || '' };
         pendingCompleteTaskId = null;
         closeEditModal();
@@ -915,7 +941,7 @@
         const dStr = document.getElementById('pastChoresDate').value;
         if (!dStr) return;
         const dateKey = dateStrToLocale(dStr);
-        const todayKey = new Date().toLocaleDateString();
+        const todayKey = getTodayEST();
         const dayNum = new Date(dStr).getDay();
         const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
         let dc = state.dayCompletions[dateKey];
@@ -944,7 +970,7 @@
         }).join('');
     }
     async function togglePastWeekChore(dateKey, taskId, status) {
-        const todayKey = new Date().toLocaleDateString();
+        const todayKey = getTodayEST();
         let dc = state.dayCompletions[dateKey];
         if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
         dc = dc || { completed: [], waived: [] };
@@ -964,7 +990,7 @@
 
     function togglePastChore(dateKey, taskId, status) {
         if (!pastChoresEdits[dateKey]) {
-            const todayKey = new Date().toLocaleDateString();
+            const todayKey = getTodayEST();
             let dc = state.dayCompletions[dateKey];
             if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
             dc = dc || { completed: [], waived: [] };
@@ -977,7 +1003,7 @@
         renderPastChoresForDate();
     }
     async function savePastChoresChanges() {
-        const todayKey = new Date().toLocaleDateString();
+        const todayKey = getTodayEST();
         const changedKeys = Object.keys(pastChoresEdits);
         changedKeys.forEach(dateKey => {
             state.dayCompletions[dateKey] = pastChoresEdits[dateKey];
@@ -1026,7 +1052,7 @@
                 <li>Your allowance pot and streak are updated each day.</li>
                 <li>The allowance pot resets to <b>$${cfg.startingAllowance.toFixed(2)}</b> at the beginning of each month.</li>`;
         }
-        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/New_York' });
+        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST });
 
         const reminderEl = document.getElementById('reminderNotes');
         if (reminderEl && document.activeElement !== reminderEl) {
@@ -1035,7 +1061,7 @@
         
         const list = document.getElementById('taskList');
         list.innerHTML = '';
-        const todayNum = new Date().getDay();
+        const todayNum = getDayNumEST(0);
         state.tasks.filter(t => t.days.includes(todayNum)).forEach(task => {
             const isDone = state.completedToday.includes(task.id);
             const isWaived = state.waivedToday.includes(task.id);
@@ -1062,14 +1088,12 @@
 
         const pastWeekEl = document.getElementById('pastWeekList');
         if (pastWeekEl) {
-            const todayKey = new Date().toLocaleDateString();
+            const todayKey = getTodayEST();
             const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
             let html = '';
             for (let i = 0; i < 7; i++) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dateKey = d.toLocaleDateString();
-                const dayNum = d.getDay();
+                const dateKey = getDateESTOffset(-i);
+                const dayNum = getDayNumEST(-i);
                 const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
                 let dc = state.dayCompletions[dateKey];
                 if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
