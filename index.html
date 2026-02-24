@@ -80,10 +80,10 @@
         .parent-active .pot-value.pot-editable { cursor: pointer; }
         .parent-active .pot-value.pot-editable:hover { text-decoration: underline; text-decoration-style: dotted; }
         .streak-pill { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.4)); color: #92400e; padding: 0.4rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2); }
-        .streak-progress { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; width: 100%; max-width: 200px; }
-        .streak-progress-label { font-size: 0.8rem; font-weight: 700; color: #92400e; }
-        .streak-progress-track { width: 100%; height: 10px; background: rgba(245, 158, 11, 0.2); border-radius: 999px; overflow: hidden; }
-        .streak-progress-fill { height: 100%; background: linear-gradient(90deg, rgba(245, 158, 11, 0.6), rgba(251, 191, 36, 0.8)); border-radius: 999px; transition: width 0.3s ease; }
+        .streak-boxes { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+        .streak-box { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; border: 2px solid rgba(245, 158, 11, 0.4); }
+        .streak-box.done { background: linear-gradient(135deg, var(--success), #059669); border-color: var(--success); color: white; }
+        .streak-box.pending { background: rgba(245, 158, 11, 0.15); color: rgba(146, 64, 14, 0.4); }
         
         .task-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; margin: 4px 0; border-radius: 14px; transition: all 0.2s; background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(8, 145, 178, 0.03) 100%); border: 1px solid rgba(8, 145, 178, 0.05); }
         .task-item:hover { background: rgba(8, 145, 178, 0.08); }
@@ -117,6 +117,23 @@
         .history-item:last-child { border-bottom: none; }
         .amt-pos { color: var(--success); font-weight: 700; }
         .amt-neg { color: var(--danger); font-weight: 700; }
+
+        .bonus-highlight {
+            display: inline-block;
+            font-size: 1.15em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #eab308 0%, #ca8a04 30%, #facc15 50%, #ca8a04 70%, #eab308 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: bonus-shimmer 2.5s ease-in-out infinite;
+            padding: 0 3px;
+        }
+        @keyframes bonus-shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
         
         .modal-overlay { position:fixed; inset:0; background:rgba(15, 23, 42, 0.4); display:none; align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(8px); }
         .modal-overlay.open { display: flex; }
@@ -188,14 +205,11 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 122.88 96.2" fill="currentColor" class="pot-title-icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 42.92h24.83V87.1H0V42.92zM85.36 20.49c9.01 0 16.32 7.3 16.32 16.32 0 9.01-7.3 16.32-16.32 16.32-9.01 0-16.32-7.3-16.32-16.32C69.04 27.8 76.34 20.49 85.36 20.49zM56.72 0C64.49 0 70.8 6.3 70.8 14.08c0 7.77-6.3 14.08-14.08 14.08-7.77 0-14.08-6.3-14.08-14.08C42.64 6.31 48.94 0 56.72 0zM58.15 17.07c0-.46-.11-.81-.34-1.07-.23-.26-.62-.5-1.18-.73-.56-.23-1.08-.46-1.55-.69-.47-.24-.89-.51-1.23-.82-.35-.31-.61-.67-.79-1.07-.19-.41-.27-.9-.27-1.48 0-.97.33-1.77.98-2.39.65-.62 1.52-1 2.61-1.1v-1.3h1.37v1.33c1.05.15 1.88.58 2.48 1.29.6.71.9 1.61.9 2.69H58.2c0-.6-.12-1.06-.35-1.38-.23-.32-.56-.48-.98-.48-.38 0-.68.12-.88.35-.21.24-.31.57-.31.98 0 .42.12.76.36 1.01.25.25.63.49 1.16.72.53.23 1.04.46 1.51.7.47.25.88.52 1.22.83.35.31.62.68.81 1.09.19.41.3.9.3 1.49 0 .98-.31 1.78-.94 2.4-.63.62-1.47.98-2.54 1.08v1.22H56.2v-1.22c-1.25-.14-2.21-.56-2.88-1.28-.67-.73-1.01-1.68-1.01-2.87h2.91c0 .66.14 1.15.43 1.5.29.34.7.52 1.23.52.39 0 .69-.12.92-.35.23-.24.35-.56.36-.98zM87.01 40.27c0-.53-.13-.94-.39-1.24-.26-.3-.71-.58-1.37-.85-.65-.26-1.25-.54-1.8-.8-.55-.27-1.03-.59-1.43-.95-.4-.36-.7-.77-.92-1.24-.22-.47-.31-1.04-.31-1.71 0-1.13.38-2.05 1.14-2.77.75-.72 1.76-1.15 3.02-1.27v-1.51h1.59v1.55c1.21.18 2.17.68 2.87 1.5.7.82 1.05 1.86 1.05 3.12h-3.38c0-.7-.14-1.22-.4-1.6-.26-.37-.65-.56-1.14-.56-.44 0-.78.14-1.02.41-.24.27-.36.66-.36 1.14 0 .49.14.88.42 1.17.28.29.72.57 1.34.83.62.26 1.2.54 1.75.81.55.28 1.02.61 1.42.96.4.36.71.78.94 1.26.23.48.34 1.05.34 1.72 0 1.14-.36 2.07-1.09 2.78-.72.71-1.7 1.14-2.95 1.25v1.41h-1.59v-1.42c-1.45-.16-2.56-.65-3.34-1.49-.77-.84-1.16-1.95-1.16-3.33h3.37c0 .76.17 1.33.5 1.73.33.39.81.6 1.43.6.45 0 .8-.14 1.07-.4.27-.27.41-.64.42-1.14zM85.36 23.7c7.23 0 13.1 5.86 13.1 13.1 0 7.23-5.86 13.1-13.1 13.1-7.23 0-13.1-5.86-13.1-13.1 0-7.23 5.87-13.1 13.1-13.1zM29.83 83.39V46.47h16.61c7.04 1.26 14.08 5.08 21.12 9.51h12.9c5.84.35 8.9 6.27 3.22 10.16-4.52 3.32-10.49 3.13-16.61 2.58-4.22-.21-4.4 5.46 0 5.48 1.53.12 3.19-.24 4.64-.24 7.64-.01 13.92-1.47 17.77-7.5l1.93-4.51 19.19-9.51c9.6-3.16 16.42 6.88 9.35 13.87-13.9 10.11-28.15 18.43-42.73 25.15-10.59 6.44-21.18 6.22-31.76 0L29.83 83.39z"/></svg>
                     Allowance Pot
                 </h2>
-                <p class="pot-tagline" style="font-size:0.95rem; font-weight:600; color:#92400e; margin:0 0 0.75rem 0;">Hard earned money by Guhan this month!</p>
                 <div class="pot-inline">
                     <div id="allowancePot" class="pot-value" title="Double-click to edit (Parent mode)" ondblclick="startEditPot()">...</div>
-                    <div class="streak-progress" id="streakProgress">
-                        <span class="streak-progress-label" id="streakProgressLabel">🔥 0/5</span>
-                        <div class="streak-progress-track">
-                            <div class="streak-progress-fill" id="streakProgressFill" style="width: 0%"></div>
-                        </div>
+                    <p id="streakMessage" class="pot-tagline" style="font-size:0.95rem; font-weight:600; color:#92400e; margin:0;">...</p>
+                    <div class="streak-row" style="display:flex; flex-direction:column; align-items:center; gap:0.35rem;">
+                        <div id="streakBoxes" class="streak-boxes" title="X of Y consecutive days toward bonus"></div>
                     </div>
                 </div>
                 <div id="pastMonthsToggle" class="toggle-bar pot-hero-toggle" onclick="togglePastMonths()"><span>Past months earned</span><span class="chevron">▼</span></div>
@@ -1036,19 +1050,54 @@
         await syncToCloud();
     }
 
+    function getStreakMessage(cfg, streak) {
+        const total = cfg.streakDaysForBonus;
+        const bonus = cfg.bonusAmount;
+        const bonusStr = bonus % 1 === 0 ? `$${bonus}` : `$${bonus.toFixed(2)}`;
+        const bonusSpan = `<span class="bonus-highlight">${bonusStr} bonus</span>`;
+        const remaining = total - streak;
+        if (streak === 0) {
+            return `Ready to start? Complete all today's chores to bank Day 1 on your path to that ${bonusSpan}! ⚡️`;
+        }
+        if (remaining === 1) {
+            const numWord = streak === 1 ? 'One' : streak === 2 ? 'Two' : streak === 3 ? 'Three' : streak === 4 ? 'Four' : String(streak);
+            return `${numWord} down, one to go! ⚡️ One more day and that ${bonusSpan} is yours!`;
+        }
+        const numWords = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const downWord = streak <= 9 ? numWords[streak] : String(streak);
+        const toGoWord = remaining <= 9 ? numWords[remaining] : String(remaining);
+        if (streak === 1) {
+            return `${downWord} down, ${toGoWord.toLowerCase()} to go! ⚡️ You just banked Day 1 on your path to that ${bonusSpan}. Let's keep this energy rolling!`;
+        }
+        const messages = {
+            2: "You're building momentum toward that",
+            3: "Halfway there—you're so close to that",
+            4: "Almost there—that"
+        };
+        const mid = messages[streak] || "You're crushing it toward that";
+        return `${downWord} down, ${toGoWord.toLowerCase()} to go! ⚡️ ${mid} ${bonusSpan}. Keep it up!`;
+    }
+
     function renderUI() {
         const potEl = document.getElementById('allowancePot');
         potEl.innerText = `$${state.pot.toFixed(2)}`;
         potEl.classList.toggle('pot-editable', document.body.classList.contains('parent-active'));
         const cfg = getCfg();
         const total = cfg.streakDaysForBonus;
-        const pct = total > 0 ? Math.min(100, (state.streak / total) * 100) : 0;
-        const labelEl = document.getElementById('streakProgressLabel');
-        const fillEl = document.getElementById('streakProgressFill');
-        if (labelEl) labelEl.textContent = `🔥 ${state.streak}/${total}`;
-        const progEl = document.getElementById('streakProgress');
-        if (progEl) progEl.title = `${state.streak} of ${total} consecutive days toward bonus`;
-        if (fillEl) fillEl.style.width = pct + '%';
+        const streakMsgEl = document.getElementById('streakMessage');
+        if (streakMsgEl) streakMsgEl.innerHTML = getStreakMessage(cfg, state.streak);
+        const streakBoxesEl = document.getElementById('streakBoxes');
+        if (streakBoxesEl) {
+            let boxesHtml = '';
+            for (let i = 0; i < total; i++) {
+                const done = i < state.streak;
+                const cls = done ? 'streak-box done' : 'streak-box pending';
+                const icon = done ? '✓' : '';
+                boxesHtml += `<div class="${cls}">${icon}</div>`;
+            }
+            streakBoxesEl.innerHTML = boxesHtml;
+            streakBoxesEl.title = `${state.streak} of ${total} consecutive days toward bonus`;
+        }
         const pastMonthsEl = document.getElementById('pastMonthsList');
         if (pastMonthsEl) {
             const prevKey = getPreviousMonthKey();
@@ -1063,7 +1112,7 @@
             rulesEl.innerHTML = `
                 <li>Complete your daily chores and check them off when done.</li>
                 <li>Add an optional comment when marking a chore complete.</li>
-                <li>Complete all chores for <b>${cfg.streakDaysForBonus} consecutive days</b> to earn a <b>$${cfg.bonusAmount.toFixed(2)}</b> bonus—the streak resets after each bonus so you can earn another.</li>
+                <li>Complete all chores for <b>${cfg.streakDaysForBonus} consecutive days</b> to earn a <span class="bonus-highlight">${cfg.bonusAmount % 1 === 0 ? '$' + cfg.bonusAmount : '$' + cfg.bonusAmount.toFixed(2)} bonus</span>—the streak resets after each bonus so you can earn another.</li>
                 <li>Miss a day's chores and a <b>$${cfg.penaltyAmount.toFixed(2)}</b> penalty is applied to your allowance.</li>
                 <li>Your allowance pot and streak are updated each day.</li>
                 <li>The allowance pot resets to <b>$${cfg.startingAllowance.toFixed(2)}</b> at the beginning of each month.</li>`;
