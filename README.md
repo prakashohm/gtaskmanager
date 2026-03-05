@@ -2,6 +2,8 @@
 
 A chore tracker and allowance management web app for kids. Track daily chores, earn streaks, and manage allowance with bonuses and penalties. Data syncs to the cloud for access across devices.
 
+> **Version 2** — Use `index-v2.html` for the new "Bank and Weekly Pot" system with Guhan's Bank (permanent savings), Weekly Pot (resets Mondays), weekday success/penalty logic, and gamified toasts/animations.
+
 ![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0891b2)
 
 ---
@@ -28,6 +30,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 - **Custom Chores** — Log extra chores (optional, no allowance impact)
 - **Past Week** — View completion status for the last 7 days
 - **Past Months** — See saved allowance from previous months
+- **Reminder Notes** — Full-width open text area to write anything to remind yourself later (auto-saved, synced to cloud)
 - **Rules** — Collapsible panel explaining how the system works
 
 ### Parent Mode (Password Protected)
@@ -41,6 +44,18 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 - **Manual Pot Adjustment** — Double-click pot value to adjust (parent mode only)
 - **Change Password** — Update parent password
 - **Reset All Data** — Clear chores, history, and reset pot (destructive)
+
+### Version 2 (index-v2.html) — Bank & Weekly Pot
+
+| Feature | Description |
+|---------|--------------|
+| **Guhan's Bank** | Permanent savings (vault icon). Never resets. |
+| **Weekly Pot** | Piggy bank. Resets every **Monday** to a configured starting amount (e.g. $25). |
+| **Mon–Fri Logic** | All chores done → **+$5** to Weekly Pot. Any missed → **−$5**. |
+| **Weekends** | Saturday & Sunday are task-free. No changes. |
+| **Friday Settlement** | End of Friday: Weekly Pot balance transfers to Guhan's Bank. If negative, that amount is subtracted. |
+| **Summary** | Shows estimated Friday deposit while viewing during the week. |
+| **Gamification** | Toast on task complete ("Awesome job! 🌟"), Level Up animation when all daily chores done, progress bar for Weekly Pot. |
 
 ---
 
@@ -80,12 +95,13 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 | **Auth** | Client-side password | Parent mode protected by password (stored in app state) |
 | **Styling** | Inline CSS + custom properties | Self-contained, no external stylesheet |
 | **Fonts** | Google Fonts (DM Sans) | Clean, readable typography |
+| **Timezone** | America/New_York (EST) | All date boundaries (today, yesterday, month rollover) use EST midnight |
 
 ### Data Flow
 
 1. **Load** — `loadCloudData()` fetches from Supabase → merges into `state` → `checkDailyLogic()` → `renderUI()`
 2. **User Action** — Handler updates `state` → `saveAction()` → `renderUI()` + `syncToCloud()`
-3. **Daily Logic** — On date change: persist yesterday's completions, apply bonus/penalty, reset `completedToday`/`waivedToday`
+3. **Daily Logic** — On date change (EST midnight): persist yesterday's completions, apply bonus/penalty, reset `completedToday`/`waivedToday`
 4. **Monthly Reset** — On month change: save current pot to `monthlyPots[lastMonth]`, reset pot to `startingAllowance`, clear streak
 
 ---
@@ -167,19 +183,21 @@ Uses `America/New_York` for date/timestamp display. Change in `nowStr()` and `to
 
 3. Update `SUPABASE_URL` and `SUPABASE_KEY` in `index.html` if using your own project.
 
-4. Serve `index.html`:
+4. Run locally — use a local HTTP server (do not open `index.html` directly in a browser; `file://` URLs can cause CORS issues with Supabase):
+
+   **Option A: Python**
    ```bash
-   # Python 3
    python3 -m http.server 8000
-
-   # Node (npx)
-   npx serve .
-
-   # Open directly (CORS may block Supabase from file://)
-   open index.html
    ```
+   Then open http://localhost:8000 in your browser.
 
-5. Open `http://localhost:8000` (or your serve URL).
+   **Option B: Node**
+   ```bash
+   npx serve .
+   ```
+   The CLI will print the URL (typically http://localhost:3000).
+
+5. Open the printed URL (e.g. `http://localhost:8000` or `http://localhost:3000`) in your browser.
 
 ### Deployment
 
@@ -202,6 +220,7 @@ No build step required.
 2. Complete a chore → click checkbox → optional comment → Confirm.
 3. Waive a chore (if parent allows) → "Waive" button.
 4. Log extra chore (optional) → type in "Log a chore I did..." → Log it.
+5. Reminder Notes → write anything to remember later (auto-saved).
 
 ### Parent Flow
 
@@ -241,7 +260,8 @@ No build step required.
   lastMonthlyReset: string, // "YYYY-MM"
   monthlyPots: {            // Saved pot at month end
     "YYYY-MM": number
-  }
+  },
+  reminderNotes: string    // Kid's free-form reminder notes (auto-saved)
 }
 ```
 
