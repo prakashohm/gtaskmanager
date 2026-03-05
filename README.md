@@ -2,6 +2,8 @@
 
 A chore tracker and allowance management web app for kids. Track daily chores, earn streaks, and manage allowance with bonuses and penalties. Data syncs to the cloud for access across devices.
 
+> **Version 2** — Use `index-v2.html` for the new "Bank and Weekly Pot" system with Guhan's Bank (permanent savings), Weekly Pot (resets Mondays), weekday success/penalty logic, and gamified toasts/animations.
+
 ![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0891b2)
 
 ---
@@ -42,6 +44,18 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 - **Manual Pot Adjustment** — Double-click pot value to adjust (parent mode only)
 - **Change Password** — Update parent password
 - **Reset All Data** — Clear chores, history, and reset pot (destructive)
+
+### Version 2 (index-v2.html) — Bank & Weekly Pot
+
+| Feature | Description |
+|---------|--------------|
+| **Guhan's Bank** | Permanent savings (vault icon). Never resets. |
+| **Weekly Pot** | Piggy bank. Resets every **Monday** to a configured starting amount (e.g. $25). |
+| **Mon–Fri Logic** | All chores done → **+$5** to Weekly Pot. Any missed → **−$5**. |
+| **Weekends** | Saturday & Sunday are task-free. No changes. |
+| **Friday Settlement** | End of Friday: Weekly Pot balance transfers to Guhan's Bank. If negative, that amount is subtracted. |
+| **Summary** | Shows estimated Friday deposit while viewing during the week. |
+| **Gamification** | Toast on task complete ("Awesome job! 🌟"), Level Up animation when all daily chores done, progress bar for Weekly Pot. |
 
 ---
 
