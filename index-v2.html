@@ -213,8 +213,33 @@
         }
         input[type="number"] { width: auto; }
         input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2); }
+
+        /* Daily Calendar */
+        .calendar-wrap { margin-top: 0.5rem; }
+        .calendar-day-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 4px; }
+        .calendar-day-tab { padding: 0.5rem 0.85rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 2px solid rgba(8, 145, 178, 0.2); background: rgba(255,255,255,0.6); color: var(--text); transition: all 0.2s; white-space: nowrap; }
+        .calendar-day-tab:hover:not(.readonly) { background: rgba(8, 145, 178, 0.08); border-color: rgba(8, 145, 178, 0.3); }
+        .calendar-day-tab.active { background: linear-gradient(135deg, var(--primary), #0e7490); color: white; border-color: var(--primary); }
+        .calendar-day-tab.readonly { opacity: 0.7; cursor: default; color: var(--text-muted); }
+        .calendar-day-tab.today { border-color: var(--accent); font-weight: 700; }
+        .calendar-hour-grid { border: 1px solid rgba(8, 145, 178, 0.15); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.5); }
+        .calendar-hour-row { display: flex; align-items: stretch; min-height: 32px; border-bottom: 1px solid rgba(8, 145, 178, 0.08); transition: background 0.15s; }
+        .calendar-hour-row:last-child { border-bottom: none; }
+        .calendar-hour-row:hover { background: rgba(8, 145, 178, 0.04); }
+        .calendar-hour-row.free:hover { background: rgba(16, 185, 129, 0.06); }
+        .calendar-hour-label { width: 56px; flex-shrink: 0; padding: 0.35rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; }
+        .calendar-hour-slot { flex: 1; padding: 0.4rem 0.6rem; display: flex; align-items: center; cursor: pointer; position: relative; }
+        .calendar-hour-slot.free { cursor: pointer; }
+        .calendar-hour-slot.blocked { background: linear-gradient(135deg, rgba(8, 145, 178, 0.15), rgba(8, 145, 178, 0.08)); border-left: 4px solid var(--primary); cursor: pointer; }
+        .calendar-hour-slot.readonly { cursor: default; pointer-events: none; }
+        .calendar-hour-slot.blocked.readonly { cursor: default; }
+        .calendar-block-text { font-size: 0.85rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .calendar-add-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+        .calendar-occupancy { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; }
+        .calendar-occupancy-bar { flex: 1; height: 8px; background: rgba(8, 145, 178, 0.12); border-radius: 999px; overflow: hidden; }
+        .calendar-occupancy-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #0e7490); border-radius: 999px; transition: width 0.3s; }
         
-        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0; margin-top: 0.5rem; } }
+        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0; margin-top: 0.5rem; } .calendar-day-tab { padding: 0.4rem 0.6rem; font-size: 0.8rem; } }
     </style>
 </head>
 <body id="bodyTag">
@@ -323,9 +348,14 @@
 
         <div style="padding:0 2rem 1.5rem;">
             <div class="section" style="margin-bottom:0.75rem;">
-                <h3>Reminder Notes</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Write anything you want to remind yourself later.</p>
-                <textarea id="reminderNotes" placeholder="e.g. Bring soccer cleats tomorrow..." rows="5" style="resize:vertical;min-height:100px;width:100%;box-sizing:border-box" oninput="debounceSaveReminder()" onblur="saveReminderNow()"></textarea>
+                <h3>Daily Schedule</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Plan your day hour by hour. Click a time block to add or edit.</p>
+                <div class="calendar-wrap">
+                    <div class="calendar-day-tabs" id="calendarDayTabs"></div>
+                    <div class="calendar-occupancy" id="calendarOccupancy"><span id="calendarOccupancyText">—</span><div class="calendar-occupancy-bar"><div id="calendarOccupancyFill" class="calendar-occupancy-fill" style="width:0%"></div></div></div>
+                    <div class="calendar-hour-grid" id="calendarHourGrid"></div>
+                    <p class="calendar-add-hint" id="calendarAddHint">Click an empty hour to add a block, or a filled block to edit.</p>
+                </div>
             </div>
             <div id="rulesToggle" class="toggle-bar" onclick="toggleRules()"><span>Rules</span><span class="chevron">▼</span></div>
             <div id="rulesContent" class="toggle-content rules-content">
@@ -423,6 +453,20 @@
     </div>
 </div>
 
+<div id="calendarBlockModal" class="modal-overlay" onclick="if(event.target===this)closeCalendarBlockModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
+        <h3 style="margin-top:0;" id="calendarBlockModalTitle">Block Time</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.5rem 0;">From <span id="calendarBlockStartHour"></span> to <span id="calendarBlockEndHour"></span> <span id="calendarBlockDurationWrap" style="display:none">· <label>Duration: <select id="calendarBlockDuration" onchange="updateCalendarBlockEndFromDuration()" style="padding:4px 8px;border-radius:8px;margin-left:4px"><option value="0.5">30 min</option><option value="1">1 hr</option><option value="1.5">1.5 hrs</option><option value="2">2 hrs</option><option value="2.5">2.5 hrs</option><option value="3">3 hrs</option><option value="4">4 hrs</option></select></label></span></p>
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px">What are you doing?</label>
+        <textarea id="calendarBlockText" placeholder="e.g. Math class, Homework, Soccer practice..." rows="3" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box;resize:vertical;margin-bottom:1rem"></textarea>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save</button>
+            <button class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger)" id="calendarBlockDeleteBtn">Delete</button>
+            <button class="btn" onclick="closeCalendarBlockModal()" style="background:#e2e8f0;color:#475569">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <div id="pastChoresModal" class="modal-overlay" onclick="if(event.target===this)closePastChoresModal()">
     <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
         <h3 style="margin-top:0;">Past Chores</h3>
@@ -466,7 +510,8 @@
         lastWeeklyReset: null,
         lastWeekSettlement: null,
         weeklyDeposits: {},
-        reminderNotes: ''
+        reminderNotes: '',
+        calendarBlocks: {}
     };
 
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
@@ -566,7 +611,8 @@
                     dayCompletions: loaded.dayCompletions || {},
                     weeklyDeposits: loaded.weeklyDeposits || {},
                     customChoresToday: loaded.customChoresToday || [],
-                    reminderNotes: loaded.reminderNotes || ''
+                    reminderNotes: loaded.reminderNotes || '',
+                    calendarBlocks: loaded.calendarBlocks || {}
                 };
             }
         } catch (e) { console.warn("Cloud load failed:", e); }
@@ -856,7 +902,7 @@
 
     window.openResetDataModal = function() {
         const cfg = getCfg();
-        document.getElementById('resetModalMessage').innerText = `This will clear all chores, activity history, reset Guhan's Bank and Weekly Pot. This cannot be undone.`;
+        document.getElementById('resetModalMessage').innerText = `This will clear all chores, activity history, daily schedule, reset Guhan's Bank and Weekly Pot. This cannot be undone.`;
         document.getElementById('resetDataModal').classList.add('open');
     };
     window.closeResetDataModal = function() { document.getElementById('resetDataModal').classList.remove('open'); };
@@ -877,7 +923,8 @@
             lastWeeklyReset: getWeekKey(),
             lastWeekSettlement: null,
             weeklyDeposits: {},
-            reminderNotes: state.reminderNotes || ''
+            reminderNotes: state.reminderNotes || '',
+            calendarBlocks: {}
         };
         document.getElementById('resetDataModal').classList.remove('open');
         document.getElementById('completeModal').classList.remove('open');
@@ -997,6 +1044,160 @@
         state.history.unshift({ date: "RECALC", timestamp: nowStr(), msg: "Recalculated after editing past chores", amt: "—", class: "" });
     }
 
+    const CALENDAR_HOUR_START = 6;
+    const CALENDAR_HOUR_END = 22;
+    const CALENDAR_SLOT_MINUTES = 30;
+    let calendarSelectedDateKey = null;
+    let calendarEditingBlock = null;
+
+    function hourToLabel(h) {
+        const isHalf = h % 1 === 0.5;
+        const hour = Math.floor(h);
+        const suffix = hour === 0 ? '12am' : hour === 12 ? '12pm' : hour < 12 ? hour + 'am' : (hour - 12) + 'pm';
+        return isHalf ? suffix.replace(/[ap]m$/, ':30$&') : suffix;
+    }
+
+    function getAllSlots() {
+        const slots = [];
+        for (let h = CALENDAR_HOUR_START; h < CALENDAR_HOUR_END; h += 0.5) slots.push(h);
+        return slots;
+    }
+
+    function getBlockAtHour(blocks, hour) {
+        if (!blocks) return null;
+        return blocks.find(b => hour >= b.start && hour < b.end);
+    }
+
+    function renderCalendar() {
+        const todayKey = getTodayEST();
+        calendarSelectedDateKey = calendarSelectedDateKey || todayKey;
+
+        const tabs = [];
+        for (let i = -5; i <= 4; i++) {
+            const dateKey = getDateESTOffset(i);
+            const d = parseLocaleDateKey(dateKey);
+            const dayName = d ? d.toLocaleDateString('en-US', { weekday: 'short' }) : '';
+            const label = i === 0 ? 'Today' : i === -1 ? 'Yesterday' : dayName + ' ' + (d ? d.getDate() : '');
+            const isReadonly = i < 0;
+            const isToday = i === 0;
+            const isActive = dateKey === calendarSelectedDateKey;
+            const escaped = (dateKey || '').replace(/'/g, "\\'");
+            tabs.push(`<button class="calendar-day-tab ${isActive ? 'active' : ''} ${isReadonly ? 'readonly' : ''} ${isToday ? 'today' : ''}" data-date="${escaped}" onclick="selectCalendarDay('${escaped}')">${label}</button>`);
+        }
+        document.getElementById('calendarDayTabs').innerHTML = tabs.join('');
+
+        const isReadonly = parseLocaleDateKey(calendarSelectedDateKey) < parseLocaleDateKey(todayKey);
+        const blocks = (state.calendarBlocks[calendarSelectedDateKey] || []).slice().sort((a, b) => a.start - b.start);
+
+        let occupiedSlots = 0;
+        blocks.forEach(b => { occupiedSlots += (b.end - b.start) * 2; });
+        const totalSlots = (CALENDAR_HOUR_END - CALENDAR_HOUR_START) * 2;
+        const pct = Math.round((occupiedSlots / totalSlots) * 100);
+        document.getElementById('calendarOccupancyText').textContent = `${occupiedSlots} slots of ${totalSlots} (${pct}%)`;
+        document.getElementById('calendarOccupancyFill').style.width = pct + '%';
+
+        const hint = document.getElementById('calendarAddHint');
+        hint.textContent = isReadonly ? 'This day is in the past—view only.' : 'Click an empty hour to add a block, or a filled block to edit.';
+
+        const grid = document.getElementById('calendarHourGrid');
+        let html = '';
+        const slots = getAllSlots();
+        for (const h of slots) {
+            const block = getBlockAtHour(blocks, h);
+            const isFirstHourOfBlock = block && block.start === h;
+            const blockText = isFirstHourOfBlock ? (block.text || 'No description') : '';
+            const slotClass = block ? 'blocked' : 'free';
+            const readonlyClass = isReadonly ? 'readonly' : '';
+            const rowClass = block ? '' : 'free';
+            const escapedDate = (calendarSelectedDateKey || '').replace(/'/g, "\\'");
+            const onClick = isReadonly ? '' : `onclick="clickCalendarSlot('${escapedDate}',${h},${block ? JSON.stringify(block.id).replace(/"/g,'&quot;') : 'null'})"`;
+            html += `<div class="calendar-hour-row ${rowClass}">
+                <div class="calendar-hour-label">${hourToLabel(h)}</div>
+                <div class="calendar-hour-slot ${slotClass} ${readonlyClass}" ${onClick}>
+                    ${blockText ? `<span class="calendar-block-text">${blockText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>` : ''}
+                </div>
+            </div>`;
+        }
+        grid.innerHTML = html;
+    }
+
+    window.selectCalendarDay = function(dateKey) {
+        calendarSelectedDateKey = dateKey;
+        renderCalendar();
+    };
+
+    window.clickCalendarSlot = function(dateKey, hour, blockId) {
+        const todayKey = getTodayEST();
+        if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
+
+        if (blockId) {
+            const blocks = state.calendarBlocks[dateKey] || [];
+            const block = blocks.find(b => b.id === blockId);
+            if (block) {
+                calendarEditingBlock = { dateKey, block };
+                document.getElementById('calendarBlockModalTitle').textContent = 'Edit Block';
+                document.getElementById('calendarBlockStartHour').textContent = hourToLabel(block.start);
+                document.getElementById('calendarBlockEndHour').textContent = hourToLabel(block.end);
+                document.getElementById('calendarBlockDurationWrap').style.display = 'none';
+                document.getElementById('calendarBlockText').value = block.text || '';
+                document.getElementById('calendarBlockDeleteBtn').style.display = 'block';
+                document.getElementById('calendarBlockModal').classList.add('open');
+            }
+        } else {
+            calendarEditingBlock = { dateKey, block: null, newStart: hour };
+            document.getElementById('calendarBlockModalTitle').textContent = 'Add Block';
+            document.getElementById('calendarBlockDurationWrap').style.display = 'inline';
+            document.getElementById('calendarBlockDuration').value = '0.5';
+            updateCalendarBlockEndFromDuration();
+            document.getElementById('calendarBlockText').value = '';
+            document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
+            document.getElementById('calendarBlockModal').classList.add('open');
+        }
+    };
+
+    window.closeCalendarBlockModal = function() {
+        calendarEditingBlock = null;
+        document.getElementById('calendarBlockModal').classList.remove('open');
+    };
+
+    window.updateCalendarBlockEndFromDuration = function() {
+        if (!calendarEditingBlock || calendarEditingBlock.block) return;
+        const dur = parseFloat(document.getElementById('calendarBlockDuration').value) || 0.5;
+        const end = Math.min(calendarEditingBlock.newStart + dur, CALENDAR_HOUR_END);
+        document.getElementById('calendarBlockEndHour').textContent = hourToLabel(end);
+        calendarEditingBlock.newEnd = end;
+    };
+
+    window.saveCalendarBlock = async function() {
+        if (!calendarEditingBlock) return;
+        const text = document.getElementById('calendarBlockText').value.trim();
+        const { dateKey, block } = calendarEditingBlock;
+
+        if (!state.calendarBlocks[dateKey]) state.calendarBlocks[dateKey] = [];
+
+        if (block) {
+            block.text = text || 'Blocked';
+        } else {
+            const start = calendarEditingBlock.newStart;
+            const dur = parseFloat(document.getElementById('calendarBlockDuration').value) || 0.5;
+            const end = Math.min(start + dur, CALENDAR_HOUR_END);
+            state.calendarBlocks[dateKey].push({ id: Date.now(), start, end, text: text || 'Blocked' });
+        }
+
+        closeCalendarBlockModal();
+        renderCalendar();
+        await saveAction();
+    };
+
+    window.deleteCalendarBlock = async function() {
+        if (!calendarEditingBlock || !calendarEditingBlock.block) return;
+        const { dateKey, block } = calendarEditingBlock;
+        state.calendarBlocks[dateKey] = (state.calendarBlocks[dateKey] || []).filter(b => b.id !== block.id);
+        closeCalendarBlockModal();
+        renderCalendar();
+        await saveAction();
+    };
+
     async function saveAction() {
         renderUI();
         await syncToCloud();
@@ -1078,8 +1279,7 @@
 
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST });
 
-        const reminderEl = document.getElementById('reminderNotes');
-        if (reminderEl && document.activeElement !== reminderEl) reminderEl.value = state.reminderNotes || '';
+        renderCalendar();
 
         const list = document.getElementById('taskList');
         list.innerHTML = '';
