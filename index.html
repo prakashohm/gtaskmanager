@@ -338,6 +338,7 @@
 
         .parent-only { display: none !important; }
         .parent-active .parent-only { display: block !important; }
+        .parent-active .rules-footer-actions > .parent-only { display: inline !important; }
         .parent-zone { background: var(--primary-soft); padding: 1rem; border-radius: var(--radius-md); margin-top: 0.75rem; border: 1px dashed rgba(13, 148, 136, 0.35); }
         
         .btn {
@@ -506,7 +507,25 @@
         .caution-toggle { background: var(--danger-soft); color: var(--danger); }
         .caution-toggle:hover { background: rgba(239, 68, 68, 0.2); }
         .caution-content.open { max-height: 150px; }
-        .rules-content.open { max-height: 350px; }
+        .rules-content.open { max-height: 560px; }
+        .rules-footer-actions {
+            margin-top: 1.1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1.25rem;
+        }
+        .rules-footer-actions .v1-legacy-link {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .rules-footer-actions .v1-legacy-link:hover {
+            color: var(--primary-dark);
+        }
         #pastMonthsContent.open { max-height: 200px; }
         .pot-hero-toggle { margin-top: 1rem; max-width: 280px; }
         .caution-inner { background: rgba(254, 226, 226, 0.4); }
@@ -657,16 +676,65 @@
         
         @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0; margin-top: 0.5rem; } }
 
-        .app-footer {
-            padding: 1.15rem clamp(1rem, 4vw, 2rem) 1.5rem;
-            text-align: right;
-            border-top: 1px solid var(--border);
-            background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.4) 100%);
-        }
-        .app-footer a { font-weight: 600; border-radius: var(--radius-sm); padding: 0.2rem 0.35rem; transition: color 0.2s, background 0.2s; }
-        .app-footer a:hover { background: rgba(13, 148, 136, 0.08); color: var(--primary-dark); }
-
         ::selection { background: rgba(13, 148, 136, 0.2); color: var(--text); }
+
+        .modal-daily-reminders { max-width: 440px; }
+        .daily-reminders-sub { font-size: 0.875rem; color: var(--text-muted); margin: -0.35rem 0 1rem; line-height: 1.45; }
+        .daily-reminders-section { margin-bottom: 1.15rem; }
+        .daily-reminders-section:last-child { margin-bottom: 0; }
+        .daily-reminders-heading {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+            color: var(--primary-dark);
+            margin: 0 0 0.5rem;
+            font-weight: 800;
+        }
+        .daily-reminders-ul { list-style: none; margin: 0; padding: 0; }
+        .daily-reminders-li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.55rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9375rem;
+            line-height: 1.4;
+        }
+        .daily-reminders-li:last-child { border-bottom: none; }
+        .daily-reminders-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--warning);
+            flex-shrink: 0;
+            margin-top: 0.45rem;
+            box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+        }
+        .daily-reminders-schedule .daily-reminders-li { flex-wrap: wrap; }
+        .daily-reminders-time {
+            font-weight: 800;
+            color: var(--primary-dark);
+            font-size: 0.78rem;
+            min-width: 6.75rem;
+            flex-shrink: 0;
+        }
+        .daily-reminders-text { color: var(--text); flex: 1; min-width: 0; }
+        .daily-reminders-list-wrap {
+            max-height: min(52vh, 360px);
+            overflow-y: auto;
+            margin: 0 -0.15rem;
+            padding: 0 0.15rem;
+        }
+        @media (max-width: 480px) {
+            .modal-overlay:has(.modal-daily-reminders) { align-items: flex-end; padding: 0; }
+            .modal-daily-reminders {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body id="bodyTag">
@@ -853,6 +921,10 @@
             <div id="rulesContent" class="toggle-content rules-content">
                 <div class="toggle-inner rules-inner">
                     <ul id="rulesList" style="margin:0 0 0 1.2rem; padding:0; line-height:1.9; color:var(--text);"></ul>
+                    <div class="rules-footer-actions">
+                        <a href="#" id="lockBtn" class="parent-mode-link" onclick="toggleParentMode(); return false;">Parent login</a>
+                        <a href="index-v1.html" class="parent-only v1-legacy-link" id="v1LegacyLink">← v1 (classic)</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -867,10 +939,6 @@
             </div>
         </div>
 
-        <div class="app-footer">
-            <a href="index-v1.html" style="font-size:0.85rem;color:var(--text-muted);margin-right:1rem;text-decoration:none;">← v1</a>
-            <a href="#" id="lockBtn" class="parent-mode-link" onclick="toggleParentMode(); return false;">Parent login</a>
-        </div>
     </div>
 </div>
 
@@ -897,6 +965,15 @@
             <button class="btn btn-primary" onclick="submitParentPassword()" style="flex:1">Unlock</button>
             <button class="btn" onclick="closeParentPasswordModal()" style="background:#e2e8f0; color:#475569">Cancel</button>
         </div>
+    </div>
+</div>
+
+<div id="dailyRemindersModal" class="modal-overlay" onclick="if(event.target===this)closeDailyRemindersModal()" role="dialog" aria-modal="true" aria-labelledby="dailyRemindersTitle">
+    <div class="modal modal-daily-reminders" onclick="event.stopPropagation()">
+        <h3 id="dailyRemindersTitle" style="margin-top:0;">Today's reminders</h3>
+        <p id="dailyRemindersSub" class="daily-reminders-sub"></p>
+        <div id="dailyRemindersList" class="daily-reminders-list-wrap"></div>
+        <button type="button" class="btn btn-primary" style="width:100%; margin-top:1.25rem;" onclick="closeDailyRemindersModal()">Got it</button>
     </div>
 </div>
 
@@ -2629,7 +2706,91 @@
         }
     };
 
-    loadCloudData().finally(restoreAppMainTab);
+    function escapeRemindersHtml(str) {
+        return String(str == null ? '' : str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function getNowFloatHourEST() {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: EST, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date());
+        const hour = parseInt(parts.find(p => p.type === 'hour').value, 10);
+        const minute = parseInt(parts.find(p => p.type === 'minute').value, 10);
+        return hour + minute / 60;
+    }
+
+    function getTodaysPendingReminderData() {
+        const todayNum = getDayNumEST(0);
+        const todayKey = getTodayEST();
+        const nowH = getNowFloatHourEST();
+        const choreItems = [];
+        if (!isTaskFreeDay(todayNum)) {
+            state.tasks.filter(t => t.days.includes(todayNum)).forEach(t => {
+                if (!state.completedToday.includes(t.id) && !state.waivedToday.includes(t.id)) {
+                    choreItems.push({ name: t.name });
+                }
+            });
+        }
+        const defaultBlocks = getDefaultSlotsForDay(todayNum);
+        const userBlocks = (state.calendarBlocks[todayKey] || []).slice().sort((a, b) => a.start - b.start);
+        const blocks = mergeBlocks(defaultBlocks, userBlocks);
+        const scheduleItems = blocks
+            .filter(b => b.end > nowH)
+            .map(b => ({
+                label: hourToLabel(b.start) + ' – ' + hourToLabel(b.end),
+                text: b.text || 'Scheduled block'
+            }));
+        return { choreItems, scheduleItems };
+    }
+
+    window.closeDailyRemindersModal = function() {
+        const el = document.getElementById('dailyRemindersModal');
+        if (el) el.classList.remove('open');
+        try {
+            localStorage.setItem('rh_daily_reminders_dismissed', getTodayEST());
+        } catch (e) { /* ignore */ }
+    };
+
+    function maybeShowDailyRemindersPopup() {
+        try {
+            if (localStorage.getItem('rh_daily_reminders_dismissed') === getTodayEST()) return;
+            const data = getTodaysPendingReminderData();
+            if (data.choreItems.length === 0 && data.scheduleItems.length === 0) return;
+            const modal = document.getElementById('dailyRemindersModal');
+            const listEl = document.getElementById('dailyRemindersList');
+            const subEl = document.getElementById('dailyRemindersSub');
+            if (!modal || !listEl) return;
+            if (subEl) {
+                subEl.textContent = 'Pending for ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST }) + ' · Eastern Time';
+            }
+            let html = '';
+            if (data.choreItems.length > 0) {
+                html += '<div class="daily-reminders-section"><h4 class="daily-reminders-heading">Goals still to complete</h4><ul class="daily-reminders-ul">';
+                data.choreItems.forEach(c => {
+                    html += '<li class="daily-reminders-li"><span class="daily-reminders-dot" aria-hidden="true"></span><span>' + escapeRemindersHtml(c.name) + '</span></li>';
+                });
+                html += '</ul></div>';
+            }
+            if (data.scheduleItems.length > 0) {
+                html += '<div class="daily-reminders-section"><h4 class="daily-reminders-heading">Still on your schedule</h4><ul class="daily-reminders-ul daily-reminders-schedule">';
+                data.scheduleItems.forEach(s => {
+                    html += '<li class="daily-reminders-li"><span class="daily-reminders-time">' + escapeRemindersHtml(s.label) + '</span><span class="daily-reminders-text">' + escapeRemindersHtml(s.text) + '</span></li>';
+                });
+                html += '</ul></div>';
+            }
+            listEl.innerHTML = html;
+            modal.classList.add('open');
+        } catch (err) {
+            console.warn('RewardHub daily reminders:', err);
+        }
+    }
+
+    loadCloudData().finally(function() {
+        restoreAppMainTab();
+        setTimeout(maybeShowDailyRemindersPopup, 400);
+    });
 })();
 </script>
 </body>
