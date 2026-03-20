@@ -1484,18 +1484,15 @@
             postLedgerUnique(id, type, canon, bonusDelta, msg);
         }
         const curPenalty = sumLedgerAmountForDate(canon, penaltyTypes);
-        /** Don't post "miss" for today until someone marks at least one chore done or waived (day still in progress). Past days always finalize. */
+        /** No WEEKDAY_PENALTY for the current EST calendar day while that day is still "today" — finalized on next open / rollover. */
         let effectiveTargetPenalty = targetPenalty;
-        if (!allDone && canon === todayNorm && targetPenalty < 0) {
-            const anyProgress = dayTasks.some(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
-            if (!anyProgress) effectiveTargetPenalty = 0;
-        }
+        if (canon === todayNorm) effectiveTargetPenalty = 0;
         const penaltyDelta = effectiveTargetPenalty - curPenalty;
         if (penaltyDelta !== 0) {
             const type = penaltyDelta > 0 ? 'PENALTY_REVERSAL' : 'WEEKDAY_PENALTY';
             const msg = penaltyDelta > 0
                 ? 'Penalty reversed — all chores done (incl. waived)'
-                : 'Chores not all completed — penalty (after day started)';
+                : 'Chores not all completed — penalty (after day ended)';
             const id = type + '_adj_' + lid + '_' + Date.now();
             postLedgerUnique(id, type, canon, penaltyDelta, msg);
         }
@@ -2050,7 +2047,7 @@
             renderUI();
             if (beforeAllDone && !afterAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
                 const pot = getTodayPotPreview();
-                showToast("Task unchecked — Weekly Pot: $" + pot.total.toFixed(2) + " (open chores = −$" + cfg.dailyFailureAmount.toFixed(2) + " for today).", "warning");
+                showToast("Task unchecked — Weekly Pot: $" + pot.total.toFixed(2) + ". If today ends with chores open, −$" + cfg.dailyFailureAmount + " miss posts then.", "warning");
                 flashWeeklyPotDisplay('down');
                 addPiggyAnimation('piggy-shake');
             }
@@ -2843,9 +2840,9 @@
             if (potPreview.mode === 'success') {
                 wpEl.title = 'All chores done today — bonus is included in this balance.';
             } else if (potPreview.mode === 'miss') {
-                wpEl.title = 'At least one chore still open — miss penalty is in this balance.';
+                wpEl.title = 'At least one chore still open — if today ends like this, −$' + cfg.dailyFailureAmount + ' will be posted then (not charged during the day).';
             } else if (potPreview.mode === 'pending') {
-                wpEl.title = "Nothing checked yet — miss isn’t applied until the first chore is done or waived.";
+                wpEl.title = 'Nothing checked yet — weekday miss is only posted after today ends if chores are still open.';
             } else wpEl.removeAttribute('title');
             const maxPot = cfg.weeklyPotStart + 5 * cfg.dailySuccessAmount;
             const minPot = cfg.weeklyPotStart - 5 * cfg.dailyFailureAmount;
@@ -2882,8 +2879,8 @@
             const doneCount = todayTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id)).length;
             if (todayTasks.length === 0) weekMsgEl.textContent = "No chores scheduled for today.";
             else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Bonus is in your Weekly Pot — amazing!";
-            else if (doneCount === 0) weekMsgEl.textContent = `0 of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — start by checking or waiving a chore; if any stay open after that, −$${cfg.dailyFailureAmount} applies for today.`;
-            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — finish all (or waived) for +$${cfg.dailySuccessAmount}, or −$${cfg.dailyFailureAmount} stays for today.`;
+            else if (doneCount === 0) weekMsgEl.textContent = `0 of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — weekday miss (−$${cfg.dailyFailureAmount}) is added only after this day ends if chores are still open.`;
+            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — finish all (or waive) for +$${cfg.dailySuccessAmount}; −$${cfg.dailyFailureAmount} miss applies only after today ends if anything stays open.`;
         }
 
         const pastMonthsEl = document.getElementById('pastMonthsList');
@@ -2901,7 +2898,7 @@
             <li>Complete your daily chores (Mon–Fri) and check them off when done.</li>
             <li>Every <b>Monday</b>, your Weekly Pot resets to <b>$${cfg.weeklyPotStart}</b>.</li>
             <li><b>Complete all chores</b> on a weekday → <b>+$${cfg.dailySuccessAmount}</b> to Weekly Pot.</li>
-            <li><b>Miss any chore</b> on a weekday → <b>−$${cfg.dailyFailureAmount}</b> from Weekly Pot.</li>
+            <li><b>Miss any chore</b> on a weekday → <b>−$${cfg.dailyFailureAmount}</b> from Weekly Pot <b>after that weekday ends</b> (not during the day).</li>
             <li><b>Saturday & Sunday</b> are task-free. The app shows the Weekly Pot as <b>$0.00</b> with a weekend message (earnings resume Monday).</li>
             <li>Every <b>Friday night</b>, your Weekly Pot balance moves to <b>Guhan's Bank</b>. If the Weekly Pot is negative, that amount is subtracted from the Bank.</li>
             <li>Use the <b>Ledger</b> tab to see every dated Weekly Pot credit and debit (no duplicates).</li>
