@@ -486,6 +486,12 @@
                         <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(8,145,178,0.15);">
                             <button class="btn btn-change-pwd" onclick="openChangePasswordModal()">Change Password</button>
                         </div>
+                        <div id="rhSupabasePanel" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(8,145,178,0.15); font-size:0.85rem;">
+                            <div style="font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.06em; font-size:0.72rem; margin-bottom:0.35rem;">Cloud sync (Supabase)</div>
+                            <p id="rhSupabaseStatusLine" style="margin:0 0 0.5rem 0; color:var(--text); line-height:1.45;">Checking…</p>
+                            <p id="rhSupabaseHint" style="margin:0 0 0.6rem 0; font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Table <code style="font-size:0.85em;">chore_app_state</code>, row <code style="font-size:0.85em;">app_name = GuhanAppV2</code>. Use the <strong>anon public</strong> JWT (<code style="font-size:0.85em;">eyJ…</code>) from Supabase → Settings → API. If RLS is on, add a policy so anon can SELECT/INSERT/UPDATE this table.</p>
+                            <button type="button" class="btn" style="font-size:0.82rem; padding:0.45rem 0.85rem; background:rgba(8,145,178,0.12); color:var(--primary);" onclick="testRhSupabaseConnection()">Test connection &amp; read</button>
+                        </div>
                     </div>
                 </div>
                 <div class="section">
@@ -709,9 +715,12 @@
 <script>
 (function() {
     const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
+    /* Project Settings → API → anon public. If read/write fail in Parent Settings, try the legacy JWT (eyJ…) instead of sb_publishable_… */
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
     const DEFAULT_PARENT_PASS = "Admin123+";
     const APP_NAME = 'GuhanAppV2';
+    /** Browser copy when cloud fails; key must match APP_NAME. */
+    const LOCAL_STORAGE_KEY = 'GuhanRewardHub_' + APP_NAME + '_v2';
     const EST = 'America/New_York';
 
     const DEFAULT_CONFIG = { weeklyPotStart: 25, dailySuccessAmount: 5, dailyFailureAmount: 5, parentPassword: DEFAULT_PARENT_PASS };
@@ -725,10 +734,28 @@
         0: [], 6: []
     };
     
-    let supabaseClient = null;
-    try {
-        if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) { console.warn("Supabase init failed:", e); }
+    /** Prefer globalThis — some browsers don’t put UMD on window until after load. */
+    function createSupabaseBrowserClient() {
+        const g = typeof globalThis !== 'undefined' ? globalThis : window;
+        const mod = g.supabase;
+        if (!mod || typeof mod.createClient !== 'function') {
+            console.warn('RewardHub: Supabase library not found. Check that the script above loaded (network / ad blocker). Global `supabase`:', typeof mod);
+            return null;
+        }
+        if (!SUPABASE_URL || !SUPABASE_KEY) return null;
+        try {
+            return mod.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                auth: { persistSession: false, autoRefreshToken: false }
+            });
+        } catch (e) {
+            console.warn('RewardHub: Supabase createClient failed:', e);
+            return null;
+        }
+    }
+    let supabaseClient = createSupabaseBrowserClient();
+
+    /** Cloud diagnostics (read vs write tracked separately so one failure doesn’t hide the other). */
+    let rhSupabaseDiag = { readOk: null, readMsg: '', readCode: '', writeOk: null, writeMsg: '', at: '' };
 
     let state = {
         guhansBank: 0,
@@ -964,37 +991,175 @@
         return loaded;
     }
 
-    async function loadCloudData() {
+    function applyLoadedAppData(appData) {
+        if (!appData || typeof appData !== 'object' || Object.keys(appData).length === 0) return false;
+        let loaded = migrateFromV1(appData);
+        state = {
+            ...loaded,
+            config: { ...DEFAULT_CONFIG, ...(loaded.config || {}) },
+            dayCompletions: loaded.dayCompletions || {},
+            weeklyDeposits: loaded.weeklyDeposits || {},
+            customChoresToday: loaded.customChoresToday || [],
+            reminderNotes: loaded.reminderNotes || '',
+            calendarBlocks: loaded.calendarBlocks || {}
+        };
+        return true;
+    }
+
+    function saveStateToLocalStorage() {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            console.warn('RewardHub: local save failed:', e);
+        }
+    }
+
+    function loadStateFromLocalStorage() {
+        try {
+            const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (!raw) return null;
+            const o = JSON.parse(raw);
+            return o && typeof o === 'object' ? o : null;
+        } catch (e) {
+            console.warn('RewardHub: local load failed:', e);
+            return null;
+        }
+    }
+
+    function updateRhSupabasePanel() {
+        const line = document.getElementById('rhSupabaseStatusLine');
+        if (!line) return;
         if (!supabaseClient) {
-            checkDailyLogic();
-            await saveAction();
+            line.innerHTML = '<strong style="color:var(--danger)">Not connected.</strong> The Supabase JS library did not load or <code>createClient</code> failed. Confirm the script URL, ad blockers, and use the <strong>anon public</strong> key (<code>eyJ…</code>).';
             return;
         }
-        try {
-            const { data, error } = await supabaseClient.from('chore_app_state').select('app_data').eq('app_name', APP_NAME).single();
-            if (data?.app_data && Object.keys(data.app_data).length > 0) {
-                let loaded = migrateFromV1(data.app_data);
-                state = {
-                    ...loaded,
-                    config: { ...DEFAULT_CONFIG, ...(loaded.config || {}) },
-                    dayCompletions: loaded.dayCompletions || {},
-                    weeklyDeposits: loaded.weeklyDeposits || {},
-                    customChoresToday: loaded.customChoresToday || [],
-                    reminderNotes: loaded.reminderNotes || '',
-                    calendarBlocks: loaded.calendarBlocks || {}
-                };
+        const r = rhSupabaseDiag.readOk;
+        const w = rhSupabaseDiag.writeOk;
+        let html = '';
+        html += r === true ? '<strong style="color:var(--success)">Read: OK</strong>' : r === false ? '<strong style="color:var(--danger)">Read: failed</strong> — ' + escapeHtml(rhSupabaseDiag.readMsg || '') + (rhSupabaseDiag.readCode ? ' <code>' + escapeHtml(rhSupabaseDiag.readCode) + '</code>' : '') : '<strong>Read:</strong> not checked yet';
+        html += '<br>';
+        html += w === true ? '<strong style="color:var(--success)">Write (upsert): OK</strong>' : w === false ? '<strong style="color:var(--danger)">Write: failed</strong> — ' + escapeHtml(rhSupabaseDiag.writeMsg || '') : '<strong>Write:</strong> pending first save';
+        if (rhSupabaseDiag.at) html += '<br><span style="font-size:0.75rem;color:var(--text-muted)">Last update: ' + escapeHtml(rhSupabaseDiag.at) + '</span>';
+        line.innerHTML = html;
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function runRhSupabaseHealthCheck(testWrite) {
+        const at = new Date().toLocaleString('en-US', { timeZone: EST });
+        rhSupabaseDiag.at = at;
+        if (!supabaseClient) {
+            rhSupabaseDiag.readOk = false;
+            rhSupabaseDiag.readMsg = 'No Supabase client';
+            updateRhSupabasePanel();
+            return rhSupabaseDiag;
+        }
+        const { error, data } = await supabaseClient.from('chore_app_state').select('app_name').limit(1);
+        if (error) {
+            rhSupabaseDiag.readOk = false;
+            rhSupabaseDiag.readMsg = error.message || String(error);
+            rhSupabaseDiag.readCode = error.code || '';
+            if (error.hint) rhSupabaseDiag.readMsg += ' — hint: ' + error.hint;
+            console.error('RewardHub Supabase read check:', error);
+        } else {
+            rhSupabaseDiag.readOk = true;
+            rhSupabaseDiag.readMsg = 'sample ' + (data ? data.length : 0) + ' row(s)';
+            rhSupabaseDiag.readCode = '';
+        }
+
+        if (testWrite) {
+            const up = await supabaseClient.from('chore_app_state').upsert({ app_name: APP_NAME, app_data: state }, { onConflict: 'app_name' });
+            if (up.error) {
+                rhSupabaseDiag.writeOk = false;
+                rhSupabaseDiag.writeMsg = (up.error.message || up.error.code || '') + (up.error.hint ? ' — ' + up.error.hint : '');
+                console.error('RewardHub Supabase upsert test:', up.error);
+            } else {
+                rhSupabaseDiag.writeOk = true;
+                rhSupabaseDiag.writeMsg = '';
             }
-        } catch (e) { console.warn("Cloud load failed:", e); }
+        }
+        updateRhSupabasePanel();
+        return rhSupabaseDiag;
+    }
+
+    window.testRhSupabaseConnection = async function() {
+        const line = document.getElementById('rhSupabaseStatusLine');
+        if (line) line.textContent = 'Testing read + upsert…';
+        await runRhSupabaseHealthCheck(true);
+        saveStateToLocalStorage();
+        if (rhSupabaseDiag.readOk && rhSupabaseDiag.writeOk) {
+            showToast('Supabase read & write OK. Cloud sync is working.', 'success');
+        } else {
+            showToast('See status in Settings. Data is still in this browser.', 'warning');
+        }
+    };
+
+    async function loadCloudData() {
+        let loadedOk = false;
+        if (supabaseClient) {
+            try {
+                // maybeSingle: no error when row missing ( .single() throws PGRST116 )
+                const { data, error } = await supabaseClient
+                    .from('chore_app_state')
+                    .select('app_data')
+                    .eq('app_name', APP_NAME)
+                    .maybeSingle();
+                if (error) {
+                    console.warn('RewardHub cloud load error:', error);
+                } else if (data?.app_data && typeof data.app_data === 'object' && Object.keys(data.app_data).length > 0) {
+                    loadedOk = applyLoadedAppData(data.app_data);
+                }
+            } catch (e) {
+                console.warn('RewardHub cloud load failed:', e);
+            }
+        }
+        if (!loadedOk) {
+            const local = loadStateFromLocalStorage();
+            if (local && Object.keys(local).length) {
+                loadedOk = applyLoadedAppData(local);
+                if (loadedOk && supabaseClient && !sessionStorage.getItem('rh_recovered_local')) {
+                    sessionStorage.setItem('rh_recovered_local', '1');
+                    setTimeout(() => showToast('Loaded saved data from this browser. Cloud was empty or failed — check Supabase in Settings.', 'info'),500);
+                }
+            }
+        }
+        if (!supabaseClient && !sessionStorage.getItem('rh_no_cloud_notice')) {
+            sessionStorage.setItem('rh_no_cloud_notice', '1');
+            setTimeout(() => showToast('Supabase client missing — using this browser only. See Settings.', 'warning'), 700);
+        }
+
         checkDailyLogic();
         await saveAction();
+        await runRhSupabaseHealthCheck(false);
+        updateRhSupabasePanel();
     }
 
     async function syncToCloud() {
+        saveStateToLocalStorage();
         if (!supabaseClient) return;
         try {
             const { error } = await supabaseClient.from('chore_app_state').upsert({ app_name: APP_NAME, app_data: state }, { onConflict: 'app_name' });
-            if (error) console.error("Cloud sync failed:", error);
-        } catch (e) { console.warn("Cloud sync failed:", e); }
+            if (error) {
+                console.error('RewardHub cloud sync failed:', error);
+                rhSupabaseDiag.writeOk = false;
+                rhSupabaseDiag.writeMsg = error.message || error.code || String(error);
+                if (error.hint) rhSupabaseDiag.writeMsg += ' — ' + error.hint;
+                updateRhSupabasePanel();
+                if (!sessionStorage.getItem('rh_cloud_sync_warn')) {
+                    sessionStorage.setItem('rh_cloud_sync_warn', '1');
+                    setTimeout(() => showToast('Cloud sync failed — saved locally. ' + (rhSupabaseDiag.writeMsg || ''), 'warning'), 400);
+                }
+            } else {
+                rhSupabaseDiag.writeOk = true;
+                rhSupabaseDiag.writeMsg = '';
+                updateRhSupabasePanel();
+            }
+        } catch (e) {
+            console.warn('RewardHub cloud sync failed:', e);
+        }
     }
 
     function checkDailyLogic() {
@@ -1530,6 +1695,7 @@
         if (sf('cfgSuccessAmt')) sf('cfgSuccessAmt').value = cfg.dailySuccessAmount;
         if (sf('cfgPenaltyAmt')) sf('cfgPenaltyAmt').value = cfg.dailyFailureAmount;
         if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = `Weekly start: $${cfg.weeklyPotStart} · Success: +$${cfg.dailySuccessAmount} · Miss: −$${cfg.dailyFailureAmount}`;
+        updateRhSupabasePanel();
     }
 
     let pastChoresEdits = {};
