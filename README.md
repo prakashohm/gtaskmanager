@@ -266,7 +266,7 @@ gtaskmanager/
 ├── index-v1.html        # Legacy streak / monthly model
 ├── guhan.png                   # PWA icons (optional)
 ├── rewardhub-header-full.png   # Full-width header banner used in app (brand + Tirukkural art)
-├── rewardhub-header-full1.png  # Alternate / backup banner asset
+├── imag1.png                   # Extra image asset (source / backup)
 ├── GuhansRewardhubLogo.png     # Wordmark logo asset (optional branding)
 ├── README.md
 └── .git/
