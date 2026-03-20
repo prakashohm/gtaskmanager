@@ -150,6 +150,13 @@ VALUES ('GuhanAppV2', '{}');
 
 The app uses `APP_NAME = 'GuhanAppV2'` and **`.maybeSingle()`** on load so an empty table does not error (unlike `.single()` with zero rows).
 
+**If writes fail with** `no unique or exclusion constraint matching the ON CONFLICT specification`: your table was created **without** a primary/unique key on `app_name`. The app now uses **UPDATE then INSERT** so it works anyway; you should still add a PK so you never get duplicate rows:
+
+```sql
+-- Only if no duplicate app_name values exist:
+ALTER TABLE chore_app_state ADD PRIMARY KEY (app_name);
+```
+
 ### Default App Config (Parent Settings)
 
 | Setting | Default | Description |

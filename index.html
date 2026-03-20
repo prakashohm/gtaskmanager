@@ -718,7 +718,7 @@
     /* Project Settings → API → anon public. If read/write fail in Parent Settings, try the legacy JWT (eyJ…) instead of sb_publishable_… */
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
     const DEFAULT_PARENT_PASS = "Admin123+";
-    const APP_NAME = 'GuhanAppV2';
+    const APP_NAME = 'GuhanApp';
     /** Browser copy when cloud fails; key must match APP_NAME. */
     const LOCAL_STORAGE_KEY = 'GuhanRewardHub_' + APP_NAME + '_v2';
     const EST = 'America/New_York';
@@ -1038,7 +1038,7 @@
         let html = '';
         html += r === true ? '<strong style="color:var(--success)">Read: OK</strong>' : r === false ? '<strong style="color:var(--danger)">Read: failed</strong> — ' + escapeHtml(rhSupabaseDiag.readMsg || '') + (rhSupabaseDiag.readCode ? ' <code>' + escapeHtml(rhSupabaseDiag.readCode) + '</code>' : '') : '<strong>Read:</strong> not checked yet';
         html += '<br>';
-        html += w === true ? '<strong style="color:var(--success)">Write (upsert): OK</strong>' : w === false ? '<strong style="color:var(--danger)">Write: failed</strong> — ' + escapeHtml(rhSupabaseDiag.writeMsg || '') : '<strong>Write:</strong> pending first save';
+        html += w === true ? '<strong style="color:var(--success)">Write (update/insert): OK</strong>' : w === false ? '<strong style="color:var(--danger)">Write: failed</strong> — ' + escapeHtml(rhSupabaseDiag.writeMsg || '') : '<strong>Write:</strong> pending first save';
         if (rhSupabaseDiag.at) html += '<br><span style="font-size:0.75rem;color:var(--text-muted)">Last update: ' + escapeHtml(rhSupabaseDiag.at) + '</span>';
         line.innerHTML = html;
     }
@@ -1046,6 +1046,25 @@
     function escapeHtml(s) {
         if (!s) return '';
         return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    /**
+     * Save app_data without upsert/onConflict — that requires UNIQUE/PK on app_name.
+     * If your table is missing a primary key, run: ALTER TABLE chore_app_state ADD PRIMARY KEY (app_name);
+     */
+    async function persistAppStateRowToSupabase() {
+        if (!supabaseClient) return { error: { message: 'No Supabase client' } };
+        const upd = await supabaseClient
+            .from('chore_app_state')
+            .update({ app_data: state })
+            .eq('app_name', APP_NAME)
+            .select('app_name');
+        if (upd.error) return upd;
+        if (upd.data && upd.data.length > 0) return { error: null };
+        const ins = await supabaseClient
+            .from('chore_app_state')
+            .insert({ app_name: APP_NAME, app_data: state });
+        return ins;
     }
 
     async function runRhSupabaseHealthCheck(testWrite) {
@@ -1071,11 +1090,11 @@
         }
 
         if (testWrite) {
-            const up = await supabaseClient.from('chore_app_state').upsert({ app_name: APP_NAME, app_data: state }, { onConflict: 'app_name' });
+            const up = await persistAppStateRowToSupabase();
             if (up.error) {
                 rhSupabaseDiag.writeOk = false;
                 rhSupabaseDiag.writeMsg = (up.error.message || up.error.code || '') + (up.error.hint ? ' — ' + up.error.hint : '');
-                console.error('RewardHub Supabase upsert test:', up.error);
+                console.error('RewardHub Supabase write test:', up.error);
             } else {
                 rhSupabaseDiag.writeOk = true;
                 rhSupabaseDiag.writeMsg = '';
@@ -1087,7 +1106,7 @@
 
     window.testRhSupabaseConnection = async function() {
         const line = document.getElementById('rhSupabaseStatusLine');
-        if (line) line.textContent = 'Testing read + upsert…';
+        if (line) line.textContent = 'Testing read + write…';
         await runRhSupabaseHealthCheck(true);
         saveStateToLocalStorage();
         if (rhSupabaseDiag.readOk && rhSupabaseDiag.writeOk) {
@@ -1141,7 +1160,7 @@
         saveStateToLocalStorage();
         if (!supabaseClient) return;
         try {
-            const { error } = await supabaseClient.from('chore_app_state').upsert({ app_name: APP_NAME, app_data: state }, { onConflict: 'app_name' });
+            const { error } = await persistAppStateRowToSupabase();
             if (error) {
                 console.error('RewardHub cloud sync failed:', error);
                 rhSupabaseDiag.writeOk = false;
