@@ -265,7 +265,9 @@ gtaskmanager/
 ├── sw.js                # Service worker (offline cache for same-origin)
 ├── index-v1.html        # Legacy streak / monthly model
 ├── guhan.png                   # PWA icons (optional)
-├── rewardhub-header-full.png   # Full-width header banner (brand + Tirukkural art)
+├── rewardhub-header-full.png   # Full-width header banner used in app (brand + Tirukkural art)
+├── rewardhub-header-full1.png  # Alternate / backup banner asset
+├── GuhansRewardhubLogo.png     # Wordmark logo asset (optional branding)
 ├── README.md
 └── .git/
 ```
