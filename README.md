@@ -196,6 +196,15 @@ Optional **`config.defaultSlots`** — per weekday (0–6) arrays of `{ start, e
 
 Ship `index.html` (and `guhan.png` if used). No build step.
 
+### PWA (install / offline shell)
+
+The main app includes **`manifest.webmanifest`** and **`sw.js`**:
+
+- **HTTPS required** (or `localhost`) for the service worker.
+- **Install**: Chrome/Edge (Android/desktop) can offer “Install app”; iOS: **Share → Add to Home Screen** (uses `apple-mobile-web-app-*` meta tags).
+- **Offline**: Same-origin pages open from cache if you’ve visited while online; Supabase/CDN still need network.
+- After changing precached files, **bump** `CACHE_NAME` in `sw.js` so clients pick up a fresh cache.
+
 ---
 
 ## Usage
@@ -251,9 +260,11 @@ Persisted as JSON in Supabase `app_data` and in `localStorage` under `GuhanRewar
 
 ```
 gtaskmanager/
-├── index.html      # Main app (Bank & Weekly Pot + schedule)
-├── index-v1.html   # Legacy streak / monthly model
-├── guhan.png       # Header profile image (optional)
+├── index.html           # Main app (Bank & Weekly Pot + schedule)
+├── manifest.webmanifest # PWA manifest (install, theme, icons)
+├── sw.js                # Service worker (offline cache for same-origin)
+├── index-v1.html        # Legacy streak / monthly model
+├── guhan.png            # Header + PWA icons (optional)
 ├── README.md
 └── .git/
 ```

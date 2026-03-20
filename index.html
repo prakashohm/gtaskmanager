@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d9488">
+    <meta name="description" content="Chores, Weekly Pot, Guhan's Bank, and daily schedule for RewardHub.">
     <title>Guhan's RewardHub — Bank & Weekly Pot</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/png" href="./guhan.png">
+    <link rel="apple-touch-icon" href="./guhan.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RewardHub">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
@@ -2791,6 +2799,18 @@
         restoreAppMainTab();
         setTimeout(maybeShowDailyRemindersPopup, 400);
     });
+
+    function registerRewardHubServiceWorker() {
+        if (!('serviceWorker' in navigator)) return;
+        navigator.serviceWorker.register('./sw.js').catch(function (e) {
+            console.warn('RewardHub: service worker not registered', e);
+        });
+    }
+    if (document.readyState === 'complete') {
+        registerRewardHubServiceWorker();
+    } else {
+        window.addEventListener('load', registerRewardHubServiceWorker);
+    }
 })();
 </script>
 </body>

@@ -1,0 +1,25 @@
+{
+  "name": "Guhan's RewardHub",
+  "short_name": "RewardHub",
+  "description": "Chores, Weekly Pot, Guhan's Bank, and daily schedule.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e8ecf4",
+  "theme_color": "#0d9488",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./guhan.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./guhan.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
