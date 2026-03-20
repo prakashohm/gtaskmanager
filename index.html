@@ -71,123 +71,61 @@
             box-shadow: var(--shadow-md), 0 0 0 1px var(--border);
         }
 
-        header {
-            padding: clamp(1.35rem, 4vw, 2rem) clamp(1.25rem, 4vw, 2rem) 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1.25rem;
-            flex-wrap: nowrap;
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.45) 0%, rgba(13, 148, 136, 0.06) 45%, rgba(99, 102, 241, 0.05) 100%);
-            border-bottom: 1px solid var(--border);
-        }
-        .header-left {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.25rem;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-        .thirukural-card {
-            flex: 0 1 auto;
-            align-self: center;
-            max-width: min(100%, 26rem);
-            padding: 0.65rem 1rem 0.7rem;
-            border-radius: var(--radius-lg);
-            text-align: right;
-            background: linear-gradient(155deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 237, 213, 0.55) 42%, rgba(224, 242, 254, 0.5) 100%);
-            border: 1px solid rgba(249, 115, 22, 0.18);
-            box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
-        .thirukural-body {
-            min-width: 0;
-        }
-        .thirukural-badge {
-            display: block;
-            font-size: 0.52rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #b45309;
-            margin-bottom: 0.15rem;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
-        }
-        .thirukural-ta {
+        .header-full-banner {
+            padding: 0;
             margin: 0;
-            font-size: clamp(0.78rem, 1.65vw, 0.92rem);
-            font-weight: 700;
-            line-height: 1.32;
-            color: #0f172a;
-            letter-spacing: 0.02em;
-        }
-        .thirukural-en {
-            margin: 0.25rem 0 0 0;
-            font-size: clamp(0.62rem, 1.35vw, 0.74rem);
-            font-weight: 500;
-            font-style: italic;
-            line-height: 1.3;
-            color: var(--text-muted);
-            border-top: 1px dashed rgba(13, 148, 136, 0.22);
-            padding-top: 0.28rem;
-        }
-        @media (max-width: 720px) {
-            header { flex-wrap: wrap; }
-            .thirukural-card { max-width: 100%; }
-        }
-        .profile-container { display: flex; align-items: center; justify-content: flex-start; gap: 1rem; margin-bottom: 0; }
-        .profile-pic-wrap {
-            width: 58px; height: 58px;
-            border-radius: 18px;
+            border-bottom: 1px solid rgba(13, 148, 136, 0.12);
+            background: #f0f7ff;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 4px 20px rgba(13, 148, 136, 0.25), 0 0 0 1px var(--border);
-            flex-shrink: 0;
         }
-        .profile-pic { width: 100%; height: 100%; object-fit: cover; object-position: 70% 15%; display: block; }
-        .header-title {
+        .header-banner-full-wrap {
+            position: relative;
+            width: 100%;
+            line-height: 0;
+        }
+        .header-banner-full-heading {
             margin: 0;
-            font-family: var(--font-display);
-            font-size: clamp(1.45rem, 4.25vw, 1.9rem);
+            padding: 0;
+            font-size: 0;
+            line-height: 0;
+        }
+        .header-banner-full-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            vertical-align: top;
+        }
+        /* Live date over banner art; tune inset if art changes */
+        #todayDate.header-banner-date-overlay {
+            position: absolute;
+            bottom: clamp(3.5%, 5vw, 9%);
+            left: clamp(2.5%, 4vw, 5.5%);
+            right: auto;
+            margin: 0;
+            max-width: min(52%, 16rem);
+            font-size: clamp(0.62rem, 2.1vw, 0.84rem);
             font-weight: 700;
-            letter-spacing: -0.045em;
-            line-height: 1.1;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            gap: 0.28rem 0.45rem;
+            letter-spacing: 0.02em;
+            color: #5c4518;
+            text-align: left;
+            line-height: 1.25;
+            padding: 0.35rem 0.55rem 0.4rem;
+            border-radius: 8px;
+            background: linear-gradient(180deg, rgba(255, 252, 245, 0.94) 0%, rgba(254, 249, 236, 0.92) 100%);
+            border: 1px solid rgba(180, 83, 9, 0.2);
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+            z-index: 2;
+            pointer-events: none;
         }
-        .header-title-name {
-            font-weight: 600;
-            color: var(--text);
-            letter-spacing: -0.04em;
-        }
-        .header-title-brand {
-            font-weight: 800;
-            letter-spacing: -0.052em;
-            color: var(--primary-dark);
-        }
-        @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-            .header-title-brand {
-                background: linear-gradient(102deg, #0d9488 12%, #0f766e 42%, #4f46e5 88%);
-                -webkit-background-clip: text;
-                background-clip: text;
-                color: transparent;
+        @media (max-width: 520px) {
+            #todayDate.header-banner-date-overlay {
+                bottom: 2.5%;
+                left: 2%;
+                right: auto;
+                max-width: 58%;
+                padding: 0.28rem 0.45rem;
+                font-size: clamp(0.55rem, 2.8vw, 0.72rem);
             }
-        }
-        #todayDate {
-            font-size: 0.8125rem;
-            color: var(--text-muted);
-            margin: 0.35rem 0 0;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.2rem 0.65rem;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.65);
-            border: 1px solid var(--border);
-            width: fit-content;
         }
 
         /* Main app tabs: pill segmented control */
@@ -778,20 +716,12 @@
 
 <div class="container">
     <div class="flow-panel">
-        <header>
-            <div class="header-left">
-                <div class="profile-container">
-                    <div class="profile-pic-wrap"><img src="guhan.png" alt="Guhan" class="profile-pic" style="object-position: 80% 15%;" onerror="this.style.display='none'"></div>
-                    <h1 class="header-title"><span class="header-title-name">Guhan's</span> <span class="header-title-brand">RewardHub</span></h1>
-                </div>
-                <p id="todayDate"></p>
-            </div>
-            <div class="thirukural-card" role="figure" aria-label="Tirukkural on effort">
-                <div class="thirukural-body">
-                    <span class="thirukural-badge">✦ Tirukkural ✦</span>
-                    <p class="thirukural-ta" dir="ltr">தெய்வத்தான் ஆகாது எனினும் முயற்சிதன்<br>மெய்வருத்தக் கூலி தரும்.</p>
-                    <p class="thirukural-en">Even when fate seems to withhold its blessing, effort never fails to bring its true reward—so keep trying.</p>
-                </div>
+        <header class="header-full-banner">
+            <div class="header-banner-full-wrap">
+                <h1 class="header-banner-full-heading">
+                    <img src="rewardhub-header-full.png" alt="Guhan's RewardHub — profile, learning, and Tirukkural" class="header-banner-full-img" width="1600" height="420" decoding="async" fetchpriority="high">
+                </h1>
+                <p id="todayDate" class="header-banner-date-overlay" aria-live="polite"></p>
             </div>
         </header>
 

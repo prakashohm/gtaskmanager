@@ -194,7 +194,7 @@ Optional **`config.defaultSlots`** — per weekday (0–6) arrays of `{ start, e
 
 ### Deployment
 
-Ship `index.html` (and `guhan.png` if used). No build step.
+Ship `index.html`, `rewardhub-header-full.png`, and `guhan.png` (icons). No build step.
 
 ### PWA (install / offline shell)
 
@@ -264,7 +264,8 @@ gtaskmanager/
 ├── manifest.webmanifest # PWA manifest (install, theme, icons)
 ├── sw.js                # Service worker (offline cache for same-origin)
 ├── index-v1.html        # Legacy streak / monthly model
-├── guhan.png            # Header + PWA icons (optional)
+├── guhan.png                   # PWA icons (optional)
+├── rewardhub-header-full.png   # Full-width header banner (brand + Tirukkural art)
 ├── README.md
 └── .git/
 ```

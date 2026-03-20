@@ -1,11 +1,12 @@
 /* RewardHub — service worker for offline shell + same-origin cache */
-const CACHE_NAME = 'rewardhub-pwa-v1';
+const CACHE_NAME = 'rewardhub-pwa-v5';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './guhan.png'
+  './guhan.png',
+  './rewardhub-header-full.png'
 ];
 
 self.addEventListener('install', function (event) {
