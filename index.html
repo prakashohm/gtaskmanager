@@ -99,7 +99,7 @@
         #todayDate.header-banner-date-overlay {
             position: absolute;
             bottom: clamp(3.5%, 5vw, 9%);
-            left: clamp(2.5%, 4vw, 5.5%);
+            left: clamp(0.4rem, 1.5vw, 0.85rem);
             right: auto;
             margin: 0;
             max-width: min(52%, 16rem);
@@ -120,7 +120,7 @@
         @media (max-width: 520px) {
             #todayDate.header-banner-date-overlay {
                 bottom: 2.5%;
-                left: 2%;
+                left: max(0.35rem, 2vw);
                 right: auto;
                 max-width: 58%;
                 padding: 0.28rem 0.45rem;
@@ -443,7 +443,7 @@
             50% { transform: translateY(-8px); }
         }
         
-        .modal-overlay { position:fixed; inset:0; background: rgba(15, 23, 42, 0.48); display:none; align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .modal-overlay { position:fixed; inset:0; background: rgba(15, 23, 42, 0.48); display:none; align-items:center; justify-content:center; z-index:1200; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .modal-overlay.open { display: flex; }
         .modal {
             background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
@@ -1730,7 +1730,11 @@
         if (isWeekday(getDayNumEST(0))) {
             reconcileWeekdayPotLedgerForDate(getTodayEST());
         }
-        await saveAction();
+        /* Reminders must not wait on Supabase — sync can be slow or stall */
+        renderUI();
+        restoreAppMainTab();
+        setTimeout(maybeShowDailyRemindersPopup, 450);
+        await saveAction({ skipRender: true });
         await runRhSupabaseHealthCheck(false);
         updateRhSupabasePanel();
     }
@@ -3072,7 +3076,6 @@
 
     loadCloudData().finally(function() {
         restoreAppMainTab();
-        setTimeout(maybeShowDailyRemindersPopup, 400);
     });
 
     function registerRewardHubServiceWorker() {
