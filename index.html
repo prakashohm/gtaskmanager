@@ -171,6 +171,8 @@
         .toast { padding: 0.9rem 1.5rem; border-radius: 14px; font-weight: 600; font-size: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: toast-in 0.4s ease; }
         .toast.success { background: linear-gradient(135deg, var(--success), #059669); color: white; }
         .toast.level-up { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.1rem; }
+        .toast.warning { background: linear-gradient(135deg, #ea580c, #c2410c); color: white; }
+        .toast.info { background: linear-gradient(135deg, var(--primary), #0e7490); color: white; }
         @keyframes toast-in {
             from { opacity: 0; transform: translateY(20px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
@@ -188,6 +190,58 @@
             0% { transform: scale(0.5); opacity: 0; }
             50% { transform: scale(1.2); }
             100% { transform: scale(1); opacity: 1; }
+        }
+        .level-up-content .cele-sub { display: block; font-size: 1.15rem; font-weight: 700; margin-top: 0.5rem; opacity: 0.95; }
+
+        /* Full-screen confetti + stars */
+        .celebration-overlay {
+            position: fixed; inset: 0; z-index: 999;
+            pointer-events: none; overflow: hidden;
+            visibility: hidden; opacity: 0;
+            transition: opacity 0.25s, visibility 0.25s;
+        }
+        .celebration-overlay.active { visibility: visible; opacity: 1; }
+        .celebration-overlay .confetti-piece {
+            position: absolute; top: -12px; width: 10px; height: 14px; border-radius: 2px;
+            opacity: 0.95;
+            animation: confetti-fall 2.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0.35; }
+        }
+        .celebration-overlay .cele-star {
+            position: absolute; font-size: 2rem; animation: cele-star-pop 1.2s ease-out forwards;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+        }
+        @keyframes cele-star-pop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            40% { transform: scale(1.25) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+        }
+        .celebration-overlay .cele-ring {
+            position: absolute; left: 50%; top: 38%; width: 120px; height: 120px; margin: -60px 0 0 -60px;
+            border-radius: 50%;
+            border: 4px solid rgba(16, 185, 129, 0.5);
+            animation: cele-ring 1s ease-out;
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.35);
+        }
+        @keyframes cele-ring {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+
+        .bank-value.pot-flash-up { animation: pot-flash-up 0.65s ease; }
+        .bank-value.pot-flash-down { animation: pot-flash-down 0.65s ease; }
+        @keyframes pot-flash-up {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.08); color: var(--success); filter: drop-shadow(0 0 12px rgba(16,185,129,0.6)); }
+            100% { transform: scale(1); }
+        }
+        @keyframes pot-flash-down {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.06); color: var(--danger); filter: drop-shadow(0 0 10px rgba(239,68,68,0.45)); }
+            100% { transform: scale(1); }
         }
         .piggy-shake { animation: piggy-shake 0.5s ease; }
         @keyframes piggy-shake {
@@ -368,6 +422,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 <div id="levelUpOverlay" class="level-up-overlay"><div class="level-up-content">Level Up! 🎉</div></div>
+<div id="celebrationOverlay" class="celebration-overlay" aria-hidden="true"></div>
 
 <div class="container">
     <div class="flow-panel">
@@ -761,21 +816,76 @@
         const date = new Date(y, m, d);
         return isNaN(date.getTime()) ? null : date;
     }
+    /** Parse M/D/YYYY keys used by getTodayEST / lastCheck (America/New_York calendar dates). */
+    function splitDateKeyMDY(key) {
+        if (!key) return null;
+        const p = key.split('/').map(Number);
+        if (p.length !== 3 || !p[2]) return null;
+        return { m: p[0], d: p[1], y: p[2] };
+    }
+    function compareDateKeysAsc(a, b) {
+        const A = splitDateKeyMDY(a), B = splitDateKeyMDY(b);
+        if (!A || !B) return 0;
+        if (A.y !== B.y) return A.y - B.y;
+        if (A.m !== B.m) return A.m - B.m;
+        return A.d - B.d;
+    }
+    function addDaysToDateParts(o, deltaDays) {
+        const dt = new Date(o.y, o.m - 1, o.d + deltaDays);
+        return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
+    }
+    function formatDateKeyMDY(o) {
+        return o.m + '/' + o.d + '/' + o.y;
+    }
+    /** All calendar days from start through end inclusive (same string format as getTodayEST). */
     function getAllDatesBetween(startKey, endKey) {
-        const start = parseLocaleDateKey(startKey);
-        const end = parseLocaleDateKey(endKey);
-        if (!start || !end || start > end) return [];
+        const start = splitDateKeyMDY(startKey);
+        const end = splitDateKeyMDY(endKey);
+        if (!start || !end || compareDateKeysAsc(startKey, endKey) > 0) return [];
         const out = [];
-        const cur = new Date(start);
-        while (cur <= end) {
-            out.push(cur.toLocaleDateString('en-US'));
-            cur.setDate(cur.getDate() + 1);
+        let cur = { ...start };
+        while (true) {
+            out.push(formatDateKeyMDY(cur));
+            if (cur.y === end.y && cur.m === end.m && cur.d === end.d) break;
+            cur = addDaysToDateParts(cur, 1);
         }
         return out;
     }
+    function getTimestampForESTCalendarDate(dateKey) {
+        const p = splitDateKeyMDY(dateKey);
+        if (!p) return null;
+        const { m, d, y } = p;
+        let lo = Date.UTC(y, m - 1, d) - 40 * 3600000;
+        let hi = Date.UTC(y, m - 1, d) + 40 * 3600000;
+        for (let i = 0; i < 50; i++) {
+            const mid = Math.floor((lo + hi) / 2);
+            const parts = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date(mid));
+            const py = +parts.find(x => x.type === 'year').value;
+            const pm = +parts.find(x => x.type === 'month').value;
+            const pd = +parts.find(x => x.type === 'day').value;
+            const cmp = py !== y ? py - y : (pm !== m ? pm - m : pd - d);
+            if (cmp === 0) return mid;
+            if (cmp < 0) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return Math.floor((lo + hi) / 2);
+    }
+    /** Weekday 0=Sun … 6=Sat for this calendar date in America/New_York (matches chore / pot rules). */
     function getDayNumForDate(dateKey) {
-        const d = parseLocaleDateKey(dateKey);
-        return d ? d.getDay() : -1;
+        const ts = getTimestampForESTCalendarDate(dateKey);
+        if (ts == null) return -1;
+        const wd = new Intl.DateTimeFormat('en-US', { timeZone: EST, weekday: 'short' }).format(new Date(ts));
+        const map = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+        return map[wd] !== undefined ? map[wd] : -1;
+    }
+    function getWeekKeyFromDateKey(dateKey) {
+        const wd = getDayNumForDate(dateKey);
+        if (wd < 0) return getWeekKey();
+        const monOffset = wd === 0 ? -6 : 1 - wd;
+        const p = splitDateKeyMDY(dateKey);
+        if (!p) return getWeekKey();
+        const mon = addDaysToDateParts(p, monOffset);
+        return mon.y + '-' + String(mon.m).padStart(2, '0') + '-' + String(mon.d).padStart(2, '0');
     }
     function dateStrToLocale(dStr) {
         const [y, m, d] = dStr.split('-').map(Number);
@@ -786,6 +896,37 @@
     function isTaskFreeDay(dayNum) { return dayNum === 0 || dayNum === 6; }
 
     function getCfg() { return { ...DEFAULT_CONFIG, ...state.config }; }
+
+    /**
+     * Single source of truth for Mon–Fri pot adjustment (matches checkDailyLogic / day rollover).
+     * @param dayNum 0–6 Sun–Sat (EST chore day numbers on tasks)
+     * @param dc { completed: number[], waived: number[] }
+     */
+    function computeWeekdayPotDelta(dayNum, dc) {
+        const cfg = getCfg();
+        if (!isWeekday(dayNum)) return { delta: 0, mode: 'none' };
+        const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+        if (dayTasks.length === 0) return { delta: 0, mode: 'none' };
+        const c = dc.completed || [], w = dc.waived || [];
+        const finished = dayTasks.filter(t => c.includes(t.id) || w.includes(t.id));
+        if (finished.length === dayTasks.length) {
+            return { delta: cfg.dailySuccessAmount, mode: 'success' };
+        }
+        return { delta: -cfg.dailyFailureAmount, mode: 'miss' };
+    }
+
+    /**
+     * Live preview only: state.weeklyPot is persisted through end of yesterday (after checkDailyLogic).
+     * This adds today's EST weekday rule exactly once — never written to state until the next rollover.
+     */
+    function getTodayPotPreview() {
+        const todayNum = getDayNumEST(0);
+        const base = state.weeklyPot;
+        const dc = { completed: state.completedToday, waived: state.waivedToday };
+        const { delta, mode } = computeWeekdayPotDelta(todayNum, dc);
+        const total = base + delta;
+        return { base, delta, total, mode };
+    }
 
     function getDefaultSlotsForDay(dayNum) {
         const cfg = state.config?.defaultSlots || {};
@@ -826,7 +967,7 @@
     async function loadCloudData() {
         if (!supabaseClient) {
             checkDailyLogic();
-            renderUI();
+            await saveAction();
             return;
         }
         try {
@@ -845,7 +986,7 @@
             }
         } catch (e) { console.warn("Cloud load failed:", e); }
         checkDailyLogic();
-        renderUI();
+        await saveAction();
     }
 
     async function syncToCloud() {
@@ -869,6 +1010,8 @@
             state.waivedToday = [];
 
             const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
+            let fridaySettledInLoop = false;
+            let mondayResetInLoop = false;
 
             for (let i = 0; i < daysToProcess.length; i++) {
                 const dateKey = daysToProcess[i];
@@ -877,14 +1020,16 @@
                 const prevDayNum = prevDateKey ? getDayNumForDate(prevDateKey) : null;
 
                 if (dayNum === 1) {
+                    mondayResetInLoop = true;
                     state.weeklyPot = cfg.weeklyPotStart;
-                    state.lastWeeklyReset = getWeekKey(parseLocaleDateKey(dateKey));
+                    state.lastWeeklyReset = getWeekKeyFromDateKey(dateKey);
                 }
 
                 if (prevDayNum === 5 && dayNum === 6) {
+                    fridaySettledInLoop = true;
                     state.guhansBank += state.weeklyPot;
                     const amt = state.weeklyPot;
-                    const settleWeekKey = getWeekKey(parseLocaleDateKey(prevDateKey));
+                    const settleWeekKey = getWeekKeyFromDateKey(prevDateKey);
                     state.weeklyDeposits[settleWeekKey] = amt;
                     const msg = amt >= 0
                         ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
@@ -894,25 +1039,29 @@
                 }
 
                 if (dayNum >= 1 && dayNum <= 5) {
-                    const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
-                    if (dayTasks.length > 0) {
-                        const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
-                        const finished = dayTasks.filter(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
-                        if (finished.length === dayTasks.length) {
-                            state.weeklyPot += cfg.dailySuccessAmount;
+                    const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
+                    const { delta, mode } = computeWeekdayPotDelta(dayNum, dc);
+                    if (mode !== 'none') {
+                        state.weeklyPot += delta;
+                        if (mode === 'success') {
                             state.history.unshift({ date: "SUCCESS", timestamp: nowStr(), msg: "All chores done! (" + dateKey + ")", amt: "+$" + cfg.dailySuccessAmount.toFixed(2), class: "amt-pos" });
                         } else {
-                            state.weeklyPot -= cfg.dailyFailureAmount;
                             state.history.unshift({ date: "MISS", timestamp: nowStr(), msg: "Missed chores (" + dateKey + ")", amt: "-$" + cfg.dailyFailureAmount.toFixed(2), class: "amt-neg" });
                         }
                     }
                 }
             }
 
-            if (todayDayNum === 6 && getDayNumForDate(yesterdayKey) === 5) {
+            /** Today is Monday but catch-up range was only Sat–Sun (etc.): Monday never appeared in the loop. */
+            if (todayDayNum === 1 && !mondayResetInLoop) {
+                state.weeklyPot = cfg.weeklyPotStart;
+                state.lastWeeklyReset = getWeekKeyFromDateKey(today);
+            }
+
+            if (!fridaySettledInLoop && todayDayNum === 6 && getDayNumForDate(yesterdayKey) === 5) {
                 state.guhansBank += state.weeklyPot;
                 const amt = state.weeklyPot;
-                const settleWeekKey = getWeekKey(parseLocaleDateKey(yesterdayKey));
+                const settleWeekKey = getWeekKeyFromDateKey(yesterdayKey);
                 state.weeklyDeposits[settleWeekKey] = amt;
                 const msg = amt >= 0
                     ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
@@ -934,11 +1083,72 @@
         setTimeout(() => t.remove(), 3000);
     }
 
-    function showLevelUp() {
+    function showLevelUp(mainLine, subLine) {
         const ov = document.getElementById('levelUpOverlay');
+        const el = ov.querySelector('.level-up-content');
+        if (subLine) {
+            el.innerHTML = mainLine + '<span class="cele-sub">' + subLine.replace(/</g, '&lt;') + '</span>';
+        } else {
+            el.textContent = mainLine || 'Level Up! 🎉';
+        }
         ov.classList.add('active');
-        ov.querySelector('.level-up-content').textContent = 'Level Up! 🎉';
-        setTimeout(() => ov.classList.remove('active'), 1500);
+        setTimeout(() => {
+            ov.classList.remove('active');
+            if (subLine) el.textContent = 'Level Up! 🎉';
+        }, subLine ? 2200 : 1500);
+    }
+
+    function launchConfettiBurst() {
+        const overlay = document.getElementById('celebrationOverlay');
+        if (!overlay) return;
+        overlay.innerHTML = '';
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        const colors = ['#10b981', '#22d3ee', '#f59e0b', '#a78bfa', '#f472b6', '#fbbf24', '#34d399', '#818cf8'];
+        for (let i = 0; i < 52; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = (8 + Math.random() * 84) + '%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDelay = (Math.random() * 0.35) + 's';
+            p.style.width = (6 + Math.random() * 8) + 'px';
+            p.style.height = (8 + Math.random() * 12) + 'px';
+            overlay.appendChild(p);
+        }
+        const ring = document.createElement('div');
+        ring.className = 'cele-ring';
+        overlay.appendChild(ring);
+        const stars = ['⭐', '✨', '🌟', '💫', '🎉'];
+        for (let s = 0; s < 10; s++) {
+            const st = document.createElement('div');
+            st.className = 'cele-star';
+            st.textContent = stars[s % stars.length];
+            st.style.left = (15 + Math.random() * 70) + '%';
+            st.style.top = (18 + Math.random() * 45) + '%';
+            st.style.animationDelay = (s * 0.06) + 's';
+            overlay.appendChild(st);
+        }
+        setTimeout(() => {
+            overlay.classList.remove('active');
+            overlay.innerHTML = '';
+            overlay.setAttribute('aria-hidden', 'true');
+        }, 2600);
+    }
+
+    function flashWeeklyPotDisplay(direction) {
+        const el = document.getElementById('weeklyPot');
+        if (!el) return;
+        el.classList.remove('pot-flash-up', 'pot-flash-down');
+        void el.offsetWidth;
+        el.classList.add(direction === 'down' ? 'pot-flash-down' : 'pot-flash-up');
+        setTimeout(() => el.classList.remove('pot-flash-up', 'pot-flash-down'), 700);
+    }
+
+    function celebrateAllChoresDone(amountLabel) {
+        launchConfettiBurst();
+        showLevelUp("You crushed today! 🏆", amountLabel);
+        addPiggyAnimation('piggy-bounce');
+        flashWeeklyPotDisplay('up');
     }
 
     function addPiggyAnimation(cls) {
@@ -1022,24 +1232,29 @@
     };
     window.confirmComplete = async function() {
         if (!pendingCompleteTaskId) return;
+        const cfg = getCfg();
         const task = state.tasks.find(t => t.id === pendingCompleteTaskId);
         const comment = document.getElementById('completeComment').value.trim();
+        const todayNum = getDayNumEST(0);
+        const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+        const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id) || t.id === pendingCompleteTaskId);
+
         state.completedToday.push(pendingCompleteTaskId);
         const displayMsg = task ? (comment ? task.name + ': ' + comment : task.name) : 'Chore completed';
         state.history.unshift({ date: "DONE", timestamp: nowStr(), msg: displayMsg, amt: "—", class: "" });
         document.getElementById('completeModal').classList.remove('open');
         pendingCompleteTaskId = null;
 
-        const todayNum = getDayNumEST(0);
-        const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
         const allDone = todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+        renderUI();
 
-        showToast("Awesome job! You're a superstar! 🌟", "success");
-        if (allDone && todayTasks.length > 0) {
-            showLevelUp();
-            addPiggyAnimation('piggy-bounce');
+        if (allDone && todayTasks.length > 0 && beforeAllDone) {
+            celebrateAllChoresDone("+$" + cfg.dailySuccessAmount.toFixed(2) + " toward your Weekly Pot!");
+            showToast("Daily win! Pot preview: $" + getTodayPotPreview().total.toFixed(2) + " — nice work! 🎊", "level-up");
+        } else {
+            showToast("Awesome job! You're a superstar! 🌟", "success");
         }
-        await saveAction();
+        await saveAction({ skipRender: true });
     };
 
     window.toggleTask = async function(taskId) {
@@ -1047,28 +1262,64 @@
         const waivedIdx = state.waivedToday.indexOf(taskId);
         if (completedIdx > -1 || waivedIdx > -1) {
             if (!document.body.classList.contains('parent-active')) return;
+            const cfg = getCfg();
+            const todayNum = getDayNumEST(0);
+            const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+            const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
             if (completedIdx > -1) state.completedToday.splice(completedIdx, 1);
             if (waivedIdx > -1) state.waivedToday.splice(waivedIdx, 1);
-            await saveAction();
+            const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+            renderUI();
+            if (beforeAllDone && !afterAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
+                const pot = getTodayPotPreview();
+                showToast("Task unchecked — pot preview recalc: $" + pot.total.toFixed(2) + " (open chores = −$" + cfg.dailyFailureAmount.toFixed(2) + " for today).", "warning");
+                flashWeeklyPotDisplay('down');
+                addPiggyAnimation('piggy-shake');
+            }
+            await saveAction({ skipRender: true });
         } else {
             openCompleteModal(taskId);
         }
     };
     window.undoCompletedTask = async function(taskId) {
         if (!document.body.classList.contains('parent-active')) return;
+        const cfg = getCfg();
+        const todayNum = getDayNumEST(0);
+        const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+        const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
         const completedIdx = state.completedToday.indexOf(taskId);
         const waivedIdx = state.waivedToday.indexOf(taskId);
         if (completedIdx > -1) state.completedToday.splice(completedIdx, 1);
         if (waivedIdx > -1) state.waivedToday.splice(waivedIdx, 1);
         if (completedIdx > -1 || waivedIdx > -1) {
             state.history.unshift({ date: "UNDO", timestamp: nowStr(), msg: "Undid completion", amt: "—", class: "" });
-            await saveAction();
+            const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+            renderUI();
+            if (beforeAllDone && !afterAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
+                const pot = getTodayPotPreview();
+                showToast("Undone — Weekly Pot preview: $" + pot.total.toFixed(2) + " (today no longer all done).", "warning");
+                flashWeeklyPotDisplay('down');
+                addPiggyAnimation('piggy-shake');
+            }
+            await saveAction({ skipRender: true });
         }
     };
     window.waiveTask = async function(taskId, name) {
+        const cfg = getCfg();
+        const todayNum = getDayNumEST(0);
+        const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+        const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
         state.waivedToday.push(taskId);
         state.history.unshift({ date: "WAIVE", timestamp: nowStr(), msg: name, amt: "—", class: "" });
-        await saveAction();
+        const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+        renderUI();
+        if (afterAllDone && !beforeAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
+            celebrateAllChoresDone("+$" + cfg.dailySuccessAmount.toFixed(2) + " toward your Weekly Pot!");
+            showToast("All chores cleared today! Pot preview: $" + getTodayPotPreview().total.toFixed(2) + " ✨", "level-up");
+        } else {
+            showToast(name + " waived — pot preview: $" + getTodayPotPreview().total.toFixed(2), "success");
+        }
+        await saveAction({ skipRender: true });
     };
 
     let reminderSaveTimeout = null;
@@ -1644,8 +1895,8 @@
         await saveAction();
     };
 
-    async function saveAction() {
-        renderUI();
+    async function saveAction(opts) {
+        if (!opts || !opts.skipRender) renderUI();
         await syncToCloud();
     }
 
@@ -1735,23 +1986,28 @@
         const cfg = getCfg();
         const todayNum = getDayNumEST(0);
         const todayKey = getTodayEST();
+        const potPreview = getTodayPotPreview();
+        const displayPot = potPreview.total;
 
         document.getElementById('guhansBank').innerText = `$${state.guhansBank.toFixed(2)}`;
         document.getElementById('guhansBank').className = 'bank-value ' + (state.guhansBank >= 0 ? 'positive' : 'negative') + ' pot-editable';
         document.getElementById('guhansBank').classList.toggle('pot-editable', document.body.classList.contains('parent-active'));
 
         const wpEl = document.getElementById('weeklyPot');
-        wpEl.innerText = `$${state.weeklyPot.toFixed(2)}`;
-        wpEl.className = 'bank-value ' + (state.weeklyPot > 0 ? 'positive' : state.weeklyPot < 0 ? 'negative' : 'neutral');
+        wpEl.innerText = `$${displayPot.toFixed(2)}`;
+        wpEl.className = 'bank-value ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'neutral');
+        if (potPreview.mode !== 'none' && potPreview.delta !== 0) {
+            wpEl.title = 'Includes today: ' + (potPreview.delta > 0 ? '+' : '') + '$' + potPreview.delta.toFixed(2) + ' (stored pot: $' + potPreview.base.toFixed(2) + ')';
+        } else wpEl.removeAttribute('title');
 
         const maxPot = cfg.weeklyPotStart + 5 * cfg.dailySuccessAmount;
         const minPot = cfg.weeklyPotStart - 5 * cfg.dailyFailureAmount;
         const range = maxPot - minPot;
-        const pct = Math.max(0, Math.min(100, ((state.weeklyPot - minPot) / range) * 100));
+        const pct = Math.max(0, Math.min(100, ((displayPot - minPot) / range) * 100));
         const fillEl = document.getElementById('weeklyProgressFill');
         fillEl.style.width = pct + '%';
-        fillEl.className = 'progress-bar-fill ' + (state.weeklyPot > 0 ? 'positive' : state.weeklyPot < 0 ? 'negative' : 'zero');
-        document.getElementById('weeklyProgressLabel').innerText = `$${state.weeklyPot.toFixed(2)} / max ~$${maxPot.toFixed(0)} this week`;
+        fillEl.className = 'progress-bar-fill ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'zero');
+        document.getElementById('weeklyProgressLabel').innerText = `$${displayPot.toFixed(2)} / max ~$${maxPot.toFixed(0)} this week · live preview`;
 
         const monthTotal = getMonthlyBankTransfersSum();
         const mpEl = document.getElementById('monthlyPotTotal');
@@ -1768,9 +2024,9 @@
             const msg = pickWeekdayMotivation(w);
             const segHtml = w.segments.map(s => `<div class="weekday-progress-seg ${s.status}" title="${s.label}"></div>`).join('');
             const lblHtml = w.segments.map(s => `<span>${s.label}</span>`).join('');
-            const potHint = state.weeklyPot < 0
+            const potHint = displayPot < 0
                 ? 'Weekly Pot is below zero—finish chores to move it back up before Friday.'
-                : `Roughly <strong>$${state.weeklyPot.toFixed(2)}</strong> in your Weekly Pot could move to Guhan's Bank after Friday (if rules stay the same).`;
+                : `Roughly <strong>$${displayPot.toFixed(2)}</strong> in your Weekly Pot could move to Guhan's Bank after Friday (if rules stay the same).`;
             summaryEl.style.display = 'block';
             summaryEl.innerHTML = `<h4>📅 Weekday progress</h4><div class="weekday-progress-wrap"><div class="weekday-progress-labels">${lblHtml}</div><div class="weekday-progress-bar">${segHtml}</div><p class="weekday-motivate">${msg}</p><p class="weekday-pot-hint">${potHint}</p></div>`;
         } else if (todayNum === 6 || todayNum === 0) {
@@ -1787,8 +2043,8 @@
             const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
             const doneCount = todayTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id)).length;
             if (todayTasks.length === 0) weekMsgEl.textContent = "No chores scheduled for today.";
-            else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Keep it up!";
-            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} chores complete. Finish them all to add $${cfg.dailySuccessAmount} to your Weekly Pot!`;
+            else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Weekly Pot includes +" + cfg.dailySuccessAmount + " — amazing!";
+            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} done · pot preview $${displayPot.toFixed(2)} — finish all for +$${cfg.dailySuccessAmount} (open chores show −$${cfg.dailyFailureAmount} for today).`;
         }
 
         const pastMonthsEl = document.getElementById('pastMonthsList');
