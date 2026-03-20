@@ -118,10 +118,20 @@ The app uses hardcoded Supabase credentials in `index.html`:
 
 ```javascript
 const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
-const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
+const SUPABASE_KEY = "…"; // Project Settings → API → anon public (legacy JWT `eyJ…` works reliably in supabase-js)
 ```
 
-> ⚠️ **Security note:** The publishable key is intended for client-side use. For production, consider Row Level Security (RLS) on the Supabase table to restrict access.
+> ⚠️ Use the **anon public** key from Supabase (**Settings → API**). Newer `sb_publishable_…` keys may not work with all client versions — if reads/writes fail in the app’s **Settings → Test connection**, paste the **legacy anon** JWT instead.
+
+> ⚠️ **RLS:** If Row Level Security is **on** and there is **no policy**, every request will fail. Example for a trusted family app (tighten for production):
+
+```sql
+CREATE POLICY "chore_app_state_anon_rw"
+ON chore_app_state FOR ALL
+TO anon
+USING (true)
+WITH CHECK (true);
+```
 
 ### Required Supabase Table
 
@@ -133,10 +143,12 @@ CREATE TABLE chore_app_state (
   app_data JSONB DEFAULT '{}'
 );
 
--- Insert initial row for GuhanApp
+-- Optional seed (the app upserts GuhanAppV2 on first save)
 INSERT INTO chore_app_state (app_name, app_data)
-VALUES ('GuhanApp', '{}');
+VALUES ('GuhanAppV2', '{}');
 ```
+
+The app uses `APP_NAME = 'GuhanAppV2'` and **`.maybeSingle()`** on load so an empty table does not error (unlike `.single()` with zero rows).
 
 ### Default App Config (Parent Settings)
 
