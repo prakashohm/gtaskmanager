@@ -40,10 +40,10 @@ A chore tracker and allowance-style motivation web app for kids. Track daily goa
 ### Parent mode (password protected)
 
 - **Settings** — Weekly pot start, success bonus, miss penalty; Supabase status + test; change password.
-- **Add / All chores** — Manage tasks and weekdays; past chores editor; waive / undo (where allowed).
+- **Add / All chores** — Manage tasks and weekdays; **Override Past chores** editor; waive / undo (where allowed).
 - **Default schedule** — Template time blocks per weekday; merges with kid-specific **Daily Schedule** overrides.
 - **Activity Log** — On **Status** tab (parent only).
-- **Guhan's Bank** — Double-click to edit when unlocked.
+- **Guhan's Bank** — **Add / deduct + reason** (or double-click) when unlocked; amount + required note are logged to Activity Log.
 - **Caution** — Reset all data (destructive).
 
 ### Main app — Bank & Weekly Pot (summary)

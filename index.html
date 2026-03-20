@@ -171,16 +171,21 @@
             background: rgba(255, 255, 255, 0.35);
             flex-wrap: nowrap;
         }
+        .ledger-full-list {
+            max-height: min(70vh, 620px);
+            overflow-y: auto;
+            font-size: 0.88rem;
+        }
         .app-tab-btn {
             flex: 1 1 0;
             min-width: 0;
-            padding: 0.7rem 0.45rem;
+            padding: 0.7rem 0.35rem;
             border: none;
             border-radius: 999px;
             background: transparent;
             color: var(--text-muted);
             font-family: inherit;
-            font-size: clamp(0.68rem, 2.3vw, 0.84rem);
+            font-size: clamp(0.58rem, 2vw, 0.8rem);
             font-weight: 700;
             letter-spacing: -0.01em;
             cursor: pointer;
@@ -283,14 +288,6 @@
             border-color: rgba(249, 115, 22, 0.22);
             background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(251, 191, 36, 0.12) 100%);
         }
-        .bank-card.monthly {
-            border-color: rgba(99, 102, 241, 0.25);
-            background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(129, 140, 248, 0.12) 100%);
-            color: var(--text);
-        }
-        .bank-card.monthly .bank-icon { color: #4f46e5; stroke: #4f46e5; }
-        .bank-month-pill { font-size: clamp(0.58rem, 1.8vw, 0.7rem); font-weight: 700; color: #4f46e5; background: rgba(99, 102, 241, 0.12); padding: 3px 8px; border-radius: 999px; text-transform: none; letter-spacing: 0.02em; text-align: center; max-width: 100%; }
-        .bank-month-note { font-size: clamp(0.58rem, 1.9vw, 0.72rem); color: var(--text-muted); margin: 0; text-align: center; line-height: 1.35; max-width: 100%; }
         .bank-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; line-height: 1.25; }
         .bank-value { font-size: clamp(1rem, 3.2vw, 1.65rem); font-weight: 800; margin: 0; letter-spacing: -0.03em; }
         .bank-value.positive { color: var(--success); }
@@ -774,7 +771,8 @@
             <div class="app-tab-bar" role="tablist" aria-label="Main sections">
                 <button type="button" class="app-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-panel-status" id="appTabStatus" data-app-tab="status" onclick="setAppMainTab('status')">Status</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-goals" id="appTabGoals" data-app-tab="goals" onclick="setAppMainTab('goals')">Today's Goals</button>
-                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-schedule" id="appTabSchedule" data-app-tab="schedule" onclick="setAppMainTab('schedule')">Daily Schedule</button>
+                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-schedule" id="appTabSchedule" data-app-tab="schedule" onclick="setAppMainTab('schedule')">Schedule</button>
+                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-ledger" id="appTabLedger" data-app-tab="ledger" onclick="setAppMainTab('ledger')">Ledger</button>
             </div>
 
             <div id="tab-panel-status" class="app-tab-panel active" role="tabpanel" aria-labelledby="appTabStatus">
@@ -790,17 +788,13 @@
                             <div id="weeklyProgressLabel" class="progress-label">Week progress</div>
                         </div>
                     </div>
-                    <div class="bank-card monthly" id="monthlyPotCard">
-                        <span class="bank-label">Monthly Pot</span>
-                        <span class="bank-month-pill" id="monthlyPotMonthLabel">—</span>
-                        <svg class="bank-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
-                        <p id="monthlyPotTotal" class="bank-value positive">$0.00</p>
-                        <p class="bank-month-note">Sum of all Friday-to-Bank transfers this month (America/New_York calendar).</p>
-                    </div>
                     <div class="bank-card vault">
                         <span class="bank-label">Guhan's Bank (Savings)</span>
                         <svg class="bank-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><circle cx="12" cy="14" r="2"/></svg>
-                        <p id="guhansBank" class="bank-value positive pot-editable" title="Double-click to edit (Parent mode)" ondblclick="startEditBank()">$0.00</p>
+                        <p id="guhansBank" class="bank-value positive pot-editable" title="Double-click to add or deduct (Parent mode)" ondblclick="openBankAdjustModal()">$0.00</p>
+                        <div class="parent-only" style="margin-top:6px;text-align:center;">
+                            <button type="button" class="btn" style="font-size:0.72rem;padding:5px 12px" onclick="openBankAdjustModal()">Add / deduct + reason</button>
+                        </div>
                     </div>
                 </div>
                 <div id="weeklySummary" class="summary-box" style="display:none;"></div>
@@ -812,6 +806,7 @@
                 <div class="section activity-log-section parent-only">
                     <h3>Activity Log</h3>
                     <div id="historyLog" class="history-list"></div>
+                    <p style="font-size:0.78rem;color:var(--text-muted);margin:0.75rem 0 0;line-height:1.4;">For the full Weekly Pot ledger with all dated entries, open the <strong>Ledger</strong> tab.</p>
                 </div>
             </div>
 
@@ -870,7 +865,7 @@
                 <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
                 <h3 style="margin-top:1rem">All Chores</h3>
                 <div id="allTasksList" class="history-list">Loading...</div>
-                <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">View past chores</button>
+                <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">Override Past chores</button>
             </div>
                 </div>
             </div>
@@ -920,6 +915,16 @@
                 </div>
             </div>
         </div>
+                </div>
+            </div>
+
+            <div id="tab-panel-ledger" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabLedger">
+                <div class="ledger-tab-inner" style="padding: 1rem 2rem 1.25rem;">
+                    <div class="section">
+                        <h3>Ledger</h3>
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 1rem;line-height:1.45;"><strong>Weekly Pot:</strong> <strong>WEEK_START</strong> (Monday base), <strong>WEEKDAY_BONUS</strong> / <strong>WEEKDAY_PENALTY</strong>, reversals, <strong>FRIDAY_SETTLE</strong> (to bank). <strong>Guhan's Bank (parent):</strong> <strong>BANK_ADD</strong> / <strong>BANK_DEDUCT</strong> — these do not change the Weekly Pot. Chore activity rows may show $0 (—). <strong>Newest first.</strong> Hover a row for its id.</p>
+                        <div id="ledgerFullList" class="history-list ledger-full-list"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1053,10 +1058,30 @@
     </div>
 </div>
 
+<div id="bankAdjustModal" class="modal-overlay" onclick="if(event.target===this)closeBankAdjustModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:420px">
+        <h3 style="margin-top:0;">Adjust Guhan's Bank</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.45;">Parent-only: add or subtract an amount and record why (shown in Activity Log).</p>
+        <p style="font-size:0.9rem;margin:0 0 14px;">Current balance: <strong id="bankAdjustCurrentLbl">$0.00</strong></p>
+        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;"><input type="radio" name="bankAdjustDir" value="add" checked> Add money</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;"><input type="radio" name="bankAdjustDir" value="deduct"> Deduct money</label>
+        </div>
+        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Amount ($)</label>
+        <input type="number" id="bankAdjustAmount" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
+        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Reason / note <span style="color:var(--danger)">*</span></label>
+        <textarea id="bankAdjustReason" rows="3" placeholder="e.g. Birthday gift, toy purchase, correction…" style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box;resize:vertical"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-primary" onclick="confirmBankAdjust()" style="flex:1">Apply</button>
+            <button type="button" class="btn" onclick="closeBankAdjustModal()" style="flex:1;background:#e2e8f0;color:#475569">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <div id="pastChoresModal" class="modal-overlay" onclick="if(event.target===this)closePastChoresModal()">
     <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
         <h3 style="margin-top:0;">Past Chores</h3>
-        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px 0">Edit completion for past days. Double-click Guhan's Bank to adjust if needed.</p>
+        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px 0">Parent: set <b>Done</b>, <b>Waive</b> (counts like done for the pot), or <b>Missed</b> for any weekday. Saves update the ledger &amp; Weekly Pot. Dates use <b>Eastern (US)</b> — same as chores.</p>
         <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Select date:</label>
         <input type="date" id="pastChoresDate" onchange="renderPastChoresForDate()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
         <div id="pastChoresList" class="history-list" style="max-height:280px;margin-bottom:1rem"></div>
@@ -1079,7 +1104,7 @@
     const LOCAL_STORAGE_KEY = 'GuhanRewardHub_' + APP_NAME + '_v2';
     const EST = 'America/New_York';
 
-    const DEFAULT_CONFIG = { weeklyPotStart: 25, dailySuccessAmount: 5, dailyFailureAmount: 5, parentPassword: DEFAULT_PARENT_PASS };
+    const DEFAULT_CONFIG = { weeklyPotStart: 25, dailySuccessAmount: 5, dailyFailureAmount: 10, parentPassword: DEFAULT_PARENT_PASS };
 
     const DEFAULT_SLOTS_WEEKDAY = {
         1: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
@@ -1125,6 +1150,7 @@
         dayCompletions: {},
         lastWeeklyReset: null,
         lastWeekSettlement: null,
+        weeklyLedger: [],
         weeklyDeposits: {},
         reminderNotes: '',
         calendarBlocks: {}
@@ -1133,6 +1159,22 @@
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
     function nowStr() { return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: EST }); }
     function getTodayEST() { return new Date().toLocaleDateString('en-US', { timeZone: EST }); }
+    /** HTML date input value (YYYY-MM-DD) → app dayCompletions key (m/d/y, America/New_York calendar). Avoids browser TZ bugs from Date.parse. */
+    function htmlDateInputToAppDateKey(isoYmd) {
+        const m = String(isoYmd || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!m) return '';
+        const y = parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
+        return mo + '/' + d + '/' + y;
+    }
+    /** Today in EST as YYYY-MM-DD for &lt;input type="date"&gt;. */
+    function getTodayISODateEST() {
+        const f = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: '2-digit', day: '2-digit' });
+        const p = f.formatToParts(new Date());
+        const y = p.find(x => x.type === 'year').value;
+        const mo = p.find(x => x.type === 'month').value;
+        const da = p.find(x => x.type === 'day').value;
+        return y + '-' + mo + '-' + da;
+    }
     function getDayNumEST(offsetDays) {
         const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
         const p = formatter.formatToParts(new Date());
@@ -1162,32 +1204,6 @@
         const monday = new Date(dObj);
         monday.setDate(dObj.getDate() + monOffset);
         return monday.getFullYear() + '-' + String(monday.getMonth() + 1).padStart(2, '0') + '-' + String(monday.getDate()).padStart(2, '0');
-    }
-    function getYMDInEST(date) {
-        const p = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
-        return { y: +p.find(x => x.type === 'year').value, m: +p.find(x => x.type === 'month').value };
-    }
-    /** Friday settlement date (in EST) for a weeklyDeposits key (ISO Monday of that week). */
-    function getSettlementFridayYMDInEST(weekKey) {
-        const parts = (weekKey || '').split('-').map(Number);
-        if (parts.length !== 3 || !parts[0]) return null;
-        const [y, mo, d] = parts;
-        const fri = new Date(y, mo - 1, d + 4);
-        return getYMDInEST(fri);
-    }
-    function getMonthlyBankTransfersSum() {
-        const nowEST = getYMDInEST(new Date());
-        let sum = 0;
-        const wd = state.weeklyDeposits || {};
-        for (const [wk, raw] of Object.entries(wd)) {
-            const fri = getSettlementFridayYMDInEST(wk);
-            if (!fri) continue;
-            if (fri.y === nowEST.y && fri.m === nowEST.m) sum += Number(raw) || 0;
-        }
-        return sum;
-    }
-    function formatCurrentMonthLabelEST() {
-        return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: EST });
     }
     function parseLocaleDateKey(key) {
         if (!key) return null;
@@ -1219,6 +1235,56 @@
     }
     function formatDateKeyMDY(o) {
         return o.m + '/' + o.d + '/' + o.y;
+    }
+    /** Canonical M/D/YYYY (no leading zeros) for stable dayCompletions keys. */
+    function normalizeAppDateKey(key) {
+        const p = splitDateKeyMDY(key);
+        if (!p) return String(key || '').trim();
+        return formatDateKeyMDY(p);
+    }
+    function appDateKeysCalendarEqual(a, b) {
+        if (!a && !b) return true;
+        if (!a || !b) return false;
+        return normalizeAppDateKey(a) === normalizeAppDateKey(b);
+    }
+    /** Raw key in state.dayCompletions for this calendar date (handles legacy alias strings like padded months). */
+    function findDayCompletionsRawKey(dateKey) {
+        const norm = normalizeAppDateKey(dateKey);
+        const dc = state.dayCompletions;
+        if (!dc) return norm;
+        if (Object.prototype.hasOwnProperty.call(dc, norm)) return norm;
+        const p = splitDateKeyMDY(norm);
+        if (!p) return norm;
+        for (const k of Object.keys(dc)) {
+            const q = splitDateKeyMDY(k);
+            if (q && q.y === p.y && q.m === p.m && q.d === p.d) return k;
+        }
+        return norm;
+    }
+    /**
+     * Completion data for a calendar day: stored row (any key alias) or today’s live lists when not archived yet.
+     */
+    function getDayCompletionsResolved(dateKey) {
+        const norm = normalizeAppDateKey(dateKey);
+        const todayNorm = normalizeAppDateKey(getTodayEST());
+        const raw = findDayCompletionsRawKey(dateKey);
+        if (Object.prototype.hasOwnProperty.call(state.dayCompletions || {}, raw)) {
+            const dc = state.dayCompletions[raw];
+            return { completed: [...(dc.completed || [])], waived: [...(dc.waived || [])] };
+        }
+        if (norm === todayNorm) {
+            return { completed: [...state.completedToday], waived: [...state.waivedToday] };
+        }
+        return { completed: [], waived: [] };
+    }
+    function consolidateDayCompletionAliases(canonicalKey) {
+        const p = splitDateKeyMDY(canonicalKey);
+        if (!p || !state.dayCompletions) return;
+        Object.keys(state.dayCompletions).forEach(k => {
+            if (k === canonicalKey) return;
+            const q = splitDateKeyMDY(k);
+            if (q && q.y === p.y && q.m === p.m && q.d === p.d) delete state.dayCompletions[k];
+        });
     }
     /** All calendar days from start through end inclusive (same string format as getTodayEST). */
     function getAllDatesBetween(startKey, endKey) {
@@ -1270,11 +1336,6 @@
         const mon = addDaysToDateParts(p, monOffset);
         return mon.y + '-' + String(mon.m).padStart(2, '0') + '-' + String(mon.d).padStart(2, '0');
     }
-    function dateStrToLocale(dStr) {
-        const [y, m, d] = dStr.split('-').map(Number);
-        return new Date(y, m - 1, d).toLocaleDateString();
-    }
-
     function isWeekday(dayNum) { return dayNum >= 1 && dayNum <= 5; }
     function isTaskFreeDay(dayNum) { return dayNum === 0 || dayNum === 6; }
 
@@ -1295,20 +1356,215 @@
         if (finished.length === dayTasks.length) {
             return { delta: cfg.dailySuccessAmount, mode: 'success' };
         }
+        if (finished.length === 0) return { delta: -cfg.dailyFailureAmount, mode: 'pending' };
         return { delta: -cfg.dailyFailureAmount, mode: 'miss' };
     }
 
     /**
-     * Live preview only: state.weeklyPot is persisted through end of yesterday (after checkDailyLogic).
-     * This adds today's EST weekday rule exactly once — never written to state until the next rollover.
+     * Weekly Pot display: source of truth is state.weeklyPot (updated immediately by ledger posts / reconcile).
+     * Mode still reflects today's completion state for messaging only (no double-counting).
      */
     function getTodayPotPreview() {
         const todayNum = getDayNumEST(0);
-        const base = state.weeklyPot;
         const dc = { completed: state.completedToday, waived: state.waivedToday };
-        const { delta, mode } = computeWeekdayPotDelta(todayNum, dc);
-        const total = base + delta;
-        return { base, delta, total, mode };
+        const { mode } = computeWeekdayPotDelta(todayNum, dc);
+        const total = state.weeklyPot;
+        return { base: total, delta: 0, total, mode };
+    }
+
+    function ensureWeeklyLedger() {
+        if (!Array.isArray(state.weeklyLedger)) state.weeklyLedger = [];
+    }
+    function ledgerEntryExists(id) {
+        ensureWeeklyLedger();
+        return state.weeklyLedger.some(e => e.id === id);
+    }
+    function lidDateKey(dateKey) {
+        return (dateKey || '').replace(/\//g, '-');
+    }
+    /** Ledger + history; mutates weeklyPot by delta. */
+    function postLedgerUnique(id, ledgerType, dateKey, amountDelta, msgLine) {
+        ensureWeeklyLedger();
+        if (ledgerEntryExists(id)) return false;
+        const weekKey = getWeekKeyFromDateKey(dateKey);
+        const ts = nowStr();
+        state.weeklyLedger.unshift({ id, type: ledgerType, dateKey, weekKey, amount: amountDelta, msg: msgLine, timestamp: ts });
+        state.weeklyPot = (state.weeklyPot || 0) + amountDelta;
+        const histAmt = amountDelta === 0 ? '—' : (amountDelta >= 0 ? '+$' + amountDelta.toFixed(2) : '-$' + Math.abs(amountDelta).toFixed(2));
+        const histClass = amountDelta === 0 ? '' : (amountDelta >= 0 ? 'amt-pos' : 'amt-neg');
+        state.history.unshift({ date: ledgerType, timestamp: ts, msg: msgLine + ' · ' + dateKey, amt: histAmt, class: histClass, ledgerId: id });
+        return true;
+    }
+    /** $0 activity row: ledger + history only; does not change weeklyPot. */
+    function postActivityLedgerLine(activityType, dateKey, messageLine) {
+        ensureWeeklyLedger();
+        const id = 'act_' + activityType + '_' + lidDateKey(dateKey) + '_' + Date.now();
+        const weekKey = getWeekKeyFromDateKey(dateKey);
+        const ts = nowStr();
+        state.weeklyLedger.unshift({ id, type: activityType, dateKey, weekKey, amount: 0, msg: messageLine, timestamp: ts });
+        state.history.unshift({ date: activityType, timestamp: ts, msg: (messageLine || '') + ' · ' + dateKey, amt: '—', class: '', ledgerId: id });
+    }
+    /**
+     * Parent Guhan's Bank adjustment — one ledger row only.
+     * Does not change weeklyPot (unlike postLedgerUnique). History is logged in confirmBankAdjust.
+     */
+    function postBankLedgerEntry(ledgerType, dateKey, signedAmount, msgLine) {
+        ensureWeeklyLedger();
+        const id = 'bank_' + ledgerType + '_' + lidDateKey(dateKey) + '_' + Date.now();
+        const weekKey = getWeekKeyFromDateKey(dateKey);
+        const ts = nowStr();
+        state.weeklyLedger.unshift({
+            id,
+            type: ledgerType,
+            dateKey,
+            weekKey,
+            amount: signedAmount,
+            msg: msgLine,
+            timestamp: ts,
+            bankOnly: true
+        });
+    }
+    /** Human-readable list of per-chore status changes for Override Past chores (parent). */
+    function formatPastChoreEditSummary(dateKey, oldDc, newDc) {
+        const canon = normalizeAppDateKey(dateKey);
+        const dayNum = getDayNumForDate(canon);
+        if (dayNum < 0) return 'Past chores updated (parent)';
+        const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+        if (dayTasks.length === 0) return 'Past chores updated (parent)';
+        const oc = oldDc.completed || [], ow = oldDc.waived || [];
+        const nc = newDc.completed || [], nw = newDc.waived || [];
+        function label(c, w, taskId) {
+            if (c.includes(taskId)) return 'done';
+            if (w.includes(taskId)) return 'waived';
+            return 'open';
+        }
+        const parts = [];
+        for (const t of dayTasks) {
+            const before = label(oc, ow, t.id);
+            const after = label(nc, nw, t.id);
+            if (before !== after) parts.push(t.name + ': ' + before + ' → ' + after);
+        }
+        if (parts.length === 0) return 'Past chores updated (parent) — no task changes';
+        return 'Past chores updated (parent): ' + parts.join('; ');
+    }
+    function sumLedgerAmountForDate(dateKey, types) {
+        ensureWeeklyLedger();
+        const norm = normalizeAppDateKey(dateKey);
+        return state.weeklyLedger
+            .filter(e => types.includes(e.type) && appDateKeysCalendarEqual(e.dateKey, norm))
+            .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    }
+    /**
+     * Bring ledger + weeklyPot in sync with dayCompletions / today's lists for one calendar date.
+     * Uses net bonus/penalty sums so bonus can be re-earned after reversal, waive counts as done, etc.
+     */
+    function reconcileWeekdayPotLedgerForDate(dateKey) {
+        const canon = normalizeAppDateKey(dateKey);
+        const dayNum = getDayNumForDate(canon);
+        if (dayNum < 1 || dayNum > 5) return;
+        const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+        if (dayTasks.length === 0) return;
+        const dc = getDayCompletionsResolved(canon);
+        const allDone = dayTasks.every(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+        const cfg = getCfg();
+        const lid = lidDateKey(canon);
+        const todayNorm = normalizeAppDateKey(getTodayEST());
+        const bonusTypes = ['WEEKDAY_BONUS', 'BONUS_REVERSAL'];
+        const penaltyTypes = ['WEEKDAY_PENALTY', 'PENALTY_REVERSAL'];
+        const curBonus = sumLedgerAmountForDate(canon, bonusTypes);
+        const targetBonus = allDone ? cfg.dailySuccessAmount : 0;
+        const targetPenalty = allDone ? 0 : -cfg.dailyFailureAmount;
+        const bonusDelta = targetBonus - curBonus;
+        if (bonusDelta !== 0) {
+            const type = bonusDelta > 0 ? 'WEEKDAY_BONUS' : 'BONUS_REVERSAL';
+            const msg = bonusDelta > 0
+                ? 'All chores completed — bonus (incl. waived)'
+                : 'Bonus reversed — day no longer all done';
+            const id = type + '_adj_' + lid + '_' + Date.now();
+            postLedgerUnique(id, type, canon, bonusDelta, msg);
+        }
+        const curPenalty = sumLedgerAmountForDate(canon, penaltyTypes);
+        /** Don't post "miss" for today until someone marks at least one chore done or waived (day still in progress). Past days always finalize. */
+        let effectiveTargetPenalty = targetPenalty;
+        if (!allDone && canon === todayNorm && targetPenalty < 0) {
+            const anyProgress = dayTasks.some(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+            if (!anyProgress) effectiveTargetPenalty = 0;
+        }
+        const penaltyDelta = effectiveTargetPenalty - curPenalty;
+        if (penaltyDelta !== 0) {
+            const type = penaltyDelta > 0 ? 'PENALTY_REVERSAL' : 'WEEKDAY_PENALTY';
+            const msg = penaltyDelta > 0
+                ? 'Penalty reversed — all chores done (incl. waived)'
+                : 'Chores not all completed — penalty (after day started)';
+            const id = type + '_adj_' + lid + '_' + Date.now();
+            postLedgerUnique(id, type, canon, penaltyDelta, msg);
+        }
+    }
+    function recordWeekStartLedger(dateKey) {
+        const isoWk = getWeekKeyFromDateKey(dateKey);
+        const id = 'week_start_' + isoWk;
+        if (ledgerEntryExists(id)) return false;
+        const cfg = getCfg();
+        state.weeklyPot = cfg.weeklyPotStart;
+        ensureWeeklyLedger();
+        const ts = nowStr();
+        state.weeklyLedger.unshift({
+            id, type: 'WEEK_START', dateKey, weekKey: isoWk, amount: cfg.weeklyPotStart,
+            msg: 'Monday weekly pot base credit', timestamp: ts
+        });
+        state.history.unshift({
+            date: 'WEEK_START', timestamp: ts, msg: 'Monday weekly pot base credit · ' + dateKey,
+            amt: '+$' + cfg.weeklyPotStart.toFixed(2), class: 'amt-pos', ledgerId: id
+        });
+        state.lastWeeklyReset = isoWk;
+        return true;
+    }
+    /**
+     * Mid-week first open, or upgraded save without weeklyLedger: add WEEK_START row once (no duplicate ids).
+     * If ledger was empty, do not overwrite weeklyPot (legacy balance). Otherwise use normal Monday reset.
+     */
+    function ensureWeekStartForCurrentWeekIfNeeded() {
+        const todayNum = getDayNumEST(0);
+        if (todayNum === 0 || todayNum === 6) return;
+        const isoWk = getWeekKey();
+        const wid = 'week_start_' + isoWk;
+        if (ledgerEntryExists(wid)) return;
+        const monKey = getDateESTOffset(getMondayOffsetEST());
+        if (!state.weeklyLedger || state.weeklyLedger.length === 0) {
+            const cfg = getCfg();
+            ensureWeeklyLedger();
+            const ts = nowStr();
+            state.weeklyLedger.unshift({
+                id: wid, type: 'WEEK_START', dateKey: monKey, weekKey: isoWk,
+                amount: cfg.weeklyPotStart, msg: 'Monday weekly pot base credit', timestamp: ts
+            });
+            state.history.unshift({
+                date: 'WEEK_START', timestamp: ts, msg: 'Monday weekly pot base credit · ' + monKey,
+                amt: '+$' + cfg.weeklyPotStart.toFixed(2), class: 'amt-pos', ledgerId: wid
+            });
+            state.lastWeeklyReset = isoWk;
+            return;
+        }
+        recordWeekStartLedger(monKey);
+    }
+    function runFridaySettlement(fridayDateKey, isoWeekKey) {
+        const id = 'friday_settle_' + isoWeekKey;
+        if (ledgerEntryExists(id)) return false;
+        const amt = state.weeklyPot || 0;
+        state.guhansBank += amt;
+        state.weeklyDeposits[isoWeekKey] = amt;
+        const msg = amt >= 0
+            ? "Friday — Weekly Pot transferred to Guhan's Bank"
+            : "Friday — negative Weekly Pot adjusted Guhan's Bank";
+        postLedgerUnique(id, 'FRIDAY_SETTLE', fridayDateKey, -amt, msg);
+        return true;
+    }
+    /** End-of-day (rollover) weekday outcome — same net-based rules as intraday reconcile. */
+    function applyWeekdayOutcomeForDateRollover(dateKey) {
+        reconcileWeekdayPotLedgerForDate(dateKey);
+    }
+    function syncLedgerAfterPastDayEdit(dateKey, oldDc, newDc) {
+        reconcileWeekdayPotLedgerForDate(dateKey);
     }
 
     function getDefaultSlotsForDay(dayNum) {
@@ -1357,7 +1613,8 @@
             weeklyDeposits: loaded.weeklyDeposits || {},
             customChoresToday: loaded.customChoresToday || [],
             reminderNotes: loaded.reminderNotes || '',
-            calendarBlocks: loaded.calendarBlocks || {}
+            calendarBlocks: loaded.calendarBlocks || {},
+            weeklyLedger: Array.isArray(loaded.weeklyLedger) ? loaded.weeklyLedger : []
         };
         return true;
     }
@@ -1507,6 +1764,10 @@
         }
 
         checkDailyLogic();
+        ensureWeekStartForCurrentWeekIfNeeded();
+        if (isWeekday(getDayNumEST(0))) {
+            reconcileWeekdayPotLedgerForDate(getTodayEST());
+        }
         await saveAction();
         await runRhSupabaseHealthCheck(false);
         updateRhSupabasePanel();
@@ -1541,17 +1802,15 @@
         const today = getTodayEST();
         const todayDayNum = getDayNumEST(0);
         const yesterdayKey = getDateESTOffset(-1);
-        const cfg = getCfg();
 
         if (state.lastCheck !== today) {
-            state.dayCompletions[state.lastCheck] = { completed: [...state.completedToday], waived: [...state.waivedToday] };
+            state.dayCompletions[normalizeAppDateKey(state.lastCheck)] = { completed: [...state.completedToday], waived: [...state.waivedToday] };
             state.customChoresToday = [];
             state.completedToday = [];
             state.waivedToday = [];
 
             const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
             let fridaySettledInLoop = false;
-            let mondayResetInLoop = false;
 
             for (let i = 0; i < daysToProcess.length; i++) {
                 const dateKey = daysToProcess[i];
@@ -1560,50 +1819,23 @@
                 const prevDayNum = prevDateKey ? getDayNumForDate(prevDateKey) : null;
 
                 if (dayNum === 1) {
-                    mondayResetInLoop = true;
-                    state.weeklyPot = cfg.weeklyPotStart;
-                    state.lastWeeklyReset = getWeekKeyFromDateKey(dateKey);
+                    recordWeekStartLedger(dateKey);
                 }
 
                 if (prevDayNum === 5 && dayNum === 6) {
                     fridaySettledInLoop = true;
-                    state.guhansBank += state.weeklyPot;
-                    const amt = state.weeklyPot;
                     const settleWeekKey = getWeekKeyFromDateKey(prevDateKey);
-                    state.weeklyDeposits[settleWeekKey] = amt;
-                    const msg = amt >= 0
-                        ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
-                        : "Week complete. $" + Math.abs(amt).toFixed(2) + " was subtracted from Guhan's Bank because the Weekly Pot was negative. Keep trying next week!";
-                    state.history.unshift({ date: "SETTLE", timestamp: nowStr(), msg, amt: (amt >= 0 ? "+" : "") + "$" + amt.toFixed(2), class: amt >= 0 ? "amt-pos" : "amt-neg" });
-                    state.weeklyPot = 0;
+                    runFridaySettlement(prevDateKey, settleWeekKey);
                 }
 
                 if (dayNum >= 1 && dayNum <= 5) {
-                    const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
-                    if (dayTasks.length > 0) {
-                        const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
-                        const finished = dayTasks.filter(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
-                        if (finished.length === dayTasks.length) {
-                            state.weeklyPot += cfg.dailySuccessAmount;
-                            state.history.unshift({ date: "SUCCESS", timestamp: nowStr(), msg: "All chores done! (" + dateKey + ")", amt: "+$" + cfg.dailySuccessAmount.toFixed(2), class: "amt-pos" });
-                        } else {
-                            state.weeklyPot -= cfg.dailyFailureAmount;
-                            state.history.unshift({ date: "MISS", timestamp: nowStr(), msg: "Missed chores (" + dateKey + ")", amt: "-$" + cfg.dailyFailureAmount.toFixed(2), class: "amt-neg" });
-                        }
-                    }
+                    applyWeekdayOutcomeForDateRollover(dateKey);
                 }
             }
 
             if (!fridaySettledInLoop && todayDayNum === 6 && getDayNumForDate(yesterdayKey) === 5) {
-                state.guhansBank += state.weeklyPot;
-                const amt = state.weeklyPot;
                 const settleWeekKey = getWeekKeyFromDateKey(yesterdayKey);
-                state.weeklyDeposits[settleWeekKey] = amt;
-                const msg = amt >= 0
-                    ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
-                    : "Week complete. $" + Math.abs(amt).toFixed(2) + " was subtracted from Guhan's Bank because the Weekly Pot was negative. Keep trying next week!";
-                state.history.unshift({ date: "SETTLE", timestamp: nowStr(), msg, amt: (amt >= 0 ? "+" : "") + "$" + amt.toFixed(2), class: amt >= 0 ? "amt-pos" : "amt-neg" });
-                state.weeklyPot = 0;
+                runFridaySettlement(yesterdayKey, settleWeekKey);
             }
 
             state.lastCheck = today;
@@ -1777,16 +2009,17 @@
 
         state.completedToday.push(pendingCompleteTaskId);
         const displayMsg = task ? (comment ? task.name + ': ' + comment : task.name) : 'Chore completed';
-        state.history.unshift({ date: "DONE", timestamp: nowStr(), msg: displayMsg, amt: "—", class: "" });
+        postActivityLedgerLine('CHORE_DONE', getTodayEST(), displayMsg);
         document.getElementById('completeModal').classList.remove('open');
         pendingCompleteTaskId = null;
 
         const allDone = todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+        reconcileWeekdayPotLedgerForDate(getTodayEST());
         renderUI();
 
         if (allDone && todayTasks.length > 0 && beforeAllDone) {
             celebrateAllChoresDone("+$" + cfg.dailySuccessAmount.toFixed(2) + " toward your Weekly Pot!");
-            showToast("Daily win! Pot preview: $" + getTodayPotPreview().total.toFixed(2) + " — nice work! 🎊", "level-up");
+            showToast("Daily win! Weekly Pot: $" + getTodayPotPreview().total.toFixed(2) + " — nice work! 🎊", "level-up");
         } else {
             showToast("Awesome job! You're a superstar! 🌟", "success");
         }
@@ -1804,11 +2037,14 @@
             const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
             if (completedIdx > -1) state.completedToday.splice(completedIdx, 1);
             if (waivedIdx > -1) state.waivedToday.splice(waivedIdx, 1);
+            const task = state.tasks.find(t => t.id === taskId);
+            postActivityLedgerLine('PARENT_UNCHECK', getTodayEST(), (task ? task.name : 'Task') + ' unchecked');
             const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+            reconcileWeekdayPotLedgerForDate(getTodayEST());
             renderUI();
             if (beforeAllDone && !afterAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
                 const pot = getTodayPotPreview();
-                showToast("Task unchecked — pot preview recalc: $" + pot.total.toFixed(2) + " (open chores = −$" + cfg.dailyFailureAmount.toFixed(2) + " for today).", "warning");
+                showToast("Task unchecked — Weekly Pot: $" + pot.total.toFixed(2) + " (open chores = −$" + cfg.dailyFailureAmount.toFixed(2) + " for today).", "warning");
                 flashWeeklyPotDisplay('down');
                 addPiggyAnimation('piggy-shake');
             }
@@ -1828,12 +2064,14 @@
         if (completedIdx > -1) state.completedToday.splice(completedIdx, 1);
         if (waivedIdx > -1) state.waivedToday.splice(waivedIdx, 1);
         if (completedIdx > -1 || waivedIdx > -1) {
-            state.history.unshift({ date: "UNDO", timestamp: nowStr(), msg: "Undid completion", amt: "—", class: "" });
+            const task = state.tasks.find(t => t.id === taskId);
+            postActivityLedgerLine('PARENT_UNDO', getTodayEST(), 'Undid: ' + (task ? task.name : 'task'));
             const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+            reconcileWeekdayPotLedgerForDate(getTodayEST());
             renderUI();
             if (beforeAllDone && !afterAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
                 const pot = getTodayPotPreview();
-                showToast("Undone — Weekly Pot preview: $" + pot.total.toFixed(2) + " (today no longer all done).", "warning");
+                showToast("Undone — Weekly Pot: $" + pot.total.toFixed(2) + " (today no longer all done).", "warning");
                 flashWeeklyPotDisplay('down');
                 addPiggyAnimation('piggy-shake');
             }
@@ -1846,14 +2084,15 @@
         const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
         const beforeAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
         state.waivedToday.push(taskId);
-        state.history.unshift({ date: "WAIVE", timestamp: nowStr(), msg: name, amt: "—", class: "" });
+        postActivityLedgerLine('CHORE_WAIVED', getTodayEST(), name + ' waived');
         const afterAllDone = todayTasks.length > 0 && todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+        reconcileWeekdayPotLedgerForDate(getTodayEST());
         renderUI();
         if (afterAllDone && !beforeAllDone && isWeekday(todayNum) && todayTasks.length > 0) {
             celebrateAllChoresDone("+$" + cfg.dailySuccessAmount.toFixed(2) + " toward your Weekly Pot!");
-            showToast("All chores cleared today! Pot preview: $" + getTodayPotPreview().total.toFixed(2) + " ✨", "level-up");
+            showToast("All chores cleared today! Weekly Pot: $" + getTodayPotPreview().total.toFixed(2) + " ✨", "level-up");
         } else {
-            showToast(name + " waived — pot preview: $" + getTodayPotPreview().total.toFixed(2), "success");
+            showToast(name + " waived — Weekly Pot: $" + getTodayPotPreview().total.toFixed(2), "success");
         }
         await saveAction({ skipRender: true });
     };
@@ -1878,46 +2117,66 @@
         const msg = input.value.trim();
         if (!msg) return;
         state.customChoresToday.push(msg);
-        state.history.unshift({ date: "EXTRA", timestamp: nowStr(), msg: msg, amt: "—", class: "" });
+        postActivityLedgerLine('EXTRA_CHORE', getTodayEST(), msg);
         input.value = '';
         await saveAction();
     };
 
-    window.startEditBank = function() {
-        if (!document.body.classList.contains('parent-active')) return;
-        const el = document.getElementById('guhansBank');
-        const val = state.guhansBank;
-        const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.value = val.toFixed(2);
-        inp.style.cssText = 'font-size:1.25rem;font-weight:600;width:100px;border:2px solid var(--primary);border-radius:8px;padding:6px 10px;box-sizing:border-box;';
-        inp.onblur = () => finishEditBank(inp);
-        inp.onkeydown = (e) => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { inp.value = val; inp.blur(); } };
-        el.innerHTML = '';
-        el.appendChild(inp);
-        inp.focus();
-        inp.select();
-    };
-    window.finishEditBank = async function(inp) {
-        const el = document.getElementById('guhansBank');
-        const raw = parseFloat(inp.value);
-        const prev = state.guhansBank;
-        if (!isNaN(raw) && raw >= 0) {
-            const delta = raw - prev;
-            state.guhansBank = raw;
-            if (delta !== 0) {
-                state.history.unshift({ date: "MANUAL", timestamp: nowStr(), msg: "Bank adjustment", amt: (delta >= 0 ? "+" : "") + "$" + delta.toFixed(2), class: delta >= 0 ? "amt-pos" : "amt-neg" });
-            }
-            await saveAction();
-        } else {
-            el.innerHTML = '';
-            el.textContent = `$${state.guhansBank.toFixed(2)}`;
+    window.openBankAdjustModal = function() {
+        if (!document.body.classList.contains('parent-active')) {
+            showToast('Parent sign-in required to adjust the bank.', 'warning');
+            return;
         }
+        const balEl = document.getElementById('bankAdjustCurrentLbl');
+        if (balEl) balEl.textContent = '$' + (Number(state.guhansBank) || 0).toFixed(2);
+        const amt = document.getElementById('bankAdjustAmount');
+        const reason = document.getElementById('bankAdjustReason');
+        if (amt) amt.value = '';
+        if (reason) reason.value = '';
+        const addRadio = document.querySelector('#bankAdjustModal input[name="bankAdjustDir"][value="add"]');
+        if (addRadio) addRadio.checked = true;
+        document.getElementById('bankAdjustModal').classList.add('open');
+        if (amt) setTimeout(function() { amt.focus(); }, 80);
+    };
+    window.closeBankAdjustModal = function() {
+        document.getElementById('bankAdjustModal').classList.remove('open');
+    };
+    window.confirmBankAdjust = async function() {
+        if (!document.body.classList.contains('parent-active')) return;
+        const dirEl = document.querySelector('#bankAdjustModal input[name="bankAdjustDir"]:checked');
+        const dir = dirEl ? dirEl.value : 'add';
+        const rawAmt = parseFloat((document.getElementById('bankAdjustAmount') || {}).value);
+        const reason = (document.getElementById('bankAdjustReason') || {}).value.trim();
+        if (!reason) {
+            showToast('Please enter a reason for this adjustment.', 'warning');
+            return;
+        }
+        if (isNaN(rawAmt) || rawAmt <= 0) {
+            showToast('Enter a positive dollar amount.', 'warning');
+            return;
+        }
+        const amount = Math.round(rawAmt * 100) / 100;
+        const delta = dir === 'deduct' ? -amount : amount;
+        const prev = Number(state.guhansBank) || 0;
+        state.guhansBank = Math.round((prev + delta) * 100) / 100;
+        const verb = dir === 'deduct' ? 'Deducted from bank' : 'Added to bank';
+        state.history.unshift({
+            date: dir === 'deduct' ? 'BANK_DEDUCT' : 'BANK_ADD',
+            timestamp: nowStr(),
+            msg: verb + ': ' + reason,
+            amt: (delta >= 0 ? '+' : '') + '$' + amount.toFixed(2),
+            class: delta >= 0 ? 'amt-pos' : 'amt-neg'
+        });
+        const lt = dir === 'deduct' ? 'BANK_DEDUCT' : 'BANK_ADD';
+        postBankLedgerEntry(lt, getTodayEST(), delta, verb + ': ' + reason);
+        closeBankAdjustModal();
+        await saveAction();
+        showToast("Guhan's Bank updated.", 'success');
     };
 
     window.openResetDataModal = function() {
         const cfg = getCfg();
-        document.getElementById('resetModalMessage').innerText = `This will clear all chores, activity history, daily schedule, reset Guhan's Bank and Weekly Pot, and saved Friday deposit history (Monthly Pot is calculated from that). This cannot be undone.`;
+        document.getElementById('resetModalMessage').innerText = `This will clear all chores, activity history, daily schedule, reset Guhan's Bank and Weekly Pot, ledger, and saved Friday deposit history. This cannot be undone.`;
         document.getElementById('resetDataModal').classList.add('open');
     };
     window.closeResetDataModal = function() { document.getElementById('resetDataModal').classList.remove('open'); };
@@ -1938,6 +2197,7 @@
             lastWeeklyReset: getWeekKey(),
             lastWeekSettlement: null,
             weeklyDeposits: {},
+            weeklyLedger: [],
             reminderNotes: state.reminderNotes || '',
             calendarBlocks: {}
         };
@@ -2075,26 +2335,34 @@
 
     let pastChoresEdits = {};
     window.openPastChoresModal = function() {
-        document.getElementById('pastChoresDate').value = new Date().toISOString().slice(0, 10);
-        document.getElementById('pastChoresDate').max = document.getElementById('pastChoresDate').value;
+        if (!document.body.classList.contains('parent-active')) {
+            showToast('Parent sign-in required to edit past or today’s chores.', 'warning');
+            return;
+        }
+        const isoToday = getTodayISODateEST();
+        document.getElementById('pastChoresDate').value = isoToday;
+        document.getElementById('pastChoresDate').max = isoToday;
         pastChoresEdits = {};
-        renderPastChoresForDate();
+        window.renderPastChoresForDate();
         document.getElementById('pastChoresModal').classList.add('open');
     };
     window.closePastChoresModal = function() { document.getElementById('pastChoresModal').classList.remove('open'); };
-    function renderPastChoresForDate() {
+    /** Must be on window — date &lt;input&gt; uses inline onchange in global scope. */
+    window.renderPastChoresForDate = function() {
         const dStr = document.getElementById('pastChoresDate').value;
         if (!dStr) return;
-        const dateKey = dateStrToLocale(dStr);
-        const todayKey = getTodayEST();
-        const dayNum = new Date(dStr).getDay();
-        const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
-        let dc = state.dayCompletions[dateKey];
-        if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
-        dc = dc || { completed: [], waived: [] };
+        const dateKey = normalizeAppDateKey(htmlDateInputToAppDateKey(dStr));
+        if (!dateKey) return;
+        const dayNum = getDayNumForDate(dateKey);
+        const dayTasks = dayNum >= 0 ? state.tasks.filter(t => t.days.includes(dayNum)) : [];
+        const dc = getDayCompletionsResolved(dateKey);
         const edited = pastChoresEdits[dateKey] || { completed: [...dc.completed], waived: [...dc.waived] };
         const listDiv = document.getElementById('pastChoresList');
-        if (dayTasks.length === 0) {
+        if (dayNum === 0 || dayNum === 6) {
+            listDiv.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>Weekend — no weekday chores. Pick a Mon–Fri date.</p>";
+            return;
+        }
+        if (dayNum < 0 || dayTasks.length === 0) {
             listDiv.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores for this day.</p>";
             return;
         }
@@ -2112,32 +2380,56 @@
                 </div>
             </div>`;
         }).join('');
-    }
+    };
     window.togglePastChore = function(dateKey, taskId, status) {
-        if (!pastChoresEdits[dateKey]) {
-            let dc = state.dayCompletions[dateKey];
-            if (!dc && dateKey === getTodayEST()) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
-            dc = dc || { completed: [], waived: [] };
-            pastChoresEdits[dateKey] = { completed: [...dc.completed], waived: [...dc.waived] };
+        if (!document.body.classList.contains('parent-active')) return;
+        const canon = normalizeAppDateKey(dateKey);
+        if (!pastChoresEdits[canon]) {
+            const dc = getDayCompletionsResolved(canon);
+            pastChoresEdits[canon] = { completed: [...dc.completed], waived: [...dc.waived] };
         }
-        pastChoresEdits[dateKey].completed = pastChoresEdits[dateKey].completed.filter(x => x !== taskId);
-        pastChoresEdits[dateKey].waived = pastChoresEdits[dateKey].waived.filter(x => x !== taskId);
-        if (status === 'completed') pastChoresEdits[dateKey].completed.push(taskId);
-        if (status === 'waived') pastChoresEdits[dateKey].waived.push(taskId);
-        renderPastChoresForDate();
+        pastChoresEdits[canon].completed = pastChoresEdits[canon].completed.filter(x => x !== taskId);
+        pastChoresEdits[canon].waived = pastChoresEdits[canon].waived.filter(x => x !== taskId);
+        if (status === 'completed') pastChoresEdits[canon].completed.push(taskId);
+        if (status === 'waived') pastChoresEdits[canon].waived.push(taskId);
+        window.renderPastChoresForDate();
     };
     window.savePastChoresChanges = async function() {
-        Object.keys(pastChoresEdits).forEach(dateKey => {
-            state.dayCompletions[dateKey] = pastChoresEdits[dateKey];
-            if (dateKey === getTodayEST()) {
-                state.completedToday = pastChoresEdits[dateKey].completed;
-                state.waivedToday = pastChoresEdits[dateKey].waived;
+        if (!document.body.classList.contains('parent-active')) return;
+        const editKeys = Object.keys(pastChoresEdits);
+        if (editKeys.length === 0) {
+            showToast('No changes to save — adjust a chore or pick another date.', 'info');
+            return;
+        }
+        const snapshots = {};
+        editKeys.forEach(k => {
+            const canonical = normalizeAppDateKey(k);
+            snapshots[canonical] = JSON.parse(JSON.stringify(getDayCompletionsResolved(canonical)));
+        });
+        editKeys.forEach(k => {
+            const canonical = normalizeAppDateKey(k);
+            const edits = pastChoresEdits[k];
+            consolidateDayCompletionAliases(canonical);
+            state.dayCompletions[canonical] = { completed: edits.completed.slice(), waived: edits.waived.slice() };
+            if (appDateKeysCalendarEqual(canonical, getTodayEST())) {
+                state.completedToday = edits.completed.slice();
+                state.waivedToday = edits.waived.slice();
             }
         });
+        editKeys.forEach(k => {
+            const canonical = normalizeAppDateKey(k);
+            const edits = pastChoresEdits[k];
+            postActivityLedgerLine('PAST_DAY_EDIT', canonical, formatPastChoreEditSummary(canonical, snapshots[canonical], edits));
+            syncLedgerAfterPastDayEdit(canonical, snapshots[canonical], edits);
+        });
+        const savedDays = editKeys.length;
         pastChoresEdits = {};
         recalculateFromPastEdits();
         closePastChoresModal();
         await saveAction();
+        showToast(savedDays === 1
+            ? 'Past chores saved. Weekly Pot and ledger are updated.'
+            : 'Past chores saved for ' + savedDays + ' days. Weekly Pot and ledger are updated.', 'success');
     };
 
     function recalculateFromPastEdits() {
@@ -2452,9 +2744,7 @@
         return n === 0 ? -6 : 1 - n;
     }
     function getDcForSummaryDate(dateKey, todayKey) {
-        let dc = state.dayCompletions[dateKey];
-        if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
-        return dc || { completed: [], waived: [] };
+        return getDayCompletionsResolved(dateKey);
     }
     function getWeekdayProgressData() {
         const todayKey = getTodayEST();
@@ -2523,7 +2813,8 @@
         const cfg = getCfg();
         const todayNum = getDayNumEST(0);
         const todayKey = getTodayEST();
-        const potPreview = getTodayPotPreview();
+        const isWeekendPot = (todayNum === 0 || todayNum === 6);
+        const potPreview = isWeekendPot ? { base: 0, delta: 0, total: 0, mode: 'none' } : getTodayPotPreview();
         const displayPot = potPreview.total;
 
         document.getElementById('guhansBank').innerText = `$${state.guhansBank.toFixed(2)}`;
@@ -2531,29 +2822,33 @@
         document.getElementById('guhansBank').classList.toggle('pot-editable', document.body.classList.contains('parent-active'));
 
         const wpEl = document.getElementById('weeklyPot');
-        wpEl.innerText = `$${displayPot.toFixed(2)}`;
-        wpEl.className = 'bank-value ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'neutral');
-        if (potPreview.mode !== 'none' && potPreview.delta !== 0) {
-            wpEl.title = 'Includes today: ' + (potPreview.delta > 0 ? '+' : '') + '$' + potPreview.delta.toFixed(2) + ' (stored pot: $' + potPreview.base.toFixed(2) + ')';
-        } else wpEl.removeAttribute('title');
-
-        const maxPot = cfg.weeklyPotStart + 5 * cfg.dailySuccessAmount;
-        const minPot = cfg.weeklyPotStart - 5 * cfg.dailyFailureAmount;
-        const range = maxPot - minPot;
-        const pct = Math.max(0, Math.min(100, ((displayPot - minPot) / range) * 100));
         const fillEl = document.getElementById('weeklyProgressFill');
-        fillEl.style.width = pct + '%';
-        fillEl.className = 'progress-bar-fill ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'zero');
-        document.getElementById('weeklyProgressLabel').innerText = `$${displayPot.toFixed(2)} / max ~$${maxPot.toFixed(0)} this week · live preview`;
-
-        const monthTotal = getMonthlyBankTransfersSum();
-        const mpEl = document.getElementById('monthlyPotTotal');
-        if (mpEl) {
-            mpEl.innerText = `$${monthTotal.toFixed(2)}`;
-            mpEl.className = 'bank-value ' + (monthTotal > 0 ? 'positive' : monthTotal < 0 ? 'negative' : 'neutral');
+        const progLabelEl = document.getElementById('weeklyProgressLabel');
+        if (isWeekendPot) {
+            wpEl.innerText = '$0.00';
+            wpEl.className = 'bank-value neutral';
+            wpEl.title = "It's the weekend — relax! We start earning again on Monday.";
+            fillEl.style.width = '0%';
+            fillEl.className = 'progress-bar-fill zero';
+            progLabelEl.innerText = "It's the weekend — relax! Let's start earning on Monday.";
+        } else {
+            wpEl.innerText = `$${displayPot.toFixed(2)}`;
+            wpEl.className = 'bank-value ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'neutral');
+            if (potPreview.mode === 'success') {
+                wpEl.title = 'All chores done today — bonus is included in this balance.';
+            } else if (potPreview.mode === 'miss') {
+                wpEl.title = 'At least one chore still open — miss penalty is in this balance.';
+            } else if (potPreview.mode === 'pending') {
+                wpEl.title = "Nothing checked yet — miss isn’t applied until the first chore is done or waived.";
+            } else wpEl.removeAttribute('title');
+            const maxPot = cfg.weeklyPotStart + 5 * cfg.dailySuccessAmount;
+            const minPot = cfg.weeklyPotStart - 5 * cfg.dailyFailureAmount;
+            const range = maxPot - minPot;
+            const pct = Math.max(0, Math.min(100, ((displayPot - minPot) / range) * 100));
+            fillEl.style.width = pct + '%';
+            fillEl.className = 'progress-bar-fill ' + (displayPot > 0 ? 'positive' : displayPot < 0 ? 'negative' : 'zero');
+            progLabelEl.innerText = '$' + displayPot.toFixed(2) + ' / max ~$' + maxPot.toFixed(0) + ' this week · live balance';
         }
-        const mpLabel = document.getElementById('monthlyPotMonthLabel');
-        if (mpLabel) mpLabel.textContent = formatCurrentMonthLabelEST();
 
         const summaryEl = document.getElementById('weeklySummary');
         if (isWeekday(todayNum)) {
@@ -2568,20 +2863,21 @@
             summaryEl.innerHTML = `<h4>📅 Weekday progress</h4><div class="weekday-progress-wrap"><div class="weekday-progress-labels">${lblHtml}</div><div class="weekday-progress-bar">${segHtml}</div><p class="weekday-motivate">${msg}</p><p class="weekday-pot-hint">${potHint}</p></div>`;
         } else if (todayNum === 6 || todayNum === 0) {
             summaryEl.style.display = 'block';
-            summaryEl.innerHTML = `<h4>🌴 Weekend</h4><p>It's a task-free day. Enjoy! Your Weekly Pot will reset Monday.</p>`;
+            summaryEl.innerHTML = `<h4>🌴 Weekend</h4><p>The Weekly Pot rests at <strong>$0.00</strong> on the weekend. Relax — earning picks up again Monday morning with your $${cfg.weeklyPotStart} base!</p>`;
         } else {
             summaryEl.style.display = 'none';
         }
 
         const weekMsgEl = document.getElementById('weekMessage');
         if (isTaskFreeDay(todayNum)) {
-            weekMsgEl.textContent = "🌴 No chores today—enjoy your weekend!";
+            weekMsgEl.textContent = "🌴 Weekend — Weekly Pot is $0.00. No chores today; we'll start fresh Monday with the base credit!";
         } else {
             const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
             const doneCount = todayTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id)).length;
             if (todayTasks.length === 0) weekMsgEl.textContent = "No chores scheduled for today.";
-            else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Weekly Pot includes +" + cfg.dailySuccessAmount + " — amazing!";
-            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} done · pot preview $${displayPot.toFixed(2)} — finish all for +$${cfg.dailySuccessAmount} (open chores show −$${cfg.dailyFailureAmount} for today).`;
+            else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Bonus is in your Weekly Pot — amazing!";
+            else if (doneCount === 0) weekMsgEl.textContent = `0 of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — start by checking or waiving a chore; if any stay open after that, −$${cfg.dailyFailureAmount} applies for today.`;
+            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} done · Weekly Pot $${displayPot.toFixed(2)} — finish all (or waived) for +$${cfg.dailySuccessAmount}, or −$${cfg.dailyFailureAmount} stays for today.`;
         }
 
         const pastMonthsEl = document.getElementById('pastMonthsList');
@@ -2600,9 +2896,10 @@
             <li>Every <b>Monday</b>, your Weekly Pot resets to <b>$${cfg.weeklyPotStart}</b>.</li>
             <li><b>Complete all chores</b> on a weekday → <b>+$${cfg.dailySuccessAmount}</b> to Weekly Pot.</li>
             <li><b>Miss any chore</b> on a weekday → <b>−$${cfg.dailyFailureAmount}</b> from Weekly Pot.</li>
-            <li><b>Saturday & Sunday</b> are task-free—no changes.</li>
+            <li><b>Saturday & Sunday</b> are task-free. The app shows the Weekly Pot as <b>$0.00</b> with a weekend message (earnings resume Monday).</li>
             <li>Every <b>Friday night</b>, your Weekly Pot balance moves to <b>Guhan's Bank</b>. If the Weekly Pot is negative, that amount is subtracted from the Bank.</li>
-            <li>The <b>Monthly Pot</b> shows the <b>running total</b> of those Friday transfers during the <b>current calendar month</b> (Eastern Time). It updates automatically—each new month starts fresh.</li>
+            <li>Use the <b>Ledger</b> tab to see every dated Weekly Pot credit and debit (no duplicates).</li>
+            <li><b>Parent:</b> Use <b>Add / deduct + reason</b> (or double-click the bank) to change Guhan's Bank; the note appears in the Activity Log.</li>
             <li>Guhan's Bank is your permanent savings—it never resets!</li>`;
 
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST });
@@ -2638,9 +2935,7 @@
                 const dateKey = getDateESTOffset(-i);
                 const dayNum = getDayNumEST(-i);
                 const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
-                let dc = state.dayCompletions[dateKey];
-                if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
-                dc = dc || { completed: [], waived: [] };
+                const dc = getDayCompletionsResolved(dateKey);
                 const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : dayNames[dayNum] + ' ' + dateKey;
                 html += `<div class="past-week-day"><div class="past-week-day-title">${dayLabel}</div>`;
                 if (dayTasks.length === 0) html += '<span style="font-size:0.85rem;color:var(--text-muted)">No chores</span>';
@@ -2680,20 +2975,37 @@
         if (histDiv) {
             histDiv.innerHTML = state.history.slice(0, 15).map(h => {
                 const dt = h.timestamp || h.date;
-                return `<div class="history-item"><span style="font-weight:500;color:var(--text-muted);font-size:0.7rem;white-space:nowrap">${dt}</span><span style="flex-grow:1;margin-left:10px">${h.msg}</span><span class="${h.class || ''}">${h.amt}</span></div>`;
+                return `<div class="history-item"><span style="font-weight:500;color:var(--text-muted);font-size:0.7rem;white-space:nowrap">${escapeHtml(String(dt || ''))}</span><span style="flex-grow:1;margin-left:10px">${escapeHtml(h.msg)}</span><span class="${h.class || ''}">${escapeHtml(String(h.amt || ''))}</span></div>`;
             }).join('');
+        }
+        const ledgerEl = document.getElementById('ledgerFullList');
+        if (ledgerEl) {
+            const rows = state.weeklyLedger || [];
+            ledgerEl.innerHTML = rows.length
+                ? rows.map(e => {
+                    const n = Number(e.amount) || 0;
+                    const ts = e.timestamp || '—';
+                    const amtStr = n === 0 ? '—' : (n >= 0 ? '+' : '') + '$' + Math.abs(n).toFixed(2);
+                    const amtClass = n === 0 ? '' : (n >= 0 ? 'amt-pos' : 'amt-neg');
+                    const typeShort = e.type || '';
+                    const typeLabel = (typeShort === 'BANK_ADD' || typeShort === 'BANK_DEDUCT')
+                        ? typeShort + ' · Bank'
+                        : typeShort;
+                    return `<div class="history-item" title="${(e.id || '').replace(/"/g, '&quot;')}"><span style="font-weight:700;font-size:0.62rem;color:var(--primary-dark);min-width:5.5rem;flex-shrink:0">${typeLabel}</span><span style="flex:1;margin:0 10px;line-height:1.35"><span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:2px">${escapeHtml(String(ts))}</span>${escapeHtml(e.msg || '')} · <span style="color:var(--text-muted)">${escapeHtml(String(e.dateKey || ''))}</span></span><span class="${amtClass}" style="flex-shrink:0">${amtStr}</span></div>`;
+                }).join('')
+                : '<p style="color:var(--text-muted);margin:0;font-size:0.9rem;">No ledger entries yet. They appear after Monday base, weekday results, and Friday transfers.</p>';
         }
     }
 
     function restoreAppMainTab() {
         try {
             const saved = sessionStorage.getItem('rh_app_main_tab');
-            if (saved === 'goals' || saved === 'schedule') window.setAppMainTab(saved);
+            if (saved === 'goals' || saved === 'schedule' || saved === 'ledger') window.setAppMainTab(saved);
         } catch (e) { /* ignore */ }
     }
 
     window.setAppMainTab = function(tabId) {
-        const valid = { status: true, goals: true, schedule: true };
+        const valid = { status: true, goals: true, schedule: true, ledger: true };
         if (!valid[tabId]) tabId = 'status';
         try { sessionStorage.setItem('rh_app_main_tab', tabId); } catch (e) { /* ignore */ }
         document.querySelectorAll('.app-tab-btn[data-app-tab]').forEach(function(btn) {
