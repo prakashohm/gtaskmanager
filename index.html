@@ -651,6 +651,14 @@
 
         .modal-daily-reminders { max-width: 440px; }
         .daily-reminders-sub { font-size: 0.875rem; color: var(--text-muted); margin: -0.35rem 0 1rem; line-height: 1.45; }
+        .daily-reminders-empty {
+            margin: 0;
+            padding: 0.85rem 0.25rem;
+            font-size: 0.9375rem;
+            line-height: 1.45;
+            color: var(--text);
+            text-align: center;
+        }
         .daily-reminders-section { margin-bottom: 1.15rem; }
         .daily-reminders-section:last-child { margin-bottom: 0; }
         .daily-reminders-heading {
@@ -3035,22 +3043,17 @@
     window.closeDailyRemindersModal = function() {
         const el = document.getElementById('dailyRemindersModal');
         if (el) el.classList.remove('open');
-        try {
-            localStorage.setItem('rh_daily_reminders_dismissed', getTodayEST());
-        } catch (e) { /* ignore */ }
     };
 
     function maybeShowDailyRemindersPopup() {
         try {
-            if (localStorage.getItem('rh_daily_reminders_dismissed') === getTodayEST()) return;
             const data = getTodaysPendingReminderData();
-            if (data.choreItems.length === 0 && data.scheduleItems.length === 0) return;
             const modal = document.getElementById('dailyRemindersModal');
             const listEl = document.getElementById('dailyRemindersList');
             const subEl = document.getElementById('dailyRemindersSub');
             if (!modal || !listEl) return;
             if (subEl) {
-                subEl.textContent = 'Pending for ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST }) + ' · Eastern Time';
+                subEl.textContent = 'Your day · ' + new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST }) + ' (Eastern Time)';
             }
             let html = '';
             if (data.choreItems.length > 0) {
@@ -3066,6 +3069,9 @@
                     html += '<li class="daily-reminders-li"><span class="daily-reminders-time">' + escapeRemindersHtml(s.label) + '</span><span class="daily-reminders-text">' + escapeRemindersHtml(s.text) + '</span></li>';
                 });
                 html += '</ul></div>';
+            }
+            if (!html) {
+                html = '<p class="daily-reminders-empty">You’re all set — no open chores or upcoming schedule blocks right now.</p>';
             }
             listEl.innerHTML = html;
             modal.classList.add('open');

@@ -2,7 +2,7 @@
 
 A chore tracker and allowance-style motivation web app for kids. Track daily goals (Mon–Fri), **Weekly Pot** and **Guhan's Bank**, optional **Daily Schedule** blocks, and sync data to the cloud (Supabase) for use across devices.
 
-> **Main app** (`index.html`) — Bank + Weekly Pot: weekday success/miss rules, Friday settlement to savings, **Monthly Pot** summary, **three main tabs** (Status · **Today's Chores** in kid view / **Chores Settings** in parent mode · Daily Schedule), and a **daily reminders** popup after load. **Legacy v1** (`index-v1.html`) uses a different model and cloud row (`GuhanApp` vs main app — see `APP_NAME` in `index.html`).
+> **Main app** (`index.html`) — Bank + Weekly Pot: weekday success/miss rules, Friday settlement to savings, **Monthly Pot** summary, **three main tabs** (Status · **Today's Chores** in kid view / **Chores Settings** in parent mode · Daily Schedule), and a **daily reminders** popup after each load / refresh. **Legacy v1** (`index-v1.html`) uses a different model and cloud row (`GuhanApp` vs main app — see `APP_NAME` in `index.html`).
 
 ![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0d9488)
 
@@ -26,7 +26,7 @@ A chore tracker and allowance-style motivation web app for kids. Track daily goa
 
 - **Three tabs** — **Status** (pots, weekday progress, Activity Log in parent mode), **Today's Chores** / **Chores Settings** (same tab: chores + extras; parent tab label switches when unlocked), **Daily Schedule** (default template + per-day calendar).
 - **Tab memory** — Last tab is restored for the session (`sessionStorage`: `rh_app_main_tab`).
-- **Today's reminders** — After data loads, a modal can list **pending goals for today** and **schedule blocks still ahead** (Eastern Time). Shown only when there is something pending; **dismiss is remembered once per calendar day (ET)** via `localStorage` key `rh_daily_reminders_dismissed`.
+- **Today's reminders** — After data loads, a modal shows **pending goals for today** and **schedule blocks still ahead** (Eastern Time), or an “all set” message if nothing is pending. **Opens on every page load** (refresh); **Got it** only closes the modal until the next load.
 
 ### Child view
 
@@ -211,7 +211,7 @@ The main app includes **`manifest.webmanifest`** and **`sw.js`**:
 
 ### Child flow
 
-1. Open the app — optional **Today's reminders** if something is pending (dismiss for the rest of the day).
+1. Open the app — **Today's reminders** appears after load (closes with **Got it** until you refresh).
 2. Use **Status** for pots and progress; **Today's Chores** for chores; **Daily Schedule** for the day plan.
 3. Complete a chore — checkbox → optional comment → Confirm.
 4. **Rules** — Read how the pots work; parents use **Parent login** here.
