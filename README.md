@@ -24,14 +24,14 @@ A chore tracker and allowance-style motivation web app for kids. Track daily goa
 
 ### Navigation (main app)
 
-- **Three tabs** — **Status** (pots, weekday progress, past weeks deposited, Activity Log in parent mode), **Today's Goals** (settings, goals, extras, chore management in parent mode), **Daily Schedule** (default template + per-day calendar).
+- **Three tabs** — **Status** (pots, weekday progress, Activity Log in parent mode), **Today's Goals** (settings, goals, extras, chore management in parent mode), **Daily Schedule** (default template + per-day calendar).
 - **Tab memory** — Last tab is restored for the session (`sessionStorage`: `rh_app_main_tab`).
 - **Today's reminders** — After data loads, a modal can list **pending goals for today** and **schedule blocks still ahead** (Eastern Time). Shown only when there is something pending; **dismiss is remembered once per calendar day (ET)** via `localStorage` key `rh_daily_reminders_dismissed`.
 
 ### Child view
 
 - **Today's Goals** — Chores for the current day (Sun–Sat per task schedule); check off with optional comment; toasts and celebrations when all weekday chores are done.
-- **Status** — Weekly Pot (live preview), Monthly Pot, Guhan's Bank, weekday strip + motivation copy; expand **Past weeks deposited**.
+- **Status** — Weekly Pot, Guhan's Bank, weekday strip + motivation copy; Activity Log (parent).
 - **Daily Schedule** — Scroll days; **By time** (grid) or **Activities** (list) on narrow screens; tap slots to add/edit blocks.
 - **Extras** — Log optional custom chores (does not change Weekly Pot rules).
 - **Past week** — Toggle to see recent days.
