@@ -1,10 +1,10 @@
 # Guhan's RewardHub
 
-A chore tracker and allowance management web app for kids. Track daily chores, earn streaks, and manage allowance with bonuses and penalties. Data syncs to the cloud for access across devices.
+A chore tracker and allowance-style motivation web app for kids. Track daily goals (Mon–Fri), **Weekly Pot** and **Guhan's Bank**, optional **Daily Schedule** blocks, and sync data to the cloud (Supabase) for use across devices.
 
-> **Main app** (`index.html`) — "Bank and Weekly Pot" system: Guhan's Bank (permanent savings), Weekly Pot (resets Mondays), weekday success/penalty logic, Daily Schedule, Monthly Pot summary, and gamified toasts/animations. **Legacy v1** (streak/monthly pot model) lives in `index-v1.html` and uses a separate cloud key (`GuhanApp`).
+> **Main app** (`index.html`) — Bank + Weekly Pot: weekday success/miss rules, Friday settlement to savings, **Monthly Pot** summary, **three main tabs** (Status · Today's Goals · Daily Schedule), and a **daily reminders** popup after load. **Legacy v1** (`index-v1.html`) uses a different model and cloud row (`GuhanApp` vs main app — see `APP_NAME` in `index.html`).
 
-![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0891b2)
+![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0d9488)
 
 ---
 
@@ -22,40 +22,41 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 
 ## Features
 
-### Child View
+### Navigation (main app)
 
-- **Today's Goals** — Chores scheduled for the current day with check-off
-- **Allowance Pot** — Real-time balance with streak bonus display
-- **Streak System** — Consecutive full completion days earn bonus (configurable)
-- **Custom Chores** — Log extra chores (optional, no allowance impact)
-- **Past Week** — View completion status for the last 7 days
-- **Past Months** — See saved allowance from previous months
-- **Reminder Notes** — Full-width open text area to write anything to remind yourself later (auto-saved, synced to cloud)
-- **Rules** — Collapsible panel explaining how the system works
+- **Three tabs** — **Status** (pots, weekday progress, past weeks deposited, Activity Log in parent mode), **Today's Goals** (settings, goals, extras, chore management in parent mode), **Daily Schedule** (default template + per-day calendar).
+- **Tab memory** — Last tab is restored for the session (`sessionStorage`: `rh_app_main_tab`).
+- **Today's reminders** — After data loads, a modal can list **pending goals for today** and **schedule blocks still ahead** (Eastern Time). Shown only when there is something pending; **dismiss is remembered once per calendar day (ET)** via `localStorage` key `rh_daily_reminders_dismissed`.
 
-### Parent Mode (Password Protected)
+### Child view
 
-- **Settings** — Configure starting allowance, streak days, bonus/penalty amounts
-- **Add/Edit/Delete Chores** — Manage chore list with day-of-week schedules (M–S)
-- **Activity Log** — View recent activity (completions, bonuses, penalties)
-- **Waive Chores** — Excuse a chore without penalty when needed
-- **Undo Completions** — Correct mistaken check-offs
-- **Past Chores Editor** — Edit completion status for past days (recalculates allowance)
-- **Manual Pot Adjustment** — Double-click pot value to adjust (parent mode only)
-- **Change Password** — Update parent password
-- **Reset All Data** — Clear chores, history, and reset pot (destructive)
+- **Today's Goals** — Chores for the current day (Sun–Sat per task schedule); check off with optional comment; toasts and celebrations when all weekday chores are done.
+- **Status** — Weekly Pot (live preview), Monthly Pot, Guhan's Bank, weekday strip + motivation copy; expand **Past weeks deposited**.
+- **Daily Schedule** — Scroll days; **By time** (grid) or **Activities** (list) on narrow screens; tap slots to add/edit blocks.
+- **Extras** — Log optional custom chores (does not change Weekly Pot rules).
+- **Past week** — Toggle to see recent days.
+- **Rules** — Collapsible rules list. **Parent login** lives in the Rules footer; **← v1 (classic)** appears only in **Parent mode** (legacy app link).
 
-### Main app (`index.html`) — Bank & Weekly Pot
+### Parent mode (password protected)
+
+- **Settings** — Weekly pot start, success bonus, miss penalty; Supabase status + test; change password.
+- **Add / All chores** — Manage tasks and weekdays; past chores editor; waive / undo (where allowed).
+- **Default schedule** — Template time blocks per weekday; merges with kid-specific **Daily Schedule** overrides.
+- **Activity Log** — On **Status** tab (parent only).
+- **Guhan's Bank** — Double-click to edit when unlocked.
+- **Caution** — Reset all data (destructive).
+
+### Main app — Bank & Weekly Pot (summary)
 
 | Feature | Description |
-|---------|--------------|
-| **Guhan's Bank** | Permanent savings (vault icon). Never resets. |
-| **Weekly Pot** | Piggy bank. Resets every **Monday** to a configured starting amount (e.g. $25). |
-| **Mon–Fri Logic** | All chores done → **+$5** to Weekly Pot. Any missed → **−$5**. |
-| **Weekends** | Saturday & Sunday are task-free. No changes. |
-| **Friday Settlement** | End of Friday: Weekly Pot balance transfers to Guhan's Bank. If negative, that amount is subtracted. |
-| **Summary** | Shows estimated Friday deposit while viewing during the week. |
-| **Gamification** | Toast on task complete ("Awesome job! 🌟"), Level Up animation when all daily chores done, progress bar for Weekly Pot. |
+|--------|-------------|
+| **Guhan's Bank** | Permanent savings. Never resets. |
+| **Weekly Pot** | Resets each **Monday** to configured start (e.g. $25). |
+| **Mon–Fri** | All chores done → **+success** amount. Any open chore → **−miss** amount (preview applies in UI until day rolls over). |
+| **Weekends** | Task-free for pot rules; schedule blocks can still apply. |
+| **Friday settlement** | Weekly Pot transfers into Guhan's Bank; negative pot reduces Bank. |
+| **Monthly Pot** | Running total of Friday transfers in the **current calendar month** (ET). |
+| **UI** | **Plus Jakarta Sans**, glass-style shell, pill tab bar, responsive schedule. |
 
 ---
 
@@ -70,7 +71,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 │  │  index.html (main) · index-v1.html (legacy)                  ││
 │  │  • Single-file SPA (no build step)                           ││
 │  │  • Vanilla JS + inline CSS                                   ││
-│  │  • State held in memory (state object)                       ││
+│  │  • State held in memory (`state` object)                     ││
 │  └─────────────────────────────────────────────────────────────┘│
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
@@ -79,34 +80,32 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Supabase (BaaS)                              │
 │  ┌─────────────────────────────────────────────────────────────┐│
-│  │  Table: chore_app_state                                      ││
-│  │  • app_name (PK): 'GuhanApp' (v1) · 'GuhanAppV2' (main)     ││
-│  │  • app_data (JSONB): full state snapshot                     ││
+│  │  Table: `chore_app_state`                                    ││
+│  │  • `app_name` (PK): must match `APP_NAME` in `index.html`    ││
+│  │  • `app_data` (JSONB): full state snapshot                   ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Design Decisions
+### Design decisions
 
 | Aspect | Choice | Rationale |
 |--------|--------|-----------|
-| **Framework** | None (vanilla JS) | Minimal deps, fast load, easy to host as static HTML |
-| **State** | In-memory + cloud sync | Single source of truth in `state` object; persisted on changes |
-| **Auth** | Client-side password | Parent mode protected by password (stored in app state) |
-| **Styling** | Inline CSS + custom properties | Self-contained, no external stylesheet |
-| **Fonts** | Google Fonts (DM Sans) | Clean, readable typography |
-| **Timezone** | America/New_York (EST) | All date boundaries (today, yesterday, month rollover) use EST midnight |
+| **Framework** | None (vanilla JS) | Minimal deps, static hosting |
+| **State** | In-memory + `localStorage` + cloud | Survives refresh offline; cloud when configured |
+| **Auth** | Client-side parent password | Stored in app state / config |
+| **Styling** | Inline CSS + CSS variables | Self-contained |
+| **Fonts** | Google Fonts (**Plus Jakarta Sans**) | Modern, readable UI |
+| **Timezone** | `America/New_York` | Dates, “today”, reminders, rollover |
 
-### Data Flow
+### Data flow
 
-1. **Load** — `loadCloudData()` tries Supabase first; if that fails or returns empty, it restores from **browser `localStorage`** (`GuhanRewardHub_GuhanAppV2_v2`). Then `checkDailyLogic()` → `saveAction()` → `renderUI()`.
-2. **User Action** — Handler updates `state` → `saveAction()` → `renderUI()` + **`localStorage` always** + `syncToCloud()` when Supabase is configured and reachable.
+1. **Load** — `loadCloudData()` tries Supabase; on failure or empty row, restores from **`localStorage`** (`GuhanRewardHub_<APP_NAME>_v2`). Then `checkDailyLogic()` → `saveAction()` → `renderUI()`.
+2. **User action** — Update `state` → `saveAction()` → `renderUI()` + **`localStorage`** + `syncToCloud()` when Supabase works.
+3. **Daily logic** — On EST date change: persist yesterday’s completions, apply weekday pot adjustments, reset `completedToday` / `waivedToday` / custom extras as needed.
+4. **Weekly / Friday** — Monday reset and Friday-to-Bank settlement are handled inside the same daily pipeline (see code: `checkDailyLogic`).
 
-**Why data seemed to “disappear” before:** Persistence was **only** Supabase. Opening the HTML as `file://`, ad/script blockers, RLS/network errors, or a missing table row meant **nothing was saved**. The local backup fixes offline / local use; cloud still syncs when it works.
-
-**Note:** Local storage is **per browser / per device** — use Supabase (or export) to share across devices.
-3. **Daily Logic** — On date change (EST midnight): persist yesterday's completions, apply bonus/penalty, reset `completedToday`/`waivedToday`
-4. **Monthly Reset** — On month change: save current pot to `monthlyPots[lastMonth]`, reset pot to `startingAllowance`, clear streak
+**Note:** `localStorage` is per browser/device; use Supabase (same `app_name` row) to share across devices.
 
 ---
 
@@ -114,16 +113,17 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 
 ### Environment / Supabase
 
-The app uses hardcoded Supabase credentials in `index.html`:
+Credentials live in `index.html`:
 
 ```javascript
-const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
-const SUPABASE_KEY = "…"; // Project Settings → API → anon public (legacy JWT `eyJ…` works reliably in supabase-js)
+const SUPABASE_URL = "https://….supabase.co";
+const SUPABASE_KEY = "…"; // anon public (legacy `eyJ…` JWT if publishable key fails)
+const APP_NAME = 'GuhanApp'; // row key in chore_app_state — keep in sync with your table
 ```
 
-> ⚠️ Use the **anon public** key from Supabase (**Settings → API**). Newer `sb_publishable_…` keys may not work with all client versions — if reads/writes fail in the app’s **Settings → Test connection**, paste the **legacy anon** JWT instead.
+> Use the **anon public** key (**Settings → API**). If the app’s **Test connection** fails, try the **legacy anon** JWT.
 
-> ⚠️ **RLS:** If Row Level Security is **on** and there is **no policy**, every request will fail. Example for a trusted family app (tighten for production):
+> **RLS:** If enabled with no policy, requests fail. Example for a trusted family app:
 
 ```sql
 CREATE POLICY "chore_app_state_anon_rw"
@@ -133,9 +133,7 @@ USING (true)
 WITH CHECK (true);
 ```
 
-### Required Supabase Table
-
-Create a table `chore_app_state`:
+### Required Supabase table
 
 ```sql
 CREATE TABLE chore_app_state (
@@ -143,47 +141,34 @@ CREATE TABLE chore_app_state (
   app_data JSONB DEFAULT '{}'
 );
 
--- Optional seed (the app upserts GuhanAppV2 on first save)
 INSERT INTO chore_app_state (app_name, app_data)
-VALUES ('GuhanAppV2', '{}');
+VALUES ('GuhanApp', '{}');
 ```
 
-The app uses `APP_NAME = 'GuhanAppV2'` and **`.maybeSingle()`** on load so an empty table does not error (unlike `.single()` with zero rows).
+Use the same `app_name` as `APP_NAME` in `index.html`. The app uses **`.maybeSingle()`** on load so an empty table does not error.
 
-**If writes fail with** `no unique or exclusion constraint matching the ON CONFLICT specification`: your table was created **without** a primary/unique key on `app_name`. The app now uses **UPDATE then INSERT** so it works anyway; you should still add a PK so you never get duplicate rows:
-
-```sql
--- Only if no duplicate app_name values exist:
-ALTER TABLE chore_app_state ADD PRIMARY KEY (app_name);
-```
-
-### Default App Config (Parent Settings)
+### Default parent settings (main app)
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `startingAllowance` | 150 | Allowance at start of each month ($) |
-| `streakDaysForBonus` | 5 | Consecutive days required for bonus |
-| `bonusAmount` | 5 | Bonus when streak reached ($) |
-| `penaltyAmount` | 5 | Penalty when chores missed ($) |
-| `parentPassword` | Admin123+ | Password for parent mode |
+| `weeklyPotStart` | 25 | Weekly Pot after each Monday reset ($) |
+| `dailySuccessAmount` | 5 | Bonus when all weekday chores done ($) |
+| `dailyFailureAmount` | 5 | Penalty when any weekday chore open ($) |
+| `parentPassword` | (see `DEFAULT_PARENT_PASS` in app) | Parent unlock |
 
-### CSS Variables (Theme)
+Optional **`config.defaultSlots`** — per weekday (0–6) arrays of `{ start, end, text, preset? }` for the default schedule template.
+
+### CSS theme (approximate)
 
 ```css
---primary: #0891b2;      /* Cyan/teal */
---primary-bright: #22d3ee;
---accent: #f59e0b;       /* Amber */
---accent-soft: #fef3c7;
+--primary: #0d9488;
+--primary-dark: #0f766e;
+--accent: #f97316;
 --danger: #ef4444;
---success: #10b981;
---warning: #f59e0b;
+--success: #059669;
 --text: #0f172a;
 --text-muted: #64748b;
 ```
-
-### Timezone
-
-Uses `America/New_York` for date/timestamp display. Change in `nowStr()` and `todayDate` if needed.
 
 ---
 
@@ -191,118 +176,86 @@ Uses `America/New_York` for date/timestamp display. Change in `nowStr()` and `to
 
 ### Prerequisites
 
-- A Supabase project
-- Static file hosting (any) or local file server
+- Supabase project (optional but recommended for sync)
+- Static hosting or a local HTTP server
 
-### Local Development
+### Local development
 
-1. Clone the repo:
-   ```bash
-   git clone <repo-url>
-   cd gtaskmanager
-   ```
+1. `git clone <repo-url> && cd gtaskmanager`
+2. Create `chore_app_state` and align `app_name` with `APP_NAME`.
+3. Set `SUPABASE_URL` / `SUPABASE_KEY` in `index.html` if needed.
+4. Serve over HTTP (avoid `file://` for Supabase):
 
-2. Create the `chore_app_state` table in Supabase (see [Required Supabase Table](#required-supabase-table)).
-
-3. Update `SUPABASE_URL` and `SUPABASE_KEY` in `index.html` if using your own project.
-
-4. Run locally — use a local HTTP server (do not open `index.html` directly in a browser; `file://` URLs can cause CORS issues with Supabase):
-
-   **Option A: Python**
    ```bash
    python3 -m http.server 8000
-   ```
-   Then open http://localhost:8000 in your browser.
-
-   **Option B: Node**
-   ```bash
+   # or
    npx serve .
    ```
-   The CLI will print the URL (typically http://localhost:3000).
-
-5. Open the printed URL (e.g. `http://localhost:8000` or `http://localhost:3000`) in your browser.
 
 ### Deployment
 
-Deploy `index.html` and `guhan.png` to any static host:
-
-- **Netlify** — Drag & drop or connect repo
-- **Vercel** — `vercel` CLI or GitHub integration
-- **GitHub Pages** — Push to `gh-pages` branch or use Actions
-- **Supabase Storage** — Upload as static site (with redirect rules if SPA)
-
-No build step required.
+Ship `index.html` (and `guhan.png` if used). No build step.
 
 ---
 
 ## Usage
 
-### Child Flow
+### Child flow
 
-1. Open the app → see today's chores and allowance pot.
-2. Complete a chore → click checkbox → optional comment → Confirm.
-3. Waive a chore (if parent allows) → "Waive" button.
-4. Log extra chore (optional) → type in "Log a chore I did..." → Log it.
-5. Reminder Notes → write anything to remember later (auto-saved).
+1. Open the app — optional **Today's reminders** if something is pending (dismiss for the rest of the day).
+2. Use **Status** for pots and progress; **Today's Goals** for chores; **Daily Schedule** for the day plan.
+3. Complete a chore — checkbox → optional comment → Confirm.
+4. **Rules** — Read how the pots work; parents use **Parent login** here.
 
-### Parent Flow
+### Parent flow
 
-1. Click **Parent login** → enter password → unlock.
-2. Adjust **Settings** (allowance, streak days, bonus, penalty) → Save.
-3. Add chores under **Add Chore** (name + days M–S).
-4. Edit/delete chores in **All Chores** table.
-5. Use **Past chores** to fix historical completions (allowance recalculates).
-6. Double-click **Allowance Pot** to manually adjust balance.
+1. Open **Rules** → **Parent login** → password → **Exit Parent Mode** when done.
+2. **Today's Goals** tab → **Settings** (amounts, cloud test, password).
+3. Manage chores, default schedule, past chores, Activity Log, and Caution as needed.
+4. **← v1 (classic)** appears under Rules only while in parent mode.
 
 ---
 
-## Data Model
+## Data model
 
-### State Object
+### `state` object (main app, illustrative)
 
 ```javascript
 {
-  pot: number,              // Current allowance balance
-  streak: number,           // Consecutive full-completion days
-  tasks: [                  // Chore definitions
-    { id: number, name: string, days: number[] }  // days: 0=Sun..6=Sat
-  ],
-  history: [                // Activity log
-    { date, timestamp, msg, amt, class }
-  ],
-  lastCheck: string,         // Last date processed (locale format)
-  completedToday: number[], // Task IDs completed today
-  waivedToday: number[],    // Task IDs waived today
+  guhansBank: number,
+  weeklyPot: number,
+  tasks: [{ id: number, name: string, days: number[] }],  // 0=Sun … 6=Sat
+  history: [{ date, timestamp, msg, amt, class }],
+  lastCheck: string,                    // Last processed calendar day (en-US, ET)
+  completedToday: number[],
+  waivedToday: number[],
   customChoresToday: string[],
   config: {
-    startingAllowance, streakDaysForBonus, bonusAmount, penaltyAmount, parentPassword
+    weeklyPotStart, dailySuccessAmount, dailyFailureAmount, parentPassword,
+    defaultSlots?: { [dayNum] : [{ start, end, text, preset? }] }
   },
-  dayCompletions: {         // Past dates: { completed: [], waived: [] }
-    "M/D/YYYY": { completed: [taskId], waived: [taskId] }
-  },
-  lastMonthlyReset: string, // "YYYY-MM"
-  monthlyPots: {            // Saved pot at month end
-    "YYYY-MM": number
-  },
-  reminderNotes: string    // Kid's free-form reminder notes (auto-saved)
+  dayCompletions: { "M/D/YYYY": { completed: [], waived: [] } },
+  lastWeeklyReset: string | null,
+  lastWeekSettlement: string | null,
+  weeklyDeposits: { [weekKey]: number },
+  reminderNotes: string,
+  calendarBlocks: { "M/D/YYYY": [{ id, start, end, text }] }
 }
 ```
 
-### Day Codes
-
-- `0` = Sunday, `1` = Monday, … `6` = Saturday
+Persisted as JSON in Supabase `app_data` and in `localStorage` under `GuhanRewardHub_<APP_NAME>_v2`.
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 gtaskmanager/
-├── index.html      # Main app: Bank & Weekly Pot (Supabase: GuhanAppV2)
-├── index-v1.html # Legacy: streak / monthly allowance (Supabase: GuhanApp)
-├── guhan.png       # Profile image for header
-├── README.md       # This file
-└── .git/           # Git repository
+├── index.html      # Main app (Bank & Weekly Pot + schedule)
+├── index-v1.html   # Legacy streak / monthly model
+├── guhan.png       # Header profile image (optional)
+├── README.md
+└── .git/
 ```
 
 ---
