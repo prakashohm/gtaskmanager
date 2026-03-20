@@ -798,7 +798,7 @@
         <div class="app-main-tabs">
             <div class="app-tab-bar" role="tablist" aria-label="Main sections">
                 <button type="button" class="app-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-panel-status" id="appTabStatus" data-app-tab="status" onclick="setAppMainTab('status')">Status</button>
-                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-goals" id="appTabGoals" data-app-tab="goals" onclick="setAppMainTab('goals')">Today's Goals</button>
+                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-goals" id="appTabGoals" data-app-tab="goals" onclick="setAppMainTab('goals')">Today's Chores</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-schedule" id="appTabSchedule" data-app-tab="schedule" onclick="setAppMainTab('schedule')">Schedule</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-ledger" id="appTabLedger" data-app-tab="ledger" onclick="setAppMainTab('ledger')">Ledger</button>
             </div>
@@ -838,31 +838,8 @@
 
             <div id="tab-panel-goals" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabGoals">
                 <div class="goals-tab-inner" style="padding: 1rem 2rem 0;">
-                <div class="section parent-only">
-                    <h3>Settings</h3>
-                    <p id="cfgCurrentSummary" style="font-size:0.8rem; color:var(--text-muted); margin:0 0 0.5rem 0;"></p>
-                    <div class="settings-group">
-                        <div style="display:grid; gap:8px; font-size:0.9rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Weekly pot start ($):</span><input type="number" id="cfgWeeklyStart" min="0" step="0.5" style="width:72px"></label>
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Success bonus ($):</span><input type="number" id="cfgSuccessAmt" min="0" step="0.5" style="width:72px"></label>
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Miss penalty ($):</span><input type="number" id="cfgPenaltyAmt" min="0" step="0.5" style="width:72px"></label>
-                        </div>
-                        <div class="settings-actions">
-                            <button class="btn btn-save-settings" onclick="saveConfig()">Save settings</button>
-                        </div>
-                        <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15);">
-                            <button class="btn btn-change-pwd" onclick="openChangePasswordModal()">Change Password</button>
-                        </div>
-                        <div id="rhSupabasePanel" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15); font-size:0.85rem;">
-                            <div style="font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.06em; font-size:0.72rem; margin-bottom:0.35rem;">Cloud sync (Supabase)</div>
-                            <p id="rhSupabaseStatusLine" style="margin:0 0 0.5rem 0; color:var(--text); line-height:1.45;">Checking…</p>
-                            <p id="rhSupabaseHint" style="margin:0 0 0.6rem 0; font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Table <code style="font-size:0.85em;">chore_app_state</code>, row <code style="font-size:0.85em;">app_name = GuhanAppV2</code>. Use the <strong>anon public</strong> JWT (<code style="font-size:0.85em;">eyJ…</code>) from Supabase → Settings → API. If RLS is on, add a policy so anon can SELECT/INSERT/UPDATE this table.</p>
-                            <button type="button" class="btn" style="font-size:0.82rem; padding:0.45rem 0.85rem; background:rgba(13,148,136,0.12); color:var(--primary);" onclick="testRhSupabaseConnection()">Test connection &amp; read</button>
-                        </div>
-                    </div>
-                </div>
                 <div class="section">
-                    <h3>Today's Goals</h3>
+                    <h3>Today's Chores</h3>
                     <div id="taskList">Loading...</div>
                     <div id="pastWeekToggle" class="toggle-bar" onclick="togglePastWeek()"><span>View past week</span><span class="chevron">▼</span></div>
                     <div id="pastWeekContent" class="toggle-content"><div id="pastWeekList" style="margin-top:8px;"></div></div>
@@ -950,6 +927,32 @@
                         <h3>Ledger</h3>
                         <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 1rem;line-height:1.45;"><strong>Weekly Pot:</strong> <strong>WEEK_START</strong> (Monday base), <strong>WEEKDAY_BONUS</strong> / <strong>WEEKDAY_PENALTY</strong>, reversals, <strong>FRIDAY_SETTLE</strong> (to bank). <strong>Guhan's Bank (parent):</strong> <strong>BANK_ADD</strong> / <strong>BANK_DEDUCT</strong> — these do not change the Weekly Pot. Chore activity rows may show $0 (—). <strong>Newest first.</strong> Hover a row for its id.</p>
                         <div id="ledgerFullList" class="history-list ledger-full-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="parent-only" style="padding:0 2rem 0;">
+            <div class="section" style="margin-bottom: 0.75rem;">
+                <h3>Settings</h3>
+                <p id="cfgCurrentSummary" style="font-size:0.8rem; color:var(--text-muted); margin:0 0 0.5rem 0;"></p>
+                <div class="settings-group">
+                    <div style="display:grid; gap:8px; font-size:0.9rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Weekly pot start ($):</span><input type="number" id="cfgWeeklyStart" min="0" step="0.5" style="width:72px"></label>
+                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Success bonus ($):</span><input type="number" id="cfgSuccessAmt" min="0" step="0.5" style="width:72px"></label>
+                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Miss penalty ($):</span><input type="number" id="cfgPenaltyAmt" min="0" step="0.5" style="width:72px"></label>
+                    </div>
+                    <div class="settings-actions">
+                        <button class="btn btn-save-settings" onclick="saveConfig()">Save settings</button>
+                    </div>
+                    <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15);">
+                        <button class="btn btn-change-pwd" onclick="openChangePasswordModal()">Change Password</button>
+                    </div>
+                    <div id="rhSupabasePanel" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15); font-size:0.85rem;">
+                        <div style="font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.06em; font-size:0.72rem; margin-bottom:0.35rem;">Cloud sync (Supabase)</div>
+                        <p id="rhSupabaseStatusLine" style="margin:0 0 0.5rem 0; color:var(--text); line-height:1.45;">Checking…</p>
+                        <p id="rhSupabaseHint" style="margin:0 0 0.6rem 0; font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Table <code style="font-size:0.85em;">chore_app_state</code>, row <code style="font-size:0.85em;">app_name = GuhanAppV2</code>. Use the <strong>anon public</strong> JWT (<code style="font-size:0.85em;">eyJ…</code>) from Supabase → Settings → API. If RLS is on, add a policy so anon can SELECT/INSERT/UPDATE this table.</p>
+                        <button type="button" class="btn" style="font-size:0.82rem; padding:0.45rem 0.85rem; background:rgba(13,148,136,0.12); color:var(--primary);" onclick="testRhSupabaseConnection()">Test connection &amp; read</button>
                     </div>
                 </div>
             </div>
@@ -1962,6 +1965,7 @@
             document.body.classList.remove('parent-active');
             document.getElementById('lockBtn').innerText = "Parent login";
             document.getElementById('lockBtn').classList.remove('active');
+            syncGoalsTabLabel();
         } else {
             document.getElementById('parentPasswordInput').value = '';
             document.getElementById('parentPasswordError').style.display = 'none';
@@ -1981,6 +1985,7 @@
             document.getElementById('lockBtn').classList.add('active');
             document.getElementById('parentPasswordModal').classList.remove('open');
             loadConfigIntoUI();
+            syncGoalsTabLabel();
         } else {
             errEl.style.display = 'block';
             input.select();
@@ -2834,6 +2839,12 @@
         return "You're doing great—small steps add up to a big Weekly Pot. Keep going! ⭐";
     }
 
+    function syncGoalsTabLabel() {
+        const btn = document.getElementById('appTabGoals');
+        if (!btn) return;
+        btn.textContent = document.body.classList.contains('parent-active') ? 'Chores Settings' : "Today's Chores";
+    }
+
     function renderUI() {
         const cfg = getCfg();
         const todayNum = getDayNumEST(0);
@@ -3016,6 +3027,7 @@
                 }).join('')
                 : '<p style="color:var(--text-muted);margin:0;font-size:0.9rem;">No ledger entries yet. They appear after Monday base, weekday results, and Friday transfers.</p>';
         }
+        syncGoalsTabLabel();
     }
 
     function restoreAppMainTab() {

@@ -2,7 +2,7 @@
 
 A chore tracker and allowance-style motivation web app for kids. Track daily goals (Mon–Fri), **Weekly Pot** and **Guhan's Bank**, optional **Daily Schedule** blocks, and sync data to the cloud (Supabase) for use across devices.
 
-> **Main app** (`index.html`) — Bank + Weekly Pot: weekday success/miss rules, Friday settlement to savings, **Monthly Pot** summary, **three main tabs** (Status · Today's Goals · Daily Schedule), and a **daily reminders** popup after load. **Legacy v1** (`index-v1.html`) uses a different model and cloud row (`GuhanApp` vs main app — see `APP_NAME` in `index.html`).
+> **Main app** (`index.html`) — Bank + Weekly Pot: weekday success/miss rules, Friday settlement to savings, **Monthly Pot** summary, **three main tabs** (Status · **Today's Chores** in kid view / **Chores Settings** in parent mode · Daily Schedule), and a **daily reminders** popup after load. **Legacy v1** (`index-v1.html`) uses a different model and cloud row (`GuhanApp` vs main app — see `APP_NAME` in `index.html`).
 
 ![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0d9488)
 
@@ -24,22 +24,22 @@ A chore tracker and allowance-style motivation web app for kids. Track daily goa
 
 ### Navigation (main app)
 
-- **Three tabs** — **Status** (pots, weekday progress, Activity Log in parent mode), **Today's Goals** (settings, goals, extras, chore management in parent mode), **Daily Schedule** (default template + per-day calendar).
+- **Three tabs** — **Status** (pots, weekday progress, Activity Log in parent mode), **Today's Chores** / **Chores Settings** (same tab: chores + extras; parent tab label switches when unlocked), **Daily Schedule** (default template + per-day calendar).
 - **Tab memory** — Last tab is restored for the session (`sessionStorage`: `rh_app_main_tab`).
 - **Today's reminders** — After data loads, a modal can list **pending goals for today** and **schedule blocks still ahead** (Eastern Time). Shown only when there is something pending; **dismiss is remembered once per calendar day (ET)** via `localStorage` key `rh_daily_reminders_dismissed`.
 
 ### Child view
 
-- **Today's Goals** — Chores for the current day (Sun–Sat per task schedule); check off with optional comment; toasts and celebrations when all weekday chores are done.
+- **Today's Chores** — Chores for the current day (Sun–Sat per task schedule); check off with optional comment; toasts and celebrations when all weekday chores are done.
 - **Status** — Weekly Pot, Guhan's Bank, weekday strip + motivation copy; Activity Log (parent).
 - **Daily Schedule** — Scroll days; **By time** (grid) or **Activities** (list) on narrow screens; tap slots to add/edit blocks.
 - **Extras** — Log optional custom chores (does not change Weekly Pot rules).
 - **Past week** — Toggle to see recent days.
-- **Rules** — Collapsible rules list. **Parent login** lives in the Rules footer; **← v1 (classic)** appears only in **Parent mode** (legacy app link).
+- **Rules** — Collapsible rules list (below **Settings** when parent mode is on). **Parent login** lives in the Rules footer; **← v1 (classic)** appears only in **Parent mode** (legacy app link).
 
 ### Parent mode (password protected)
 
-- **Settings** — Weekly pot start, success bonus, miss penalty; Supabase status + test; change password.
+- **Settings** — Above **Rules**. Weekly pot start, success bonus, miss penalty; Supabase status + test; change password.
 - **Add / All chores** — Manage tasks and weekdays; **Override Past chores** editor; waive / undo (where allowed).
 - **Default schedule** — Template time blocks per weekday; merges with kid-specific **Daily Schedule** overrides.
 - **Activity Log** — On **Status** tab (parent only).
@@ -212,14 +212,14 @@ The main app includes **`manifest.webmanifest`** and **`sw.js`**:
 ### Child flow
 
 1. Open the app — optional **Today's reminders** if something is pending (dismiss for the rest of the day).
-2. Use **Status** for pots and progress; **Today's Goals** for chores; **Daily Schedule** for the day plan.
+2. Use **Status** for pots and progress; **Today's Chores** for chores; **Daily Schedule** for the day plan.
 3. Complete a chore — checkbox → optional comment → Confirm.
 4. **Rules** — Read how the pots work; parents use **Parent login** here.
 
 ### Parent flow
 
 1. Open **Rules** → **Parent login** → password → **Exit Parent Mode** when done.
-2. **Today's Goals** tab → **Settings** (amounts, cloud test, password).
+2. **Chores Settings** tab for chores tools; **Settings** (amounts, cloud test, password) sits above **Rules**.
 3. Manage chores, default schedule, past chores, Activity Log, and Caution as needed.
 4. **← v1 (classic)** appears under Rules only while in parent mode.
 
