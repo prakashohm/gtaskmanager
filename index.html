@@ -1039,23 +1039,19 @@
                 }
 
                 if (dayNum >= 1 && dayNum <= 5) {
-                    const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
-                    const { delta, mode } = computeWeekdayPotDelta(dayNum, dc);
-                    if (mode !== 'none') {
-                        state.weeklyPot += delta;
-                        if (mode === 'success') {
+                    const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+                    if (dayTasks.length > 0) {
+                        const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
+                        const finished = dayTasks.filter(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+                        if (finished.length === dayTasks.length) {
+                            state.weeklyPot += cfg.dailySuccessAmount;
                             state.history.unshift({ date: "SUCCESS", timestamp: nowStr(), msg: "All chores done! (" + dateKey + ")", amt: "+$" + cfg.dailySuccessAmount.toFixed(2), class: "amt-pos" });
                         } else {
+                            state.weeklyPot -= cfg.dailyFailureAmount;
                             state.history.unshift({ date: "MISS", timestamp: nowStr(), msg: "Missed chores (" + dateKey + ")", amt: "-$" + cfg.dailyFailureAmount.toFixed(2), class: "amt-neg" });
                         }
                     }
                 }
-            }
-
-            /** Today is Monday but catch-up range was only Sat–Sun (etc.): Monday never appeared in the loop. */
-            if (todayDayNum === 1 && !mondayResetInLoop) {
-                state.weeklyPot = cfg.weeklyPotStart;
-                state.lastWeeklyReset = getWeekKeyFromDateKey(today);
             }
 
             if (!fridaySettledInLoop && todayDayNum === 6 && getDayNumForDate(yesterdayKey) === 5) {
