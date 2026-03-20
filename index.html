@@ -1500,6 +1500,10 @@
             postLedgerUnique(id, type, canon, penaltyDelta, msg);
         }
     }
+    /** mondayDateKey = that week's Monday as m/d/y (America/New_York calendar). */
+    function formatWeekStartLedgerMsg(mondayDateKey) {
+        return 'Monday weekly pot base credit for the week starting ' + mondayDateKey;
+    }
     function recordWeekStartLedger(dateKey) {
         const isoWk = getWeekKeyFromDateKey(dateKey);
         const id = 'week_start_' + isoWk;
@@ -1508,12 +1512,13 @@
         state.weeklyPot = cfg.weeklyPotStart;
         ensureWeeklyLedger();
         const ts = nowStr();
+        const wkMsg = formatWeekStartLedgerMsg(dateKey);
         state.weeklyLedger.unshift({
             id, type: 'WEEK_START', dateKey, weekKey: isoWk, amount: cfg.weeklyPotStart,
-            msg: 'Monday weekly pot base credit', timestamp: ts
+            msg: wkMsg, timestamp: ts
         });
         state.history.unshift({
-            date: 'WEEK_START', timestamp: ts, msg: 'Monday weekly pot base credit · ' + dateKey,
+            date: 'WEEK_START', timestamp: ts, msg: wkMsg,
             amt: '+$' + cfg.weeklyPotStart.toFixed(2), class: 'amt-pos', ledgerId: id
         });
         state.lastWeeklyReset = isoWk;
@@ -1534,12 +1539,13 @@
             const cfg = getCfg();
             ensureWeeklyLedger();
             const ts = nowStr();
+            const wkMsg0 = formatWeekStartLedgerMsg(monKey);
             state.weeklyLedger.unshift({
                 id: wid, type: 'WEEK_START', dateKey: monKey, weekKey: isoWk,
-                amount: cfg.weeklyPotStart, msg: 'Monday weekly pot base credit', timestamp: ts
+                amount: cfg.weeklyPotStart, msg: wkMsg0, timestamp: ts
             });
             state.history.unshift({
-                date: 'WEEK_START', timestamp: ts, msg: 'Monday weekly pot base credit · ' + monKey,
+                date: 'WEEK_START', timestamp: ts, msg: wkMsg0,
                 amt: '+$' + cfg.weeklyPotStart.toFixed(2), class: 'amt-pos', ledgerId: wid
             });
             state.lastWeeklyReset = isoWk;
@@ -2991,7 +2997,10 @@
                     const typeLabel = (typeShort === 'BANK_ADD' || typeShort === 'BANK_DEDUCT')
                         ? typeShort + ' · Bank'
                         : typeShort;
-                    return `<div class="history-item" title="${(e.id || '').replace(/"/g, '&quot;')}"><span style="font-weight:700;font-size:0.62rem;color:var(--primary-dark);min-width:5.5rem;flex-shrink:0">${typeLabel}</span><span style="flex:1;margin:0 10px;line-height:1.35"><span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:2px">${escapeHtml(String(ts))}</span>${escapeHtml(e.msg || '')} · <span style="color:var(--text-muted)">${escapeHtml(String(e.dateKey || ''))}</span></span><span class="${amtClass}" style="flex-shrink:0">${amtStr}</span></div>`;
+                    const dateTail = typeShort === 'WEEK_START'
+                        ? ''
+                        : (' · <span style="color:var(--text-muted)">' + escapeHtml(String(e.dateKey || '')) + '</span>');
+                    return `<div class="history-item" title="${(e.id || '').replace(/"/g, '&quot;')}"><span style="font-weight:700;font-size:0.62rem;color:var(--primary-dark);min-width:5.5rem;flex-shrink:0">${typeLabel}</span><span style="flex:1;margin:0 10px;line-height:1.35"><span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:2px">${escapeHtml(String(ts))}</span>${escapeHtml(e.msg || '')}${dateTail}</span><span class="${amtClass}" style="flex-shrink:0">${amtStr}</span></div>`;
                 }).join('')
                 : '<p style="color:var(--text-muted);margin:0;font-size:0.9rem;">No ledger entries yet. They appear after Monday base, weekday results, and Friday transfers.</p>';
         }
