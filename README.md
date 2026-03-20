@@ -99,8 +99,12 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 
 ### Data Flow
 
-1. **Load** — `loadCloudData()` fetches from Supabase → merges into `state` → `checkDailyLogic()` → `renderUI()`
-2. **User Action** — Handler updates `state` → `saveAction()` → `renderUI()` + `syncToCloud()`
+1. **Load** — `loadCloudData()` tries Supabase first; if that fails or returns empty, it restores from **browser `localStorage`** (`GuhanRewardHub_GuhanAppV2_v2`). Then `checkDailyLogic()` → `saveAction()` → `renderUI()`.
+2. **User Action** — Handler updates `state` → `saveAction()` → `renderUI()` + **`localStorage` always** + `syncToCloud()` when Supabase is configured and reachable.
+
+**Why data seemed to “disappear” before:** Persistence was **only** Supabase. Opening the HTML as `file://`, ad/script blockers, RLS/network errors, or a missing table row meant **nothing was saved**. The local backup fixes offline / local use; cloud still syncs when it works.
+
+**Note:** Local storage is **per browser / per device** — use Supabase (or export) to share across devices.
 3. **Daily Logic** — On date change (EST midnight): persist yesterday's completions, apply bonus/penalty, reset `completedToday`/`waivedToday`
 4. **Monthly Reset** — On month change: save current pot to `monthlyPots[lastMonth]`, reset pot to `startingAllowance`, clear streak
 
