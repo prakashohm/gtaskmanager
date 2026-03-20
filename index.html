@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guhan's Chore Tracker (Sync)</title>
+    <title>Guhan's RewardHub — Bank & Weekly Pot</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
@@ -74,16 +74,64 @@
         .chores-management { background: linear-gradient(135deg, rgba(245, 158, 11, 0.04) 0%, rgba(8, 145, 178, 0.05) 100%); }
         .section h3 { margin: 0 0 0.9rem 0; font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.12em; }
         
-        .pot-inline { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.75rem 0; }
-        .pot-value { font-size: 2.5rem; font-weight: 800; color: var(--success); background: linear-gradient(135deg, var(--success) 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 0; letter-spacing: -0.03em; display: inline-block; }
-        .pot-edit-input { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; background: #fff !important; }
-        .parent-active .pot-value.pot-editable { cursor: pointer; }
-        .parent-active .pot-value.pot-editable:hover { text-decoration: underline; text-decoration-style: dotted; }
-        .streak-pill { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.4)); color: #92400e; padding: 0.4rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2); }
-        .streak-boxes { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
-        .streak-box { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; border: 2px solid rgba(245, 158, 11, 0.4); }
-        .streak-box.done { background: linear-gradient(135deg, var(--success), #059669); border-color: var(--success); color: white; }
-        .streak-box.pending { background: rgba(245, 158, 11, 0.15); color: rgba(146, 64, 14, 0.4); }
+        .pot-center { width: 100%; max-width: 100%; box-sizing: border-box; }
+        .bank-row {
+            display: flex; flex-wrap: nowrap; gap: 0.75rem; justify-content: stretch; align-items: stretch;
+            margin-bottom: 1rem; width: 100%;
+        }
+        .bank-card {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: none;
+            padding: 0.85rem 0.6rem; border-radius: 16px;
+            border: 2px solid rgba(8, 145, 178, 0.15);
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(8, 145, 178, 0.04) 100%);
+            display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+            box-sizing: border-box;
+        }
+        .bank-card.vault { border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(8, 145, 178, 0.04) 100%); }
+        .bank-card.piggy { border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(251, 191, 36, 0.04) 100%); }
+        .bank-card.monthly { border-color: rgba(99, 102, 241, 0.35); background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(129, 140, 248, 0.05) 100%); color: var(--text); }
+        .bank-card.monthly .bank-icon { color: #4f46e5; stroke: #4f46e5; }
+        .bank-month-pill { font-size: clamp(0.58rem, 1.8vw, 0.7rem); font-weight: 700; color: #4f46e5; background: rgba(99, 102, 241, 0.12); padding: 3px 8px; border-radius: 999px; text-transform: none; letter-spacing: 0.02em; text-align: center; max-width: 100%; }
+        .bank-month-note { font-size: clamp(0.58rem, 1.9vw, 0.72rem); color: var(--text-muted); margin: 0; text-align: center; line-height: 1.35; max-width: 100%; }
+        .bank-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; text-align: center; line-height: 1.25; }
+        .bank-value { font-size: clamp(1rem, 3.2vw, 1.65rem); font-weight: 800; margin: 0; letter-spacing: -0.03em; }
+        .bank-value.positive { color: var(--success); }
+        .bank-value.negative { color: var(--danger); }
+        .bank-value.neutral { color: var(--text); }
+        .bank-icon { width: clamp(36px, 8vw, 44px); height: clamp(36px, 8vw, 44px); flex-shrink: 0; }
+        
+        .progress-bar-wrap { width: 100%; max-width: 100%; margin: 0.5rem 0 0; }
+        .progress-bar { height: 12px; background: rgba(8, 145, 178, 0.15); border-radius: 999px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+        .progress-bar-fill.positive { background: linear-gradient(90deg, var(--success), #059669); }
+        .progress-bar-fill.negative { background: linear-gradient(90deg, var(--danger), #dc2626); }
+        .progress-bar-fill.zero { background: var(--text-muted); width: 2px !important; }
+        .progress-label { font-size: clamp(0.65rem, 2vw, 0.8rem); color: var(--text-muted); margin-top: 4px; text-align: center; line-height: 1.3; }
+        @media (max-width: 520px) {
+            .bank-row { gap: 0.5rem; }
+            .bank-card { padding: 0.65rem 0.4rem; border-radius: 12px; }
+        }
+        
+        .summary-box { margin-top: 1rem; padding: 1rem 1.25rem; border-radius: 14px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.06) 100%); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .summary-box h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #92400e; }
+        .summary-box p { margin: 0; font-size: 0.9rem; color: var(--text); }
+        .weekday-progress-wrap { margin-top: 0.35rem; }
+        .weekday-progress-bar { display: flex; gap: 6px; align-items: stretch; height: 14px; margin-bottom: 0.65rem; }
+        .weekday-progress-seg { flex: 1; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; min-width: 0; }
+        .weekday-progress-seg.done, .weekday-progress-seg.free { background: linear-gradient(180deg, #34d399, #059669); box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
+        .weekday-progress-seg.partial { background: linear-gradient(180deg, #fcd34d, #f59e0b); }
+        .weekday-progress-seg.open { background: linear-gradient(180deg, rgba(251, 191, 36, 0.5), rgba(245, 158, 11, 0.35)); border: 1px dashed rgba(180, 83, 9, 0.45); }
+        .weekday-progress-seg.missed { background: linear-gradient(180deg, #fca5a5, #dc2626); }
+        .weekday-progress-seg.upcoming { background: rgba(148, 163, 184, 0.2); border: 1px dashed rgba(100, 116, 139, 0.35); }
+        .weekday-progress-labels { display: flex; justify-content: space-between; gap: 4px; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+        .weekday-progress-labels span { flex: 1; text-align: center; min-width: 0; }
+        .weekday-motivate { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.45; margin: 0 0 0.35rem 0; }
+        .weekday-pot-hint { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+        
+        .pot-editable { cursor: pointer; }
+        .parent-active .pot-editable:hover { text-decoration: underline; text-decoration-style: dotted; }
         
         .task-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; margin: 4px 0; border-radius: 14px; transition: all 0.2s; background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(8, 145, 178, 0.03) 100%); border: 1px solid rgba(8, 145, 178, 0.05); }
         .task-item:hover { background: rgba(8, 145, 178, 0.08); }
@@ -118,21 +166,41 @@
         .amt-pos { color: var(--success); font-weight: 700; }
         .amt-neg { color: var(--danger); font-weight: 700; }
 
-        .bonus-highlight {
-            display: inline-block;
-            font-size: 1.15em;
-            font-weight: 800;
-            background: linear-gradient(135deg, #eab308 0%, #ca8a04 30%, #facc15 50%, #ca8a04 70%, #eab308 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: bonus-shimmer 2.5s ease-in-out infinite;
-            padding: 0 3px;
+        /* Toast & Level-up animations */
+        .toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { padding: 0.9rem 1.5rem; border-radius: 14px; font-weight: 600; font-size: 1rem; box-shadow: 0 8px 24px rgba(0,0,0,0.15); animation: toast-in 0.4s ease; }
+        .toast.success { background: linear-gradient(135deg, var(--success), #059669); color: white; }
+        .toast.level-up { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 1.1rem; }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes bonus-shimmer {
-            0%, 100% { background-position: 0% center; }
-            50% { background-position: 100% center; }
+        .level-up-overlay { position: fixed; inset: 0; z-index: 998; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        .level-up-overlay.active { opacity: 1; visibility: visible; animation: levelup-bg 1.5s ease; }
+        .level-up-content { font-size: 2rem; font-weight: 800; color: white; text-shadow: 0 2px 12px rgba(0,0,0,0.3); animation: levelup-pop 0.8s ease; }
+        @keyframes levelup-bg {
+            0% { background: transparent; }
+            20% { background: rgba(16, 185, 129, 0.4); }
+            80% { background: rgba(16, 185, 129, 0.3); }
+            100% { background: transparent; }
+        }
+        @keyframes levelup-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .piggy-shake { animation: piggy-shake 0.5s ease; }
+        @keyframes piggy-shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .piggy-bounce { animation: piggy-bounce 0.5s ease; }
+        @keyframes piggy-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
         
         .modal-overlay { position:fixed; inset:0; background:rgba(15, 23, 42, 0.4); display:none; align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(8px); }
@@ -166,6 +234,26 @@
         .chores-matrix .day-on { color: var(--success); font-weight: 700; }
         .chores-matrix .day-off { color: var(--text-muted); opacity: 0.5; }
         .chores-matrix .actions-cell { text-align: right; white-space: nowrap; }
+
+        /* Default Schedule Calendar */
+        .default-schedule-section { margin-top: 0; }
+        .default-schedule-calendar { margin-top: 0.5rem; }
+        .default-schedule-calendar .calendar-day-tabs { margin-bottom: 1rem; }
+        .default-schedule-add { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(8,145,178,0.15); }
+        .default-schedule-add-label { font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; }
+        .default-schedule-add-row {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr) minmax(0,0.9fr) auto;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        @media (max-width: 600px) {
+            .default-schedule-add-row { grid-template-columns: 1fr 1fr; }
+            .default-schedule-add-row #dsLabel, .default-schedule-add-row #dsPreset, .default-schedule-add-row .btn { grid-column: 1 / -1; }
+        }
+        .default-schedule-add-row input, .default-schedule-add-row select { padding: 0.4rem 0.6rem; font-size: 0.85rem; border-radius: 8px; border: 1px solid rgba(8,145,178,0.25); }
+        .default-schedule-calendar .calendar-hour-slot { cursor: pointer; }
+        .default-schedule-calendar .calendar-hour-slot.blocked:hover { background: linear-gradient(135deg, rgba(8, 145, 178, 0.2), rgba(8, 145, 178, 0.12)); }
         
         input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea { 
             padding: 0.6rem 0.9rem; border-radius: 12px; border: 1px solid rgba(8, 145, 178, 0.25); font-size: 0.95rem; font-family: inherit;
@@ -173,25 +261,120 @@
         }
         input[type="number"] { width: auto; }
         input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.2); }
+
+        /* Daily Calendar */
+        .calendar-wrap { margin-top: 0.5rem; }
+        .calendar-toolbar { display: none; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .calendar-view-switch { display: flex; background: rgba(8, 145, 178, 0.12); border-radius: 14px; padding: 4px; gap: 4px; flex: 1; min-width: 0; max-width: 100%; }
+        .calendar-view-btn {
+            flex: 1; border: none; background: transparent; padding: 12px 10px; border-radius: 10px;
+            font-weight: 700; font-size: 0.82rem; font-family: inherit; color: var(--text-muted); cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s; -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-view-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 10px rgba(8, 145, 178, 0.15); }
+        .calendar-jump-now {
+            flex-shrink: 0; padding: 12px 16px; border-radius: 999px; border: 2px solid var(--primary);
+            background: white; color: var(--primary); font-weight: 700; font-size: 0.8rem; font-family: inherit; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-jump-now:active { transform: scale(0.98); }
+        .calendar-schedule-body { position: relative; }
+        .calendar-cards-list { display: none; flex-direction: column; gap: 10px; margin-bottom: 0.5rem; }
+        .calendar-cards-list.is-visible { display: flex; }
+        .calendar-quick-add {
+            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+            padding: 16px 18px; border-radius: 16px; border: 2px dashed rgba(8, 145, 178, 0.45);
+            background: rgba(8, 145, 178, 0.06); color: var(--primary); font-weight: 700; font-size: 0.95rem;
+            font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-quick-add:active { background: rgba(8, 145, 178, 0.12); }
+        .calendar-quick-add-icon { font-size: 1.35rem; line-height: 1; font-weight: 800; }
+        .calendar-cards-empty { margin: 0; padding: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; }
+        .calendar-activity-card {
+            display: block; width: 100%; text-align: left;
+            padding: 16px 18px; border-radius: 16px; border: none;
+            background: linear-gradient(135deg, rgba(8, 145, 178, 0.12), rgba(8, 145, 178, 0.05));
+            border-left: 5px solid var(--primary); cursor: pointer; font-family: inherit;
+            box-shadow: 0 2px 12px rgba(8, 145, 178, 0.08); transition: transform 0.15s, box-shadow 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-activity-card:active { transform: scale(0.99); }
+        .calendar-activity-card.preset-morning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1)); border-left-color: #d97706; }
+        .calendar-activity-card.preset-school { border-left-color: var(--primary); }
+        .calendar-activity-card.preset-bed { background: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(129, 140, 248, 0.08)); border-left-color: #4f46e5; }
+        .calendar-activity-meta { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .calendar-activity-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 999px; background: rgba(8, 145, 178, 0.15); color: var(--primary); font-weight: 700; text-transform: none; letter-spacing: 0; }
+        .calendar-activity-title { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+        .calendar-activity-tap-hint { display: block; margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); }
+        .calendar-day-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 4px; }
+        .calendar-day-tab { padding: 0.5rem 0.85rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 2px solid rgba(8, 145, 178, 0.2); background: rgba(255,255,255,0.6); color: var(--text); transition: all 0.2s; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+        .calendar-day-tab:hover:not(.readonly) { background: rgba(8, 145, 178, 0.08); border-color: rgba(8, 145, 178, 0.3); }
+        .calendar-day-tab.active { background: linear-gradient(135deg, var(--primary), #0e7490); color: white; border-color: var(--primary); }
+        .calendar-day-tab.readonly { opacity: 0.7; cursor: default; color: var(--text-muted); }
+        .calendar-day-tab.today { border-color: var(--accent); font-weight: 700; }
+        .calendar-hour-grid { border: 1px solid rgba(8, 145, 178, 0.15); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,0.5); }
+        .calendar-hour-row { display: flex; align-items: stretch; min-height: 32px; border-bottom: 1px solid rgba(8, 145, 178, 0.08); transition: background 0.15s; }
+        .calendar-hour-row:last-child { border-bottom: none; }
+        .calendar-hour-row:hover { background: rgba(8, 145, 178, 0.04); }
+        .calendar-hour-row.free:hover { background: rgba(16, 185, 129, 0.06); }
+        .calendar-hour-label { width: 64px; flex-shrink: 0; padding: 0.35rem 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; }
+        .calendar-hour-slot { flex: 1; padding: 0.4rem 0.6rem; display: flex; align-items: center; cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; }
+        .calendar-hour-slot.free { cursor: pointer; }
+        .calendar-hour-slot.blocked { background: linear-gradient(135deg, rgba(8, 145, 178, 0.15), rgba(8, 145, 178, 0.08)); border-left: 4px solid var(--primary); cursor: pointer; }
+        .calendar-hour-slot.preset-morning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.12)); border-left-color: #d97706; }
+        .calendar-hour-slot.preset-school { background: linear-gradient(135deg, rgba(8, 145, 178, 0.2), rgba(8, 145, 178, 0.1)); border-left-color: var(--primary); }
+        .calendar-hour-slot.preset-bed { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.12)); border-left-color: #4f46e5; }
+        .calendar-hour-slot.readonly { cursor: default; pointer-events: none; }
+        .calendar-hour-slot.blocked.readonly { cursor: default; }
+        .calendar-block-text { font-size: 0.85rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .calendar-add-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+        .calendar-occupancy { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; flex-wrap: wrap; }
+        .calendar-occupancy-bar { flex: 1; min-width: 120px; height: 8px; background: rgba(8, 145, 178, 0.12); border-radius: 999px; overflow: hidden; }
+        .calendar-occupancy-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #0e7490); border-radius: 999px; transition: width 0.3s; }
+        /* Mobile-first schedule UI */
+        @media (max-width: 680px) {
+            .calendar-toolbar { display: flex; }
+            .calendar-day-tabs {
+                flex-wrap: nowrap; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch;
+                gap: 8px; padding: 6px 0 12px; margin: 0 0 10px 0; scrollbar-width: none;
+            }
+            .calendar-day-tabs::-webkit-scrollbar { height: 0; }
+            .calendar-day-tab {
+                flex: 0 0 auto; scroll-snap-align: start; padding: 14px 18px; min-height: 48px;
+                font-size: 0.9rem; border-radius: 14px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            }
+            .calendar-hour-grid { border-radius: 16px; }
+            .calendar-hour-row { min-height: 50px; }
+            .calendar-hour-label { width: 72px; padding: 0.5rem 0.45rem 0.5rem 0.65rem; font-size: 0.8rem; }
+            .calendar-hour-slot { padding: 12px 14px; min-height: 50px; align-items: center; }
+            .calendar-block-text { white-space: normal; font-size: 0.95rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+            .calendar-occupancy { font-size: 0.8rem; }
+            .modal-overlay.modal-calendar-block { align-items: flex-end; padding: 0; }
+            .modal-overlay.modal-calendar-block .modal {
+                width: 100%; max-width: 100%; margin: 0; border-radius: 20px 20px 0 0;
+                padding: 1.25rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+                max-height: 88vh; overflow-y: auto; animation: calendarSheetUp 0.25s ease-out;
+            }
+            .modal-overlay.modal-calendar-block .modal .btn { min-height: 48px; font-size: 0.95rem; }
+            .modal-overlay.modal-calendar-block .calendar-modal-actions { flex-direction: column; gap: 10px !important; }
+            .modal-overlay.modal-calendar-block .calendar-modal-actions .btn { width: 100%; flex: none !important; }
+        }
+        @keyframes calendarSheetUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
         
-        .pot-hero { width: 100%; padding: 1.5rem 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(8, 145, 178, 0.06) 50%, rgba(245, 158, 11, 0.04) 100%); border-top: 1px solid rgba(8, 145, 178, 0.08); border-bottom: 1px solid rgba(8, 145, 178, 0.08); box-sizing: border-box; }
-        .pot-center { width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; padding: 0; margin: 0; border: none; background: none; }
-        .pot-center .pot-inline { align-items: center; }
-        .pot-title { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin: 0 0 0.5rem 0; font-size: 1.25rem; font-weight: 800; color: var(--primary); letter-spacing: 0.02em; text-transform: none; }
-        .pot-title svg { flex-shrink: 0; opacity: 0.95; color: var(--primary); }
-        .top-row { display: flex; justify-content: center; padding: 1rem 2rem; }
-        .top-cell { min-width: 0; padding: 1.25rem; border-radius: 14px; border: 1px solid rgba(8, 145, 178, 0.1); background: linear-gradient(135deg, rgba(8, 145, 178, 0.06) 0%, rgba(8, 145, 178, 0.02) 100%); }
-        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0 0 0 0; margin-top: 0.5rem; } }
+        @media (max-width: 900px) { .flow-grid { grid-template-columns: 1fr; padding: 0 2rem 1rem; } .flow-main { padding: 1.5rem 0; } .flow-side { padding: 0; margin-top: 0.5rem; } }
     </style>
 </head>
 <body id="bodyTag">
+
+<div id="toastContainer" class="toast-container"></div>
+<div id="levelUpOverlay" class="level-up-overlay"><div class="level-up-content">Level Up! 🎉</div></div>
 
 <div class="container">
     <div class="flow-panel">
         <header>
             <div class="header-left">
                 <div class="profile-container">
-                    <div class="profile-pic-wrap"><img src="guhan.png" alt="Guhan" class="profile-pic" style="object-position: 80% 15%;"></div>
+                    <div class="profile-pic-wrap"><img src="guhan.png" alt="Guhan" class="profile-pic" style="object-position: 80% 15%;" onerror="this.style.display='none'"></div>
                     <h1 class="header-title">Guhan's RewardHub</h1>
                 </div>
                 <p id="todayDate"></p>
@@ -199,20 +382,34 @@
             <p class="thirukural" dir="ltr">தெய்வத்தான் ஆகாது எனினும் முயற்சிதன்<br>மெய்வருத்தக் கூலி தரும்.</p>
         </header>
 
-        <div class="pot-hero">
-            <div class="section pot-center">
-                <h2 class="pot-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 122.88 96.2" fill="currentColor" class="pot-title-icon"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 42.92h24.83V87.1H0V42.92zM85.36 20.49c9.01 0 16.32 7.3 16.32 16.32 0 9.01-7.3 16.32-16.32 16.32-9.01 0-16.32-7.3-16.32-16.32C69.04 27.8 76.34 20.49 85.36 20.49zM56.72 0C64.49 0 70.8 6.3 70.8 14.08c0 7.77-6.3 14.08-14.08 14.08-7.77 0-14.08-6.3-14.08-14.08C42.64 6.31 48.94 0 56.72 0zM58.15 17.07c0-.46-.11-.81-.34-1.07-.23-.26-.62-.5-1.18-.73-.56-.23-1.08-.46-1.55-.69-.47-.24-.89-.51-1.23-.82-.35-.31-.61-.67-.79-1.07-.19-.41-.27-.9-.27-1.48 0-.97.33-1.77.98-2.39.65-.62 1.52-1 2.61-1.1v-1.3h1.37v1.33c1.05.15 1.88.58 2.48 1.29.6.71.9 1.61.9 2.69H58.2c0-.6-.12-1.06-.35-1.38-.23-.32-.56-.48-.98-.48-.38 0-.68.12-.88.35-.21.24-.31.57-.31.98 0 .42.12.76.36 1.01.25.25.63.49 1.16.72.53.23 1.04.46 1.51.7.47.25.88.52 1.22.83.35.31.62.68.81 1.09.19.41.3.9.3 1.49 0 .98-.31 1.78-.94 2.4-.63.62-1.47.98-2.54 1.08v1.22H56.2v-1.22c-1.25-.14-2.21-.56-2.88-1.28-.67-.73-1.01-1.68-1.01-2.87h2.91c0 .66.14 1.15.43 1.5.29.34.7.52 1.23.52.39 0 .69-.12.92-.35.23-.24.35-.56.36-.98zM87.01 40.27c0-.53-.13-.94-.39-1.24-.26-.3-.71-.58-1.37-.85-.65-.26-1.25-.54-1.8-.8-.55-.27-1.03-.59-1.43-.95-.4-.36-.7-.77-.92-1.24-.22-.47-.31-1.04-.31-1.71 0-1.13.38-2.05 1.14-2.77.75-.72 1.76-1.15 3.02-1.27v-1.51h1.59v1.55c1.21.18 2.17.68 2.87 1.5.7.82 1.05 1.86 1.05 3.12h-3.38c0-.7-.14-1.22-.4-1.6-.26-.37-.65-.56-1.14-.56-.44 0-.78.14-1.02.41-.24.27-.36.66-.36 1.14 0 .49.14.88.42 1.17.28.29.72.57 1.34.83.62.26 1.2.54 1.75.81.55.28 1.02.61 1.42.96.4.36.71.78.94 1.26.23.48.34 1.05.34 1.72 0 1.14-.36 2.07-1.09 2.78-.72.71-1.7 1.14-2.95 1.25v1.41h-1.59v-1.42c-1.45-.16-2.56-.65-3.34-1.49-.77-.84-1.16-1.95-1.16-3.33h3.37c0 .76.17 1.33.5 1.73.33.39.81.6 1.43.6.45 0 .8-.14 1.07-.4.27-.27.41-.64.42-1.14zM85.36 23.7c7.23 0 13.1 5.86 13.1 13.1 0 7.23-5.86 13.1-13.1 13.1-7.23 0-13.1-5.86-13.1-13.1 0-7.23 5.87-13.1 13.1-13.1zM29.83 83.39V46.47h16.61c7.04 1.26 14.08 5.08 21.12 9.51h12.9c5.84.35 8.9 6.27 3.22 10.16-4.52 3.32-10.49 3.13-16.61 2.58-4.22-.21-4.4 5.46 0 5.48 1.53.12 3.19-.24 4.64-.24 7.64-.01 13.92-1.47 17.77-7.5l1.93-4.51 19.19-9.51c9.6-3.16 16.42 6.88 9.35 13.87-13.9 10.11-28.15 18.43-42.73 25.15-10.59 6.44-21.18 6.22-31.76 0L29.83 83.39z"/></svg>
-                    Allowance Pot
-                </h2>
-                <div class="pot-inline">
-                    <div id="allowancePot" class="pot-value" title="Double-click to edit (Parent mode)" ondblclick="startEditPot()">...</div>
-                    <p id="streakMessage" class="pot-tagline" style="font-size:0.95rem; font-weight:600; color:#92400e; margin:0;">...</p>
-                    <div class="streak-row" style="display:flex; flex-direction:column; align-items:center; gap:0.35rem;">
-                        <div id="streakBoxes" class="streak-boxes" title="X of Y consecutive days toward bonus"></div>
+        <div class="pot-hero" style="padding: 1.5rem 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(8, 145, 178, 0.06) 50%, rgba(245, 158, 11, 0.04) 100%);">
+            <div class="section pot-center" style="background: none; border: none;">
+                <div class="bank-row">
+                    <div class="bank-card piggy" id="piggyCard">
+                        <span class="bank-label">Weekly Pot</span>
+                        <svg class="bank-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.24 2 7 4.24 7 7v1H4v2h3v12h10V10h3V8h-3V7c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v1H9V7c0-1.66 1.34-3 3-3zm-1 6h2v6h-2v-6z"/></svg>
+                        <p id="weeklyPot" class="bank-value">$0.00</p>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar"><div id="weeklyProgressFill" class="progress-bar-fill" style="width: 50%"></div></div>
+                            <div id="weeklyProgressLabel" class="progress-label">Week progress</div>
+                        </div>
+                    </div>
+                    <div class="bank-card monthly" id="monthlyPotCard">
+                        <span class="bank-label">Monthly Pot</span>
+                        <span class="bank-month-pill" id="monthlyPotMonthLabel">—</span>
+                        <svg class="bank-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+                        <p id="monthlyPotTotal" class="bank-value positive">$0.00</p>
+                        <p class="bank-month-note">Sum of all Friday-to-Bank transfers this month (America/New_York calendar).</p>
+                    </div>
+                    <div class="bank-card vault">
+                        <span class="bank-label">Guhan's Bank (Savings)</span>
+                        <svg class="bank-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><circle cx="12" cy="14" r="2"/></svg>
+                        <p id="guhansBank" class="bank-value positive pot-editable" title="Double-click to edit (Parent mode)" ondblclick="startEditBank()">$0.00</p>
                     </div>
                 </div>
-                <div id="pastMonthsToggle" class="toggle-bar pot-hero-toggle" onclick="togglePastMonths()"><span>Past months earned</span><span class="chevron">▼</span></div>
+                <div id="weeklySummary" class="summary-box" style="display:none;"></div>
+                <p id="weekMessage" style="font-size:0.9rem; font-weight:600; color:var(--text); margin:0.5rem 0 0;"></p>
+                <div id="pastMonthsToggle" class="toggle-bar pot-hero-toggle" onclick="togglePastMonths()"><span>Past weeks deposited</span><span class="chevron">▼</span></div>
                 <div id="pastMonthsContent" class="toggle-content"><div id="pastMonthsList" style="margin-top:8px;"></div></div>
             </div>
         </div>
@@ -224,10 +421,9 @@
                     <p id="cfgCurrentSummary" style="font-size:0.8rem; color:var(--text-muted); margin:0 0 0.5rem 0;"></p>
                     <div class="settings-group">
                         <div style="display:grid; gap:8px; font-size:0.9rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Starting allowance ($):</span><input type="number" id="cfgStarting" min="0" step="1" style="width:72px"></label>
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Days for increment:</span><input type="number" id="cfgStreakDays" min="1" step="1" style="width:72px"></label>
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Increment ($):</span><input type="number" id="cfgBonus" min="0" step="0.5" style="width:72px"></label>
-                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Penalty ($):</span><input type="number" id="cfgPenalty" min="0" step="0.5" style="width:72px"></label>
+                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Weekly pot start ($):</span><input type="number" id="cfgWeeklyStart" min="0" step="0.5" style="width:72px"></label>
+                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Success bonus ($):</span><input type="number" id="cfgSuccessAmt" min="0" step="0.5" style="width:72px"></label>
+                            <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Miss penalty ($):</span><input type="number" id="cfgPenaltyAmt" min="0" step="0.5" style="width:72px"></label>
                         </div>
                         <div class="settings-actions">
                             <button class="btn btn-save-settings" onclick="saveConfig()">Save settings</button>
@@ -243,7 +439,7 @@
                     <div id="pastWeekToggle" class="toggle-bar" onclick="togglePastWeek()"><span>View past week</span><span class="chevron">▼</span></div>
                     <div id="pastWeekContent" class="toggle-content"><div id="pastWeekList" style="margin-top:8px;"></div></div>
                     <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(8,145,178,0.1);">
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 6px 0;">Did something extra? (optional—does not affect allowance)</p>
+                        <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 6px 0;">Did something extra? (optional—does not affect Weekly Pot)</p>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <input type="text" id="customChoreInput" placeholder="Log a chore I did..." style="flex:1; min-width:140px">
                             <button class="btn btn-primary" onclick="logCustomChore()" style="padding:0.5rem 1rem; font-size:0.85rem;">Log it</button>
@@ -279,11 +475,47 @@
             </div>
         </div>
 
+        <div class="parent-only" style="padding:0 2rem 1rem;">
+            <div class="section default-schedule-section chores-management">
+                <h3>Default schedule</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Preset blocks shown on the calendar per day. User blocks override these.</p>
+                <div class="calendar-wrap default-schedule-calendar">
+                    <div class="calendar-day-tabs" id="defaultScheduleDayTabs"></div>
+                    <div class="calendar-hour-grid" id="defaultScheduleHourGrid"></div>
+                    <div class="default-schedule-add" id="defaultScheduleAddForm">
+                        <div class="default-schedule-add-label">Add block for <span id="defaultScheduleAddDayLabel">Mon</span>:</div>
+                        <div class="default-schedule-add-row">
+                            <select id="dsStart" onchange="updateDsEndOptsForCalendar()"></select>
+                            <select id="dsEnd"></select>
+                            <input type="text" id="dsLabel" placeholder="Label" />
+                            <select id="dsPreset"><option value="custom">Other</option><option value="morning">Get ready</option><option value="school">School</option><option value="bed">Bed</option></select>
+                            <button type="button" class="btn btn-primary" onclick="addDefaultSlotFromCalendar()">+ Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div style="padding:0 2rem 1.5rem;">
             <div class="section" style="margin-bottom:0.75rem;">
-                <h3>Reminder Notes</h3>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Write anything you want to remind yourself later.</p>
-                <textarea id="reminderNotes" placeholder="e.g. Bring soccer cleats tomorrow, finish book report by Friday..." rows="5" style="resize:vertical;min-height:100px;width:100%;box-sizing:border-box" oninput="debounceSaveReminder()" onblur="saveReminderNow()"></textarea>
+                <h3>Daily Schedule</h3>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Plan your day: scroll days, then use <strong>By time</strong> (grid) or <strong>Activities</strong> (list) on your phone—tap to add or edit.</p>
+                <div class="calendar-wrap">
+                    <div class="calendar-toolbar" id="calendarToolbar" aria-hidden="true">
+                        <div class="calendar-view-switch" role="tablist" aria-label="How to view the schedule">
+                            <button type="button" role="tab" class="calendar-view-btn active" id="calendarViewTimelineBtn" aria-selected="true" onclick="setCalendarMobileView('timeline')">By time</button>
+                            <button type="button" role="tab" class="calendar-view-btn" id="calendarViewListBtn" aria-selected="false" onclick="setCalendarMobileView('list')">Activities</button>
+                        </div>
+                        <button type="button" class="calendar-jump-now" id="calendarJumpNowBtn" onclick="scrollCalendarToNow()" style="display:none">Now</button>
+                    </div>
+                    <div class="calendar-day-tabs" id="calendarDayTabs"></div>
+                    <div class="calendar-occupancy" id="calendarOccupancy"><span id="calendarOccupancyText">—</span><div class="calendar-occupancy-bar"><div id="calendarOccupancyFill" class="calendar-occupancy-fill" style="width:0%"></div></div></div>
+                    <div class="calendar-schedule-body">
+                        <div class="calendar-hour-grid" id="calendarHourGrid"></div>
+                        <div class="calendar-cards-list" id="calendarCardsList"></div>
+                    </div>
+                    <p class="calendar-add-hint" id="calendarAddHint">Click an empty hour to add a block, or a filled block to edit.</p>
+                </div>
             </div>
             <div id="rulesToggle" class="toggle-bar" onclick="toggleRules()"><span>Rules</span><span class="chevron">▼</span></div>
             <div id="rulesContent" class="toggle-content rules-content">
@@ -304,6 +536,7 @@
         </div>
 
         <div style="padding:1rem 2rem 1.5rem; text-align:right;">
+            <a href="index-v1.html" style="font-size:0.85rem;color:var(--text-muted);margin-right:1rem;">← v1</a>
             <a href="#" id="lockBtn" class="parent-mode-link" onclick="toggleParentMode(); return false;">Parent login</a>
         </div>
     </div>
@@ -312,10 +545,9 @@
 <div id="changePasswordModal" class="modal-overlay" onclick="if(event.target===this)closeChangePasswordModal()">
     <div class="modal modal-parent-password" onclick="event.stopPropagation()">
         <h3 style="margin-top:0; text-align:center;">Change Parent Password</h3>
-        <p style="text-align:center; color:#64748b; font-size:0.9rem; margin:0 0 1rem 0">Enter current password and choose a new one.</p>
-        <input type="password" id="changePwdCurrent" placeholder="Current password" autocomplete="off" style="width:100%; padding:12px 16px; border-radius:10px; border:2px solid #e2e8f0; font-size:1rem; box-sizing:border-box; margin-bottom:10px;">
-        <input type="password" id="changePwdNew" placeholder="New password" autocomplete="new-password" style="width:100%; padding:12px 16px; border-radius:10px; border:2px solid #e2e8f0; font-size:1rem; box-sizing:border-box; margin-bottom:10px;">
-        <input type="password" id="changePwdConfirm" placeholder="Confirm new password" autocomplete="new-password" style="width:100%; padding:12px 16px; border-radius:10px; border:2px solid #e2e8f0; font-size:1rem; box-sizing:border-box; margin-bottom:0.5rem;" onkeydown="if(event.key==='Enter')submitChangePassword()">
+        <input type="password" id="changePwdCurrent" placeholder="Current password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;">
+        <input type="password" id="changePwdNew" placeholder="New password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;">
+        <input type="password" id="changePwdConfirm" placeholder="Confirm new password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;" onkeydown="if(event.key==='Enter')submitChangePassword()">
         <p id="changePwdError" style="color:var(--danger); font-size:0.85rem; margin:0 0 1rem 0; display:none;"></p>
         <div style="display:flex; gap:10px;">
             <button class="btn btn-primary" onclick="submitChangePassword()" style="flex:1">Change Password</button>
@@ -327,9 +559,8 @@
 <div id="parentPasswordModal" class="modal-overlay" onclick="if(event.target===this)closeParentPasswordModal()">
     <div class="modal modal-parent-password" onclick="event.stopPropagation()">
         <h3 style="margin-top:0; text-align:center;">Parent login</h3>
-        <p style="text-align:center; color:#64748b; font-size:0.9rem; margin:0 0 1rem 0">Enter the parent password to access settings and manage chores.</p>
-        <input type="password" id="parentPasswordInput" placeholder="Enter password" autocomplete="off" style="width:100%; padding:14px 16px; border-radius:10px; border:2px solid #e2e8f0; font-size:1rem; box-sizing:border-box; margin-bottom:0.5rem;" onkeydown="if(event.key==='Enter')submitParentPassword()">
-        <p id="parentPasswordError" style="color:var(--danger); font-size:0.85rem; margin:0 0 1rem 0; display:none;">Incorrect password. Try again.</p>
+        <input type="password" id="parentPasswordInput" placeholder="Enter password" style="width:100%; padding:14px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;" onkeydown="if(event.key==='Enter')submitParentPassword()">
+        <p id="parentPasswordError" style="color:var(--danger); font-size:0.85rem; margin:0 0 1rem 0; display:none;"></p>
         <div style="display:flex; gap:10px;">
             <button class="btn btn-primary" onclick="submitParentPassword()" style="flex:1">Unlock</button>
             <button class="btn" onclick="closeParentPasswordModal()" style="background:#e2e8f0; color:#475569">Cancel</button>
@@ -373,11 +604,8 @@
 
 <div id="resetDataModal" class="modal-overlay" onclick="if(event.target===this)closeResetDataModal()">
     <div class="modal modal-parent-password" onclick="event.stopPropagation()" style="max-width:400px;text-align:center">
-        <div class="reset-modal-icon" style="width:72px;height:72px;margin:0 auto 1rem;border-radius:50%;background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.15));display:flex;align-items:center;justify-content:center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-        </div>
         <h3 style="margin:0 0 0.5rem;">Reset All Data?</h3>
-        <p id="resetModalMessage" style="font-size:0.9rem; color:var(--text-muted); margin:0 0 1.25rem; line-height:1.5">This will clear all chores, activity history, and reset the pot. This cannot be undone.</p>
+        <p id="resetModalMessage" style="font-size:0.9rem; color:var(--text-muted); margin:0 0 1.25rem; line-height:1.5"></p>
         <div style="display:flex;gap:10px;">
             <button class="btn" onclick="closeResetDataModal()" style="flex:1;background:#e2e8f0;color:#475569">Cancel</button>
             <button class="btn" onclick="confirmResetAllData()" style="flex:1;background:rgba(220,38,38,0.9);color:white">Reset All Data</button>
@@ -385,10 +613,33 @@
     </div>
 </div>
 
+<div id="calendarBlockModal" class="modal-overlay modal-calendar-block" onclick="if(event.target===this)closeCalendarBlockModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
+        <h3 style="margin-top:0;" id="calendarBlockModalTitle">Block Time</h3>
+        <div id="calendarBlockTimeWrap" style="margin-bottom:1rem;">
+            <div id="calendarBlockTimeEdit" style="display:none;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">From <span id="calendarBlockStartHour"></span> to <span id="calendarBlockEndHour"></span></div>
+            <div id="calendarBlockTimeAdd" style="display:none;">
+                <label style="display:block;font-size:0.85rem;margin-bottom:4px">Start</label>
+                <select id="calendarBlockStartSelect" onchange="updateCalendarBlockEndOptions()" style="width:100%;padding:8px 12px;margin-bottom:8px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box"></select>
+                <label style="display:block;font-size:0.85rem;margin-bottom:4px">End</label>
+                <select id="calendarBlockEndSelect" style="width:100%;padding:8px 12px;margin-bottom:4px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box"></select>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin:0">Select end time to span multiple slots</p>
+            </div>
+        </div>
+        <label style="display:block;font-size:0.85rem;margin-bottom:4px">What are you doing?</label>
+        <textarea id="calendarBlockText" placeholder="e.g. Math class, Homework, Soccer practice..." rows="3" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box;resize:vertical;margin-bottom:1rem"></textarea>
+        <div class="calendar-modal-actions" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save</button>
+            <button class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger)" id="calendarBlockDeleteBtn">Delete</button>
+            <button class="btn" onclick="closeCalendarBlockModal()" style="background:#e2e8f0;color:#475569">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <div id="pastChoresModal" class="modal-overlay" onclick="if(event.target===this)closePastChoresModal()">
     <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
         <h3 style="margin-top:0;">Past Chores</h3>
-        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px 0">View and update completion status for past days. Double-click the Allowance Pot to adjust it if needed after editing.</p>
+        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px 0">Edit completion for past days. Double-click Guhan's Bank to adjust if needed.</p>
         <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Select date:</label>
         <input type="date" id="pastChoresDate" onchange="renderPastChoresForDate()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
         <div id="pastChoresList" class="history-list" style="max-height:280px;margin-bottom:1rem"></div>
@@ -401,154 +652,49 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    // --- UI HANDLERS (defined first so onclick always works) ---
-    function toggleParentMode() {
-        if (document.body.classList.contains('parent-active')) {
-            document.body.classList.remove('parent-active');
-            document.getElementById('lockBtn').innerText = "Parent login";
-            document.getElementById('lockBtn').classList.remove('active');
-        } else {
-            document.getElementById('parentPasswordInput').value = '';
-            document.getElementById('parentPasswordError').style.display = 'none';
-            document.getElementById('parentPasswordModal').classList.add('open');
-            setTimeout(() => document.getElementById('parentPasswordInput').focus(), 100);
-        }
-    }
-    function closeParentPasswordModal() {
-        document.getElementById('parentPasswordModal').classList.remove('open');
-        document.getElementById('parentPasswordInput').value = '';
-        document.getElementById('parentPasswordError').style.display = 'none';
-    }
-    function submitParentPassword() {
-        const input = document.getElementById('parentPasswordInput');
-        const errEl = document.getElementById('parentPasswordError');
-        if (input.value === getParentPassword()) {
-            document.body.classList.add('parent-active');
-            document.getElementById('lockBtn').innerText = "Exit Parent Mode";
-            document.getElementById('lockBtn').classList.add('active');
-            closeParentPasswordModal();
-            loadConfigIntoUI();
-        } else {
-            errEl.style.display = 'block';
-            input.select();
-            input.focus();
-        }
-    }
-    window.toggleParentMode = toggleParentMode;
-    window.closeParentPasswordModal = closeParentPasswordModal;
-    window.submitParentPassword = submitParentPassword;
-
-    function openChangePasswordModal() {
-        document.getElementById('changePwdCurrent').value = '';
-        document.getElementById('changePwdNew').value = '';
-        document.getElementById('changePwdConfirm').value = '';
-        document.getElementById('changePwdError').style.display = 'none';
-        document.getElementById('changePwdError').innerText = '';
-        document.getElementById('changePasswordModal').classList.add('open');
-        setTimeout(() => document.getElementById('changePwdCurrent').focus(), 100);
-    }
-    function closeChangePasswordModal() {
-        document.getElementById('changePasswordModal').classList.remove('open');
-    }
-    async function submitChangePassword() {
-        const current = document.getElementById('changePwdCurrent').value;
-        const newPwd = document.getElementById('changePwdNew').value;
-        const confirmPwd = document.getElementById('changePwdConfirm').value;
-        const errEl = document.getElementById('changePwdError');
-        if (current !== getParentPassword()) {
-            errEl.innerText = 'Current password is incorrect.';
-            errEl.style.display = 'block';
-            document.getElementById('changePwdCurrent').focus();
-            return;
-        }
-        if (!newPwd || newPwd.length < 4) {
-            errEl.innerText = 'New password must be at least 4 characters.';
-            errEl.style.display = 'block';
-            document.getElementById('changePwdNew').focus();
-            return;
-        }
-        if (newPwd !== confirmPwd) {
-            errEl.innerText = 'New passwords do not match.';
-            errEl.style.display = 'block';
-            document.getElementById('changePwdConfirm').focus();
-            return;
-        }
-        state.config.parentPassword = newPwd;
-        closeChangePasswordModal();
-        await saveAction();
-    }
-    window.openChangePasswordModal = openChangePasswordModal;
-    window.closeChangePasswordModal = closeChangePasswordModal;
-    window.submitChangePassword = submitChangePassword;
-
-    function toggleCaution() {
-        const toggle = document.getElementById('cautionToggle');
-        const content = document.getElementById('cautionContent');
-        toggle.classList.toggle('open');
-        content.classList.toggle('open');
-    }
-    function togglePastWeek() {
-        const toggle = document.getElementById('pastWeekToggle');
-        const content = document.getElementById('pastWeekContent');
-        toggle.classList.toggle('open');
-        content.classList.toggle('open');
-    }
-    function togglePastMonths() {
-        const toggle = document.getElementById('pastMonthsToggle');
-        const content = document.getElementById('pastMonthsContent');
-        toggle.classList.toggle('open');
-        content.classList.toggle('open');
-    }
-    function toggleRules() {
-        const toggle = document.getElementById('rulesToggle');
-        const content = document.getElementById('rulesContent');
-        toggle.classList.toggle('open');
-        content.classList.toggle('open');
-    }
-    window.toggleCaution = toggleCaution;
-    window.togglePastWeek = togglePastWeek;
-    window.togglePastMonths = togglePastMonths;
-    window.toggleRules = toggleRules;
-
-    // --- 1. CONFIGURATION ---
+(function() {
     const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
     const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
     const DEFAULT_PARENT_PASS = "Admin123+";
+    const APP_NAME = 'GuhanAppV2';
+    const EST = 'America/New_York';
 
+    const DEFAULT_CONFIG = { weeklyPotStart: 25, dailySuccessAmount: 5, dailyFailureAmount: 5, parentPassword: DEFAULT_PARENT_PASS };
+
+    const DEFAULT_SLOTS_WEEKDAY = {
+        1: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
+        2: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
+        3: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
+        4: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
+        5: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
+        0: [], 6: []
+    };
+    
     let supabaseClient = null;
     try {
         if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { console.warn("Supabase init failed:", e); }
 
-    const DEFAULT_CONFIG = { startingAllowance: 150, streakDaysForBonus: 5, bonusAmount: 5, penaltyAmount: 5, parentPassword: DEFAULT_PARENT_PASS };
-    function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
     let state = {
-        pot: 150, streak: 0, tasks: [], history: [], 
-        lastCheck: (() => new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' }))(), 
+        guhansBank: 0,
+        weeklyPot: 25,
+        tasks: [],
+        history: [],
+        lastCheck: (() => new Date().toLocaleDateString('en-US', { timeZone: EST }))(),
         completedToday: [], waivedToday: [],
         customChoresToday: [],
         config: { ...DEFAULT_CONFIG },
         dayCompletions: {},
-        lastMonthlyReset: null,
-        monthlyPots: {},
-        reminderNotes: ''
+        lastWeeklyReset: null,
+        lastWeekSettlement: null,
+        weeklyDeposits: {},
+        reminderNotes: '',
+        calendarBlocks: {}
     };
-    const EST = 'America/New_York';
-    function nowStr() {
-        return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: EST });
-    }
-    function getTodayEST() {
-        return new Date().toLocaleDateString('en-US', { timeZone: EST });
-    }
-    function getDateESTOffset(offsetDays) {
-        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
-        const p = formatter.formatToParts(new Date());
-        const y = parseInt(p.find(x => x.type === 'year').value);
-        const m = parseInt(p.find(x => x.type === 'month').value) - 1;
-        const d = parseInt(p.find(x => x.type === 'day').value);
-        const d2 = new Date(y, m, d + offsetDays);
-        return d2.toLocaleDateString('en-US');
-    }
+
+    function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
+    function nowStr() { return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: EST }); }
+    function getTodayEST() { return new Date().toLocaleDateString('en-US', { timeZone: EST }); }
     function getDayNumEST(offsetDays) {
         const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
         const p = formatter.formatToParts(new Date());
@@ -557,85 +703,53 @@
         const d = parseInt(p.find(x => x.type === 'day').value);
         return new Date(y, m, d + offsetDays).getDay();
     }
-
-    // --- 2. DATA SYNC ---
-    async function loadCloudData() {
-        if (!supabaseClient) {
-            checkDailyLogic();
-            renderUI();
-            return;
-        }
-        try {
-            const { data, error } = await supabaseClient
-                .from('chore_app_state')
-                .select('app_data')
-                .eq('app_name', 'GuhanApp')
-                .single();
-            if (data && data.app_data && Object.keys(data.app_data).length > 0) {
-                const loaded = data.app_data;
-                state = {
-                    ...loaded,
-                    config: { ...DEFAULT_CONFIG, ...(loaded.config || {}) },
-                    dayCompletions: loaded.dayCompletions || {},
-                    monthlyPots: loaded.monthlyPots || {},
-                    customChoresToday: loaded.customChoresToday || [],
-                    reminderNotes: loaded.reminderNotes || ''
-                };
-            }
-        } catch (e) { console.warn("Cloud load failed:", e); }
-        checkDailyLogic();
-        renderUI();
-    }
-
-    async function syncToCloud() {
-        if (!supabaseClient) return;
-        try {
-            const { error } = await supabaseClient
-                .from('chore_app_state')
-                .update({ app_data: state })
-                .eq('app_name', 'GuhanApp');
-            if (error) console.error("Cloud Error:", error);
-        } catch (e) { console.warn("Cloud sync failed:", e); }
-    }
-
-    // --- 3. CORE LOGIC ---
-    function getCfg() { return { ...DEFAULT_CONFIG, ...state.config }; }
-    function getMonthKey(d) {
-        if (d) return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric' });
-        const p = formatter.formatToParts(new Date());
-        const y = p.find(x => x.type === 'year').value;
-        const m = p.find(x => x.type === 'month').value;
-        return y + '-' + m.padStart(2, '0');
-    }
-    function checkMonthlyReset() {
-        const currentMonth = getMonthKey();
-        const lastMonth = state.lastMonthlyReset || (parseLocaleDateKey(state.lastCheck) ? getMonthKey(parseLocaleDateKey(state.lastCheck)) : getMonthKey());
-        if (lastMonth !== currentMonth) {
-            const cfg = getCfg();
-            state.monthlyPots[lastMonth] = state.pot;
-            state.pot = cfg.startingAllowance;
-            state.streak = 0;
-            state.lastMonthlyReset = currentMonth;
-            state.history.unshift({ date: "MONTHLY", timestamp: nowStr(), msg: "New month — Allowance reset (saved $" + state.monthlyPots[lastMonth].toFixed(2) + ")", amt: "—", class: "" });
-        }
-    }
-    function formatMonthKey(key) {
-        if (!key || typeof key !== 'string') return 'Unknown';
-        const parts = key.split('-');
-        const y = parseInt(parts[0], 10);
-        const m = parseInt(parts[1], 10);
-        if (isNaN(y) || isNaN(m) || m < 1 || m > 12) return key;
-        const d = new Date(y, m - 1, 1);
-        if (isNaN(d.getTime())) return key;
-        return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    }
-    function getPreviousMonthKey() {
-        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric' });
+    function getDateESTOffset(offsetDays) {
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
         const p = formatter.formatToParts(new Date());
         const y = parseInt(p.find(x => x.type === 'year').value);
+        const m = parseInt(p.find(x => x.type === 'month').value) - 1;
+        const d = parseInt(p.find(x => x.type === 'day').value);
+        return new Date(y, m, d + offsetDays).toLocaleDateString('en-US');
+    }
+    function getWeekKey(d) {
+        const date = d ? new Date(d) : new Date();
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' });
+        const p = formatter.formatToParts(date);
+        const y = parseInt(p.find(x => x.type === 'year').value);
         const m = parseInt(p.find(x => x.type === 'month').value);
-        return getMonthKey(new Date(y, m - 2, 1));
+        const day = parseInt(p.find(x => x.type === 'day').value);
+        const dObj = new Date(y, m - 1, day);
+        const dayOfWeek = dObj.getDay();
+        const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monday = new Date(dObj);
+        monday.setDate(dObj.getDate() + monOffset);
+        return monday.getFullYear() + '-' + String(monday.getMonth() + 1).padStart(2, '0') + '-' + String(monday.getDate()).padStart(2, '0');
+    }
+    function getYMDInEST(date) {
+        const p = new Intl.DateTimeFormat('en-US', { timeZone: EST, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
+        return { y: +p.find(x => x.type === 'year').value, m: +p.find(x => x.type === 'month').value };
+    }
+    /** Friday settlement date (in EST) for a weeklyDeposits key (ISO Monday of that week). */
+    function getSettlementFridayYMDInEST(weekKey) {
+        const parts = (weekKey || '').split('-').map(Number);
+        if (parts.length !== 3 || !parts[0]) return null;
+        const [y, mo, d] = parts;
+        const fri = new Date(y, mo - 1, d + 4);
+        return getYMDInEST(fri);
+    }
+    function getMonthlyBankTransfersSum() {
+        const nowEST = getYMDInEST(new Date());
+        let sum = 0;
+        const wd = state.weeklyDeposits || {};
+        for (const [wk, raw] of Object.entries(wd)) {
+            const fri = getSettlementFridayYMDInEST(wk);
+            if (!fri) continue;
+            if (fri.y === nowEST.y && fri.m === nowEST.m) sum += Number(raw) || 0;
+        }
+        return sum;
+    }
+    function formatCurrentMonthLabelEST() {
+        return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: EST });
     }
     function parseLocaleDateKey(key) {
         if (!key) return null;
@@ -654,129 +768,281 @@
         const out = [];
         const cur = new Date(start);
         while (cur <= end) {
-            out.push(cur.toLocaleDateString());
+            out.push(cur.toLocaleDateString('en-US'));
             cur.setDate(cur.getDate() + 1);
         }
         return out;
     }
-    function recalculateAllowanceFromDate(changedDateKeys) {
-        if (!changedDateKeys || changedDateKeys.length === 0) return;
-        const cfg = getCfg();
-        const todayKey = getTodayEST();
-        const earliest = changedDateKeys.sort().filter(k => k !== todayKey)[0];
-        if (!earliest) return;
-        const earliestDate = parseLocaleDateKey(earliest);
-        if (!earliestDate) return;
-        const monthStart = new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1);
-        const monthStartKey = monthStart.toLocaleDateString();
-        const allDates = getAllDatesBetween(monthStartKey, todayKey);
-        if (allDates.length < 2) return;
-        let pot = cfg.startingAllowance;
-        let streak = 0;
-        const monthlyPotsCopy = { ...state.monthlyPots };
-        for (let i = 1; i < allDates.length; i++) {
-            const prevDateKey = allDates[i - 1];
-            const currDateKey = allDates[i];
-            const prevDate = parseLocaleDateKey(prevDateKey);
-            const currDate = parseLocaleDateKey(currDateKey);
-            if (!prevDate || !currDate) continue;
-            if (getMonthKey(prevDate) !== getMonthKey(currDate)) {
-                monthlyPotsCopy[getMonthKey(prevDate)] = pot;
-                pot = cfg.startingAllowance;
-                streak = 0;
-            }
-            const yDay = prevDate.getDay();
-            const yTasks = state.tasks.filter(t => t.days.includes(yDay));
-            if (yTasks.length > 0) {
-                const dc = state.dayCompletions[prevDateKey] || { completed: [], waived: [] };
-                const finished = yTasks.filter(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
-                if (finished.length === yTasks.length) {
-                    streak++;
-                    if (streak >= cfg.streakDaysForBonus) {
-                        pot += cfg.bonusAmount;
-                        streak = 0;
-                    }
-                } else {
-                    pot -= cfg.penaltyAmount;
-                    streak = 0;
-                }
-            }
-        }
-        state.pot = pot;
-        state.streak = streak;
-        state.monthlyPots = monthlyPotsCopy;
-        state.history.unshift({ date: "RECALC", timestamp: nowStr(), msg: "Allowance recalculated after editing past chores", amt: "—", class: "" });
+    function getDayNumForDate(dateKey) {
+        const d = parseLocaleDateKey(dateKey);
+        return d ? d.getDay() : -1;
     }
+    function dateStrToLocale(dStr) {
+        const [y, m, d] = dStr.split('-').map(Number);
+        return new Date(y, m - 1, d).toLocaleDateString();
+    }
+
+    function isWeekday(dayNum) { return dayNum >= 1 && dayNum <= 5; }
+    function isTaskFreeDay(dayNum) { return dayNum === 0 || dayNum === 6; }
+
+    function getCfg() { return { ...DEFAULT_CONFIG, ...state.config }; }
+
+    function getDefaultSlotsForDay(dayNum) {
+        const cfg = state.config?.defaultSlots || {};
+        if (cfg[dayNum] && Array.isArray(cfg[dayNum]) && cfg[dayNum].length > 0) return cfg[dayNum];
+        return DEFAULT_SLOTS_WEEKDAY[dayNum] || [];
+    }
+
+    function mergeBlocks(defaultBlocks, userBlocks) {
+        const result = userBlocks.map(b => ({ ...b, isPreset: false }));
+        for (const db of defaultBlocks) {
+            let remaining = [{ start: db.start, end: db.end, text: db.text, preset: db.preset, isPreset: true }];
+            for (const ub of userBlocks) {
+                const next = [];
+                for (const r of remaining) {
+                    if (ub.end <= r.start || ub.start >= r.end) { next.push(r); continue; }
+                    if (ub.start > r.start) next.push({ ...r, end: Math.min(r.end, ub.start) });
+                    if (ub.end < r.end) next.push({ ...r, start: Math.max(r.start, ub.end) });
+                }
+                remaining = next;
+            }
+            result.push(...remaining.filter(r => r.end > r.start));
+        }
+        return result.sort((a, b) => a.start - b.start);
+    }
+
+    function migrateFromV1(loaded) {
+        if (loaded.pot != null && loaded.guhansBank == null) {
+            loaded.guhansBank = loaded.pot;
+            loaded.weeklyPot = getCfg().weeklyPotStart || 25;
+            delete loaded.pot;
+        }
+        if (loaded.monthlyPots && !loaded.weeklyDeposits) {
+            loaded.weeklyDeposits = {};
+        }
+        return loaded;
+    }
+
+    async function loadCloudData() {
+        if (!supabaseClient) {
+            checkDailyLogic();
+            renderUI();
+            return;
+        }
+        try {
+            const { data, error } = await supabaseClient.from('chore_app_state').select('app_data').eq('app_name', APP_NAME).single();
+            if (data?.app_data && Object.keys(data.app_data).length > 0) {
+                let loaded = migrateFromV1(data.app_data);
+                state = {
+                    ...loaded,
+                    config: { ...DEFAULT_CONFIG, ...(loaded.config || {}) },
+                    dayCompletions: loaded.dayCompletions || {},
+                    weeklyDeposits: loaded.weeklyDeposits || {},
+                    customChoresToday: loaded.customChoresToday || [],
+                    reminderNotes: loaded.reminderNotes || '',
+                    calendarBlocks: loaded.calendarBlocks || {}
+                };
+            }
+        } catch (e) { console.warn("Cloud load failed:", e); }
+        checkDailyLogic();
+        renderUI();
+    }
+
+    async function syncToCloud() {
+        if (!supabaseClient) return;
+        try {
+            const { error } = await supabaseClient.from('chore_app_state').upsert({ app_name: APP_NAME, app_data: state }, { onConflict: 'app_name' });
+            if (error) console.error("Cloud sync failed:", error);
+        } catch (e) { console.warn("Cloud sync failed:", e); }
+    }
+
     function checkDailyLogic() {
-        checkMonthlyReset();
         const today = getTodayEST();
+        const todayDayNum = getDayNumEST(0);
+        const yesterdayKey = getDateESTOffset(-1);
+        const cfg = getCfg();
+
         if (state.lastCheck !== today) {
             state.dayCompletions[state.lastCheck] = { completed: [...state.completedToday], waived: [...state.waivedToday] };
             state.customChoresToday = [];
-            const yDay = getDayNumEST(-1);
-            const yTasks = state.tasks.filter(t => t.days.includes(yDay));
-            const cfg = getCfg();
-            if (yTasks.length > 0) {
-                const finished = yTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
-                if (finished.length === yTasks.length) {
-                    state.streak++;
-                    if (state.streak >= cfg.streakDaysForBonus) {
-                        state.pot += cfg.bonusAmount;
-                        state.history.unshift({ date: "BONUS", timestamp: nowStr(), msg: cfg.streakDaysForBonus + "-Day Streak!", amt: "+$" + cfg.bonusAmount.toFixed(2), class: "amt-pos" });
-                        state.streak = 0;
+            state.completedToday = [];
+            state.waivedToday = [];
+
+            const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
+
+            for (let i = 0; i < daysToProcess.length; i++) {
+                const dateKey = daysToProcess[i];
+                const dayNum = getDayNumForDate(dateKey);
+                const prevDateKey = i > 0 ? daysToProcess[i - 1] : null;
+                const prevDayNum = prevDateKey ? getDayNumForDate(prevDateKey) : null;
+
+                if (dayNum === 1) {
+                    state.weeklyPot = cfg.weeklyPotStart;
+                    state.lastWeeklyReset = getWeekKey(parseLocaleDateKey(dateKey));
+                }
+
+                if (prevDayNum === 5 && dayNum === 6) {
+                    state.guhansBank += state.weeklyPot;
+                    const amt = state.weeklyPot;
+                    const settleWeekKey = getWeekKey(parseLocaleDateKey(prevDateKey));
+                    state.weeklyDeposits[settleWeekKey] = amt;
+                    const msg = amt >= 0
+                        ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
+                        : "Week complete. $" + Math.abs(amt).toFixed(2) + " was subtracted from Guhan's Bank because the Weekly Pot was negative. Keep trying next week!";
+                    state.history.unshift({ date: "SETTLE", timestamp: nowStr(), msg, amt: (amt >= 0 ? "+" : "") + "$" + amt.toFixed(2), class: amt >= 0 ? "amt-pos" : "amt-neg" });
+                    state.weeklyPot = 0;
+                }
+
+                if (dayNum >= 1 && dayNum <= 5) {
+                    const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+                    if (dayTasks.length > 0) {
+                        const dc = state.dayCompletions[dateKey] || { completed: [], waived: [] };
+                        const finished = dayTasks.filter(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+                        if (finished.length === dayTasks.length) {
+                            state.weeklyPot += cfg.dailySuccessAmount;
+                            state.history.unshift({ date: "SUCCESS", timestamp: nowStr(), msg: "All chores done! (" + dateKey + ")", amt: "+$" + cfg.dailySuccessAmount.toFixed(2), class: "amt-pos" });
+                        } else {
+                            state.weeklyPot -= cfg.dailyFailureAmount;
+                            state.history.unshift({ date: "MISS", timestamp: nowStr(), msg: "Missed chores (" + dateKey + ")", amt: "-$" + cfg.dailyFailureAmount.toFixed(2), class: "amt-neg" });
+                        }
                     }
-                } else {
-                    state.pot -= cfg.penaltyAmount;
-                    state.streak = 0;
-                    state.history.unshift({ date: "DAILY", timestamp: nowStr(), msg: "Missed Chores", amt: "-$" + cfg.penaltyAmount.toFixed(2), class: "amt-neg" });
                 }
             }
-            state.completedToday = []; state.waivedToday = []; state.lastCheck = today;
+
+            if (todayDayNum === 6 && getDayNumForDate(yesterdayKey) === 5) {
+                state.guhansBank += state.weeklyPot;
+                const amt = state.weeklyPot;
+                const settleWeekKey = getWeekKey(parseLocaleDateKey(yesterdayKey));
+                state.weeklyDeposits[settleWeekKey] = amt;
+                const msg = amt >= 0
+                    ? "Week complete! $" + amt.toFixed(2) + " deposited to Guhan's Bank!"
+                    : "Week complete. $" + Math.abs(amt).toFixed(2) + " was subtracted from Guhan's Bank because the Weekly Pot was negative. Keep trying next week!";
+                state.history.unshift({ date: "SETTLE", timestamp: nowStr(), msg, amt: (amt >= 0 ? "+" : "") + "$" + amt.toFixed(2), class: amt >= 0 ? "amt-pos" : "amt-neg" });
+                state.weeklyPot = 0;
+            }
+
+            state.lastCheck = today;
         }
     }
 
-    // --- 4. UI ACTIONS ---
-    async function addTask() {
-        const name = document.getElementById('taskName').value;
+    function showToast(msg, type) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast ' + (type || 'success');
+        t.textContent = msg;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function showLevelUp() {
+        const ov = document.getElementById('levelUpOverlay');
+        ov.classList.add('active');
+        ov.querySelector('.level-up-content').textContent = 'Level Up! 🎉';
+        setTimeout(() => ov.classList.remove('active'), 1500);
+    }
+
+    function addPiggyAnimation(cls) {
+        const card = document.getElementById('piggyCard');
+        if (!card) return;
+        card.classList.remove('piggy-shake', 'piggy-bounce');
+        card.offsetHeight;
+        card.classList.add(cls);
+        setTimeout(() => card.classList.remove(cls), 500);
+    }
+
+    window.toggleParentMode = function() {
+        if (document.body.classList.contains('parent-active')) {
+            document.body.classList.remove('parent-active');
+            document.getElementById('lockBtn').innerText = "Parent login";
+            document.getElementById('lockBtn').classList.remove('active');
+        } else {
+            document.getElementById('parentPasswordInput').value = '';
+            document.getElementById('parentPasswordError').style.display = 'none';
+            document.getElementById('parentPasswordModal').classList.add('open');
+            setTimeout(() => document.getElementById('parentPasswordInput').focus(), 100);
+        }
+    };
+    window.closeParentPasswordModal = function() {
+        document.getElementById('parentPasswordModal').classList.remove('open');
+    };
+    window.submitParentPassword = function() {
+        const input = document.getElementById('parentPasswordInput');
+        const errEl = document.getElementById('parentPasswordError');
+        if (input.value === getParentPassword()) {
+            document.body.classList.add('parent-active');
+            document.getElementById('lockBtn').innerText = "Exit Parent Mode";
+            document.getElementById('lockBtn').classList.add('active');
+            document.getElementById('parentPasswordModal').classList.remove('open');
+            loadConfigIntoUI();
+        } else {
+            errEl.style.display = 'block';
+            input.select();
+        }
+    };
+
+    window.toggleCaution = function() {
+        document.getElementById('cautionToggle').classList.toggle('open');
+        document.getElementById('cautionContent').classList.toggle('open');
+    };
+    window.togglePastWeek = function() {
+        document.getElementById('pastWeekToggle').classList.toggle('open');
+        document.getElementById('pastWeekContent').classList.toggle('open');
+    };
+    window.togglePastMonths = function() {
+        document.getElementById('pastMonthsToggle').classList.toggle('open');
+        document.getElementById('pastMonthsContent').classList.toggle('open');
+    };
+    window.toggleRules = function() {
+        document.getElementById('rulesToggle').classList.toggle('open');
+        document.getElementById('rulesContent').classList.toggle('open');
+    };
+
+    window.addTask = async function() {
+        const name = document.getElementById('taskName').value.trim();
         const days = Array.from(document.querySelectorAll('.day-check:checked')).map(i => parseInt(i.value));
         if (!name) return;
         state.tasks.push({ id: Date.now(), name, days });
         document.getElementById('taskName').value = '';
         await saveAction();
-    }
+    };
 
     let pendingCompleteTaskId = null;
-
-    function openCompleteModal(taskId) {
+    window.openCompleteModal = function(taskId) {
         const task = state.tasks.find(t => t.id === taskId);
         if (!task) return;
         pendingCompleteTaskId = taskId;
         document.getElementById('completeTaskName').innerText = task.name;
         document.getElementById('completeComment').value = '';
         document.getElementById('completeModal').classList.add('open');
-    }
-    function cancelComplete() {
+    };
+    window.cancelComplete = function() {
         pendingCompleteTaskId = null;
         document.getElementById('completeModal').classList.remove('open');
         renderUI();
-    }
-    async function confirmComplete() {
+    };
+    window.confirmComplete = async function() {
         if (!pendingCompleteTaskId) return;
         const task = state.tasks.find(t => t.id === pendingCompleteTaskId);
         const comment = document.getElementById('completeComment').value.trim();
         state.completedToday.push(pendingCompleteTaskId);
         const displayMsg = task ? (comment ? task.name + ': ' + comment : task.name) : 'Chore completed';
         state.history.unshift({ date: "DONE", timestamp: nowStr(), msg: displayMsg, amt: "—", class: "" });
-        pendingCompleteTaskId = null;
         document.getElementById('completeModal').classList.remove('open');
-        await saveAction();
-    }
-    window.openCompleteModal = openCompleteModal;
-    window.cancelComplete = cancelComplete;
-    window.confirmComplete = confirmComplete;
-    window.undoCompletedTask = undoCompletedTask;
+        pendingCompleteTaskId = null;
 
-    async function toggleTask(taskId) {
+        const todayNum = getDayNumEST(0);
+        const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+        const allDone = todayTasks.every(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id));
+
+        showToast("Awesome job! You're a superstar! 🌟", "success");
+        if (allDone && todayTasks.length > 0) {
+            showLevelUp();
+            addPiggyAnimation('piggy-bounce');
+        }
+        await saveAction();
+    };
+
+    window.toggleTask = async function(taskId) {
         const completedIdx = state.completedToday.indexOf(taskId);
         const waivedIdx = state.waivedToday.indexOf(taskId);
         if (completedIdx > -1 || waivedIdx > -1) {
@@ -787,8 +1053,8 @@
         } else {
             openCompleteModal(taskId);
         }
-    }
-    async function undoCompletedTask(taskId) {
+    };
+    window.undoCompletedTask = async function(taskId) {
         if (!document.body.classList.contains('parent-active')) return;
         const completedIdx = state.completedToday.indexOf(taskId);
         const waivedIdx = state.waivedToday.indexOf(taskId);
@@ -798,20 +1064,19 @@
             state.history.unshift({ date: "UNDO", timestamp: nowStr(), msg: "Undid completion", amt: "—", class: "" });
             await saveAction();
         }
-    }
-
-    async function waiveTask(taskId, name) {
+    };
+    window.waiveTask = async function(taskId, name) {
         state.waivedToday.push(taskId);
         state.history.unshift({ date: "WAIVE", timestamp: nowStr(), msg: name, amt: "—", class: "" });
         await saveAction();
-    }
+    };
 
     let reminderSaveTimeout = null;
-    function debounceSaveReminder() {
+    window.debounceSaveReminder = function() {
         if (reminderSaveTimeout) clearTimeout(reminderSaveTimeout);
         reminderSaveTimeout = setTimeout(saveReminderNow, 600);
-    }
-    async function saveReminderNow() {
+    };
+    window.saveReminderNow = async function() {
         if (reminderSaveTimeout) { clearTimeout(reminderSaveTimeout); reminderSaveTimeout = null; }
         const el = document.getElementById('reminderNotes');
         if (!el) return;
@@ -819,10 +1084,9 @@
         if (state.reminderNotes === val) return;
         state.reminderNotes = val;
         await saveAction();
-    }
-    window.saveReminderNow = saveReminderNow;
+    };
 
-    async function logCustomChore() {
+    window.logCustomChore = async function() {
         const input = document.getElementById('customChoreInput');
         const msg = input.value.trim();
         if (!msg) return;
@@ -830,79 +1094,81 @@
         state.history.unshift({ date: "EXTRA", timestamp: nowStr(), msg: msg, amt: "—", class: "" });
         input.value = '';
         await saveAction();
-    }
-    window.logCustomChore = logCustomChore;
+    };
 
-    function startEditPot() {
+    window.startEditBank = function() {
         if (!document.body.classList.contains('parent-active')) return;
-        const el = document.getElementById('allowancePot');
-        const val = state.pot;
+        const el = document.getElementById('guhansBank');
+        const val = state.guhansBank;
         const inp = document.createElement('input');
         inp.type = 'number';
         inp.value = val.toFixed(2);
-        inp.className = 'pot-edit-input';
-        inp.style.cssText = 'font-size:1.25rem;font-weight:600;color:#0f172a!important;-webkit-text-fill-color:#0f172a!important;background:#fff!important;width:100px;border:2px solid var(--primary);border-radius:8px;padding:6px 10px;box-sizing:border-box;';
-        inp.onblur = () => finishEditPot(inp);
+        inp.style.cssText = 'font-size:1.25rem;font-weight:600;width:100px;border:2px solid var(--primary);border-radius:8px;padding:6px 10px;box-sizing:border-box;';
+        inp.onblur = () => finishEditBank(inp);
         inp.onkeydown = (e) => { if (e.key === 'Enter') inp.blur(); if (e.key === 'Escape') { inp.value = val; inp.blur(); } };
         el.innerHTML = '';
         el.appendChild(inp);
         inp.focus();
         inp.select();
-    }
-    async function finishEditPot(inp) {
-        const el = document.getElementById('allowancePot');
+    };
+    window.finishEditBank = async function(inp) {
+        const el = document.getElementById('guhansBank');
         const raw = parseFloat(inp.value);
-        const prev = state.pot;
+        const prev = state.guhansBank;
         if (!isNaN(raw) && raw >= 0) {
             const delta = raw - prev;
-            state.pot = raw;
+            state.guhansBank = raw;
             if (delta !== 0) {
-                state.history.unshift({ date: "MANUAL", timestamp: nowStr(), msg: "Adjustment", amt: (delta >= 0 ? "+" : "") + "$" + delta.toFixed(2), class: delta >= 0 ? "amt-pos" : "amt-neg" });
+                state.history.unshift({ date: "MANUAL", timestamp: nowStr(), msg: "Bank adjustment", amt: (delta >= 0 ? "+" : "") + "$" + delta.toFixed(2), class: delta >= 0 ? "amt-pos" : "amt-neg" });
             }
             await saveAction();
         } else {
             el.innerHTML = '';
-            el.innerText = `$${state.pot.toFixed(2)}`;
+            el.textContent = `$${state.guhansBank.toFixed(2)}`;
         }
-    }
-    window.startEditPot = startEditPot;
+    };
 
-    function openResetDataModal() {
+    window.openResetDataModal = function() {
         const cfg = getCfg();
-        const msgEl = document.getElementById('resetModalMessage');
-        if (msgEl) msgEl.innerText = `This will clear all chores, activity history, and reset the pot to $${cfg.startingAllowance} and streak to 0. This cannot be undone.`;
+        document.getElementById('resetModalMessage').innerText = `This will clear all chores, activity history, daily schedule, reset Guhan's Bank and Weekly Pot, and saved Friday deposit history (Monthly Pot is calculated from that). This cannot be undone.`;
         document.getElementById('resetDataModal').classList.add('open');
-    }
-    function closeResetDataModal() {
-        document.getElementById('resetDataModal').classList.remove('open');
-    }
-    async function confirmResetAllData() {
+    };
+    window.closeResetDataModal = function() { document.getElementById('resetDataModal').classList.remove('open'); };
+    window.confirmResetAllData = async function() {
         const cfg = getCfg();
         const today = getTodayEST();
-        state = { pot: cfg.startingAllowance, streak: 0, tasks: [], history: [], lastCheck: today, completedToday: [], waivedToday: [], customChoresToday: [], config: state.config, dayCompletions: {}, lastMonthlyReset: getMonthKey(), monthlyPots: {}, reminderNotes: state.reminderNotes || '' };
-        pendingCompleteTaskId = null;
-        closeEditModal();
-        closeResetDataModal();
+        state = {
+            guhansBank: 0,
+            weeklyPot: cfg.weeklyPotStart,
+            tasks: [],
+            history: [],
+            lastCheck: today,
+            completedToday: [],
+            waivedToday: [],
+            customChoresToday: [],
+            config: state.config,
+            dayCompletions: {},
+            lastWeeklyReset: getWeekKey(),
+            lastWeekSettlement: null,
+            weeklyDeposits: {},
+            reminderNotes: state.reminderNotes || '',
+            calendarBlocks: {}
+        };
+        document.getElementById('resetDataModal').classList.remove('open');
         document.getElementById('completeModal').classList.remove('open');
         await saveAction();
-    }
-    window.openResetDataModal = openResetDataModal;
-    window.closeResetDataModal = closeResetDataModal;
+    };
 
-    function openEditTask(taskId) {
+    window.openEditTask = function(taskId) {
         const task = state.tasks.find(t => t.id === taskId);
         if (!task) return;
         document.getElementById('editTaskId').value = taskId;
         document.getElementById('editTaskName').value = task.name;
-        document.querySelectorAll('.edit-day-check').forEach(cb => {
-            cb.checked = task.days.includes(parseInt(cb.value));
-        });
+        document.querySelectorAll('.edit-day-check').forEach(cb => cb.checked = task.days.includes(parseInt(cb.value)));
         document.getElementById('editModal').classList.add('open');
-    }
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('open');
-    }
-    async function saveEditTask() {
+    };
+    window.closeEditModal = function() { document.getElementById('editModal').classList.remove('open'); };
+    window.saveEditTask = async function() {
         const id = parseInt(document.getElementById('editTaskId').value);
         const name = document.getElementById('editTaskName').value.trim();
         const days = Array.from(document.querySelectorAll('.edit-day-check:checked')).map(i => parseInt(i.value));
@@ -913,53 +1179,121 @@
         task.days = days;
         closeEditModal();
         await saveAction();
-    }
-    window.openEditTask = openEditTask;
-    window.closeEditModal = closeEditModal;
-    window.saveEditTask = saveEditTask;
+    };
 
-    function saveConfig() {
+    window.saveConfig = function() {
         const cfg = getCfg();
         const n = (v, d) => { const x = parseFloat(v); return (v !== '' && !isNaN(x)) ? x : d; };
-        const ni = (v, d) => { const x = parseInt(v); return (v !== '' && !isNaN(x)) ? x : d; };
         state.config = {
             ...state.config,
-            startingAllowance: n(document.getElementById('cfgStarting').value, cfg.startingAllowance),
-            streakDaysForBonus: ni(document.getElementById('cfgStreakDays').value, cfg.streakDaysForBonus),
-            bonusAmount: n(document.getElementById('cfgBonus').value, cfg.bonusAmount),
-            penaltyAmount: n(document.getElementById('cfgPenalty').value, cfg.penaltyAmount)
+            weeklyPotStart: n(document.getElementById('cfgWeeklyStart').value, cfg.weeklyPotStart),
+            dailySuccessAmount: n(document.getElementById('cfgSuccessAmt').value, cfg.dailySuccessAmount),
+            dailyFailureAmount: n(document.getElementById('cfgPenaltyAmt').value, cfg.dailyFailureAmount)
         };
         saveAction();
+    };
+
+    const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let defaultScheduleSelectedDay = 1;
+
+    function getDsEndOptions(startVal) {
+        const allEndSlots = getAllSlots().filter(s => s > startVal);
+        if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
+        return allEndSlots.map(s => `<option value="${s}">${hourToLabel(s)}</option>`).join('');
+    }
+    function getBlockIndexAtHour(blocks, hour) {
+        if (!blocks) return -1;
+        return blocks.findIndex(b => hour >= b.start && hour < b.end);
+    }
+    window.updateDsEndOptsForCalendar = function() {
+        const startVal = parseFloat(document.getElementById('dsStart').value);
+        document.getElementById('dsEnd').innerHTML = getDsEndOptions(startVal);
+    };
+    window.selectDefaultScheduleDay = function(day) {
+        defaultScheduleSelectedDay = day;
+        renderDefaultScheduleCalendar();
+    };
+    window.addDefaultSlotFromCalendar = function() {
+        const day = defaultScheduleSelectedDay;
+        const start = parseFloat(document.getElementById('dsStart').value);
+        const end = parseFloat(document.getElementById('dsEnd').value);
+        const label = (document.getElementById('dsLabel').value || '').trim() || 'Blocked';
+        const preset = document.getElementById('dsPreset').value || 'custom';
+        if (end <= start) return;
+        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = [...(DEFAULT_SLOTS_WEEKDAY[day] || [])];
+        state.config.defaultSlots[day].push({ start, end, text: label, preset });
+        state.config.defaultSlots[day].sort((a, b) => a.start - b.start);
+        document.getElementById('dsLabel').value = '';
+        renderDefaultScheduleCalendar();
+        renderCalendar();
+        saveAction();
+    };
+    window.clickDefaultScheduleSlot = function(day, hour, blockIndex) {
+        if (blockIndex < 0) return;
+        const slots = getDefaultSlotsForDay(day);
+        const block = slots[blockIndex];
+        if (!block || !confirm(`Remove "${block.text}" (${hourToLabel(block.start)}–${hourToLabel(block.end)})?`)) return;
+        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = [...(getDefaultSlotsForDay(day) || [])];
+        state.config.defaultSlots[day].splice(blockIndex, 1);
+        renderDefaultScheduleCalendar();
+        renderCalendar();
+        saveAction();
+    };
+    function renderDefaultScheduleCalendar() {
+        state.config.defaultSlots = state.config.defaultSlots || {};
+        const tabsEl = document.getElementById('defaultScheduleDayTabs');
+        const gridEl = document.getElementById('defaultScheduleHourGrid');
+        const addDayLabel = document.getElementById('defaultScheduleAddDayLabel');
+        if (!tabsEl || !gridEl) return;
+
+        const addStartOpts = getAllSlots().map(s => `<option value="${s}">${hourToLabel(s)}</option>`).join('');
+        document.getElementById('dsStart').innerHTML = addStartOpts;
+        document.getElementById('dsStart').onchange = updateDsEndOptsForCalendar;
+        updateDsEndOptsForCalendar();
+        addDayLabel.textContent = DAY_NAMES[defaultScheduleSelectedDay];
+
+        const tabsHtml = DAY_NAMES.map((name, d) =>
+            `<button class="calendar-day-tab ${d === defaultScheduleSelectedDay ? 'active' : ''}" onclick="selectDefaultScheduleDay(${d})">${name}</button>`
+        ).join('');
+        tabsEl.innerHTML = tabsHtml;
+
+        const blocks = getDefaultSlotsForDay(defaultScheduleSelectedDay);
+        const slots = getAllSlots();
+        let gridHtml = '';
+        for (const h of slots) {
+            const block = getBlockAtHour(blocks, h);
+            const blockIndex = getBlockIndexAtHour(blocks, h);
+            const blockText = block ? (block.text || '') : '';
+            const presetClass = block?.preset ? ' preset-' + block.preset : '';
+            const slotClass = block ? 'blocked' + presetClass : 'free';
+            const onClick = blockIndex >= 0 ? `onclick="clickDefaultScheduleSlot(${defaultScheduleSelectedDay},${h},${blockIndex})" title="Click to remove"` : '';
+            gridHtml += `<div class="calendar-hour-row ${block ? '' : 'free'}">
+                <div class="calendar-hour-label">${hourToLabel(h)}</div>
+                <div class="calendar-hour-slot ${slotClass}" ${onClick}>
+                    ${blockText ? `<span class="calendar-block-text">${blockText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>` : ''}
+                </div>
+            </div>`;
+        }
+        gridEl.innerHTML = gridHtml;
     }
     function loadConfigIntoUI() {
         const cfg = getCfg();
         const sf = id => document.getElementById(id);
-        if (sf('cfgStarting')) sf('cfgStarting').value = cfg.startingAllowance;
-        if (sf('cfgStreakDays')) sf('cfgStreakDays').value = cfg.streakDaysForBonus;
-        if (sf('cfgBonus')) sf('cfgBonus').value = cfg.bonusAmount;
-        if (sf('cfgPenalty')) sf('cfgPenalty').value = cfg.penaltyAmount;
-        const sum = sf('cfgCurrentSummary');
-        if (sum) sum.innerText = `Current: $${cfg.startingAllowance} start · ${cfg.streakDaysForBonus} days → +$${cfg.bonusAmount} · miss → −$${cfg.penaltyAmount}`;
+        if (sf('cfgWeeklyStart')) sf('cfgWeeklyStart').value = cfg.weeklyPotStart;
+        if (sf('cfgSuccessAmt')) sf('cfgSuccessAmt').value = cfg.dailySuccessAmount;
+        if (sf('cfgPenaltyAmt')) sf('cfgPenaltyAmt').value = cfg.dailyFailureAmount;
+        if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = `Weekly start: $${cfg.weeklyPotStart} · Success: +$${cfg.dailySuccessAmount} · Miss: −$${cfg.dailyFailureAmount}`;
     }
-    window.saveConfig = saveConfig;
 
     let pastChoresEdits = {};
-    function openPastChoresModal() {
-        const d = new Date();
-        const input = document.getElementById('pastChoresDate');
-        input.value = d.toISOString().slice(0, 10);
-        input.max = input.value;
+    window.openPastChoresModal = function() {
+        document.getElementById('pastChoresDate').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('pastChoresDate').max = document.getElementById('pastChoresDate').value;
         pastChoresEdits = {};
         renderPastChoresForDate();
         document.getElementById('pastChoresModal').classList.add('open');
-    }
-    function closePastChoresModal() {
-        document.getElementById('pastChoresModal').classList.remove('open');
-    }
-    function dateStrToLocale(dStr) {
-        const [y, m, d] = dStr.split('-').map(Number);
-        return new Date(y, m - 1, d).toLocaleDateString();
-    }
+    };
+    window.closePastChoresModal = function() { document.getElementById('pastChoresModal').classList.remove('open'); };
     function renderPastChoresForDate() {
         const dStr = document.getElementById('pastChoresDate').value;
         if (!dStr) return;
@@ -973,7 +1307,7 @@
         const edited = pastChoresEdits[dateKey] || { completed: [...dc.completed], waived: [...dc.waived] };
         const listDiv = document.getElementById('pastChoresList');
         if (dayTasks.length === 0) {
-            listDiv.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores scheduled for this day.</p>";
+            listDiv.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores for this day.</p>";
             return;
         }
         const escapedDateKey = (dateKey || '').replace(/'/g, "\\'");
@@ -981,41 +1315,20 @@
             const isComp = edited.completed.includes(t.id);
             const isWaived = edited.waived.includes(t.id);
             const status = isComp ? 'completed' : isWaived ? 'waived' : 'pending';
-            const undoLabel = isComp ? 'Undo' : 'Missed';
             return `<div class="task-item" style="margin-bottom:8px;">
                 <span class="task-name" style="${isComp || isWaived ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${t.name}</span>
-                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <div style="display:flex;gap:4px;">
                     <button class="btn" style="padding:5px 8px;font-size:0.7rem;background:${status==='completed'?'var(--success)':'rgba(8,145,178,0.12)'};color:${status==='completed'?'white':'var(--text)'}" onclick="togglePastChore('${escapedDateKey}',${t.id},'completed')">Done</button>
                     <button class="btn" style="padding:5px 8px;font-size:0.7rem;background:${status==='waived'?'rgba(217,119,6,0.2)':'rgba(8,145,178,0.12)'};color:${status==='waived'?'var(--warning)':'var(--text)'}" onclick="togglePastChore('${escapedDateKey}',${t.id},'waived')">Waive</button>
-                    <button class="btn" style="padding:5px 8px;font-size:0.7rem;background:${status==='pending'?'rgba(220,38,38,0.15)':'rgba(8,145,178,0.12)'};color:${status==='pending'?'var(--danger)':'var(--text)'}" onclick="togglePastChore('${escapedDateKey}',${t.id},'pending')">${undoLabel}</button>
+                    <button class="btn" style="padding:5px 8px;font-size:0.7rem;background:${status==='pending'?'rgba(220,38,38,0.15)':'rgba(8,145,178,0.12)'};color:${status==='pending'?'var(--danger)':'var(--text)'}" onclick="togglePastChore('${escapedDateKey}',${t.id},'pending')">${status==='completed'?'Undo':'Missed'}</button>
                 </div>
             </div>`;
         }).join('');
     }
-    async function togglePastWeekChore(dateKey, taskId, status) {
-        const todayKey = getTodayEST();
-        let dc = state.dayCompletions[dateKey];
-        if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
-        dc = dc || { completed: [], waived: [] };
-        const completed = dc.completed.filter(x => x !== taskId);
-        const waived = dc.waived.filter(x => x !== taskId);
-        if (status === 'completed') completed.push(taskId);
-        if (status === 'waived') waived.push(taskId);
-        state.dayCompletions[dateKey] = { completed, waived };
-        if (dateKey === todayKey) {
-            state.completedToday = completed;
-            state.waivedToday = waived;
-        }
-        recalculateAllowanceFromDate([dateKey]);
-        await saveAction();
-    }
-    window.togglePastWeekChore = togglePastWeekChore;
-
-    function togglePastChore(dateKey, taskId, status) {
+    window.togglePastChore = function(dateKey, taskId, status) {
         if (!pastChoresEdits[dateKey]) {
-            const todayKey = getTodayEST();
             let dc = state.dayCompletions[dateKey];
-            if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
+            if (!dc && dateKey === getTodayEST()) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
             dc = dc || { completed: [], waived: [] };
             pastChoresEdits[dateKey] = { completed: [...dc.completed], waived: [...dc.waived] };
         }
@@ -1024,109 +1337,487 @@
         if (status === 'completed') pastChoresEdits[dateKey].completed.push(taskId);
         if (status === 'waived') pastChoresEdits[dateKey].waived.push(taskId);
         renderPastChoresForDate();
-    }
-    async function savePastChoresChanges() {
-        const todayKey = getTodayEST();
-        const changedKeys = Object.keys(pastChoresEdits);
-        changedKeys.forEach(dateKey => {
+    };
+    window.savePastChoresChanges = async function() {
+        Object.keys(pastChoresEdits).forEach(dateKey => {
             state.dayCompletions[dateKey] = pastChoresEdits[dateKey];
-            if (dateKey === todayKey) {
+            if (dateKey === getTodayEST()) {
                 state.completedToday = pastChoresEdits[dateKey].completed;
                 state.waivedToday = pastChoresEdits[dateKey].waived;
             }
         });
         pastChoresEdits = {};
-        recalculateAllowanceFromDate(changedKeys);
+        recalculateFromPastEdits();
         closePastChoresModal();
         await saveAction();
+    };
+
+    function recalculateFromPastEdits() {
+        state.history.unshift({ date: "RECALC", timestamp: nowStr(), msg: "Recalculated after editing past chores", amt: "—", class: "" });
     }
-    window.openPastChoresModal = openPastChoresModal;
-    window.closePastChoresModal = closePastChoresModal;
-    window.togglePastChore = togglePastChore;
-    window.savePastChoresChanges = savePastChoresChanges;
+
+    const CALENDAR_HOUR_START = 6;
+    const CALENDAR_HOUR_END = 22;
+    const CALENDAR_SLOT_MINUTES = 30;
+    let calendarSelectedDateKey = null;
+    let calendarEditingBlock = null;
+    let calendarMobileView = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('rh_calendar_view') === 'list') ? 'list' : 'timeline';
+
+    function useMobileCalendarUI() {
+        return typeof window.matchMedia !== 'undefined' && window.matchMedia('(max-width: 680px)').matches;
+    }
+    window.setCalendarMobileView = function(mode) {
+        calendarMobileView = (mode === 'list') ? 'list' : 'timeline';
+        try { if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('rh_calendar_view', calendarMobileView); } catch (e) {}
+        renderCalendar();
+    };
+    function getCurrentHourSlotEST() {
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: EST, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(new Date());
+        let hour = parseInt(parts.find(p => p.type === 'hour').value, 10);
+        const minute = parseInt(parts.find(p => p.type === 'minute').value, 10);
+        let h = hour + (minute >= 30 ? 0.5 : 0);
+        if (h < CALENDAR_HOUR_START) h = CALENDAR_HOUR_START;
+        if (h >= CALENDAR_HOUR_END) h = CALENDAR_HOUR_END - 0.5;
+        return h;
+    }
+    window.scrollCalendarToNow = function() {
+        const row = document.querySelector('#calendarHourGrid .calendar-hour-row[data-hour="' + getCurrentHourSlotEST() + '"]');
+        if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    window.openQuickAddCalendarBlock = function() {
+        const todayKey = getTodayEST();
+        const dateKey = calendarSelectedDateKey || todayKey;
+        if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
+        clickCalendarSlot(dateKey, getCurrentHourSlotEST(), null);
+    };
+
+    function hourToLabel(h) {
+        const isHalf = h % 1 === 0.5;
+        const hour = Math.floor(h);
+        const suffix = hour === 0 ? '12am' : hour === 12 ? '12pm' : hour < 12 ? hour + 'am' : (hour - 12) + 'pm';
+        return isHalf ? suffix.replace(/[ap]m$/, ':30$&') : suffix;
+    }
+
+    function getAllSlots() {
+        const slots = [];
+        for (let h = CALENDAR_HOUR_START; h < CALENDAR_HOUR_END; h += 0.5) slots.push(h);
+        return slots;
+    }
+
+    function getBlockAtHour(blocks, hour) {
+        if (!blocks) return null;
+        return blocks.find(b => hour >= b.start && hour < b.end);
+    }
+
+    function buildCalendarCardsHtml(blocks, isReadonly, escapedDate) {
+        let html = '';
+        if (!isReadonly) {
+            html += '<button type="button" class="calendar-quick-add" onclick="openQuickAddCalendarBlock()"><span class="calendar-quick-add-icon">+</span> Add activity</button>';
+        }
+        if (!blocks.length) {
+            html += '<p class="calendar-cards-empty">Nothing scheduled for this day. Add an activity above or switch to <strong>By time</strong> and tap a time slot.</p>';
+            return html;
+        }
+        blocks.forEach(block => {
+            const blockRef = block.isPreset ? "'preset-" + block.start + "-" + block.end + "'" : block.id;
+            const presetClass = block.preset ? ' preset-' + block.preset : '';
+            const text = (block.text || 'Blocked').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const timeR = hourToLabel(block.start) + ' – ' + hourToLabel(block.end);
+            const badge = block.isPreset ? '<span class="calendar-activity-badge">Default</span>' : '';
+            if (isReadonly) {
+                html += '<div class="calendar-activity-card blocked' + presetClass + '" style="cursor:default">';
+                html += '<div class="calendar-activity-meta">' + timeR + badge + '</div>';
+                html += '<div class="calendar-activity-title">' + text + '</div></div>';
+            } else {
+                const onClick = 'onclick="clickCalendarSlot(\'' + escapedDate + '\',' + block.start + ',' + blockRef + ')"';
+                html += '<button type="button" class="calendar-activity-card blocked' + presetClass + '" ' + onClick + '>';
+                html += '<div class="calendar-activity-meta">' + timeR + badge + '</div>';
+                html += '<div class="calendar-activity-title">' + text + '</div>';
+                html += '<span class="calendar-activity-tap-hint">Tap to edit or replace</span></button>';
+            }
+        });
+        return html;
+    }
+
+    function renderCalendar() {
+        const todayKey = getTodayEST();
+        calendarSelectedDateKey = calendarSelectedDateKey || todayKey;
+
+        const tabs = [];
+        for (let i = -5; i <= 4; i++) {
+            const dateKey = getDateESTOffset(i);
+            const d = parseLocaleDateKey(dateKey);
+            const dayName = d ? d.toLocaleDateString('en-US', { weekday: 'short' }) : '';
+            const label = i === 0 ? 'Today' : i === -1 ? 'Yesterday' : dayName + ' ' + (d ? d.getDate() : '');
+            const isReadonly = i < 0;
+            const isToday = i === 0;
+            const isActive = dateKey === calendarSelectedDateKey;
+            const escaped = (dateKey || '').replace(/'/g, "\\'");
+            tabs.push(`<button class="calendar-day-tab ${isActive ? 'active' : ''} ${isReadonly ? 'readonly' : ''} ${isToday ? 'today' : ''}" data-date="${escaped}" onclick="selectCalendarDay('${escaped}')">${label}</button>`);
+        }
+        document.getElementById('calendarDayTabs').innerHTML = tabs.join('');
+
+        const isReadonly = parseLocaleDateKey(calendarSelectedDateKey) < parseLocaleDateKey(todayKey);
+        const dayNum = getDayNumForDate(calendarSelectedDateKey);
+        const defaultBlocks = getDefaultSlotsForDay(dayNum);
+        const userBlocks = (state.calendarBlocks[calendarSelectedDateKey] || []).slice().sort((a, b) => a.start - b.start);
+        const blocks = mergeBlocks(defaultBlocks, userBlocks);
+
+        let occupiedSlots = 0;
+        blocks.forEach(b => { occupiedSlots += (b.end - b.start) * 2; });
+        const totalSlots = (CALENDAR_HOUR_END - CALENDAR_HOUR_START) * 2;
+        const pct = Math.round((occupiedSlots / totalSlots) * 100);
+        document.getElementById('calendarOccupancyText').textContent = `${occupiedSlots} slots of ${totalSlots} (${pct}%)`;
+        document.getElementById('calendarOccupancyFill').style.width = pct + '%';
+
+        const mobileUI = useMobileCalendarUI();
+        const toolbar = document.getElementById('calendarToolbar');
+        const jumpBtn = document.getElementById('calendarJumpNowBtn');
+        if (toolbar) {
+            toolbar.style.display = mobileUI ? 'flex' : 'none';
+            toolbar.setAttribute('aria-hidden', (!mobileUI).toString());
+        }
+        const listMode = mobileUI && calendarMobileView === 'list';
+        const tl = document.getElementById('calendarViewTimelineBtn');
+        const li = document.getElementById('calendarViewListBtn');
+        if (tl && li && mobileUI) {
+            const isList = calendarMobileView === 'list';
+            tl.classList.toggle('active', !isList);
+            li.classList.toggle('active', isList);
+            tl.setAttribute('aria-selected', (!isList).toString());
+            li.setAttribute('aria-selected', isList.toString());
+        }
+        if (jumpBtn) {
+            const showJump = mobileUI && !listMode && calendarSelectedDateKey === todayKey && !isReadonly;
+            jumpBtn.style.display = showJump ? 'inline-block' : 'none';
+        }
+
+        const hint = document.getElementById('calendarAddHint');
+        if (isReadonly) {
+            hint.textContent = 'This day is in the past—view only.';
+        } else if (mobileUI) {
+            hint.textContent = listMode ? 'Tap a card to edit. Use + Add activity to start at the current time slot.' : 'Tap any row to add or edit. Activities button shows a simple list. Use Now to jump to the current time.';
+        } else {
+            hint.textContent = 'Click an empty hour to add a block, or a filled block to edit.';
+        }
+
+        const grid = document.getElementById('calendarHourGrid');
+        const cardsEl = document.getElementById('calendarCardsList');
+        const escapedDate = (calendarSelectedDateKey || '').replace(/'/g, "\\'");
+
+        if (listMode && cardsEl) {
+            grid.style.display = 'none';
+            cardsEl.classList.add('is-visible');
+            cardsEl.innerHTML = buildCalendarCardsHtml(blocks, isReadonly, escapedDate);
+        } else {
+            grid.style.display = '';
+            if (cardsEl) cardsEl.classList.remove('is-visible');
+            let html = '';
+            const slots = getAllSlots();
+            for (const h of slots) {
+                const block = getBlockAtHour(blocks, h);
+                const blockText = block ? (block.text || 'No description') : '';
+                const presetClass = block?.preset ? ' preset-' + block.preset : '';
+                const slotClass = block ? 'blocked' + presetClass : 'free';
+                const readonlyClass = isReadonly ? 'readonly' : '';
+                const rowClass = block ? '' : 'free';
+                const blockRef = block ? (block.isPreset ? "'preset-" + block.start + "-" + block.end + "'" : block.id) : 'null';
+                const onClick = isReadonly ? '' : `onclick="clickCalendarSlot('${escapedDate}',${h},${blockRef})"`;
+                html += `<div class="calendar-hour-row ${rowClass}" data-hour="${h}">
+                <div class="calendar-hour-label">${hourToLabel(h)}</div>
+                <div class="calendar-hour-slot ${slotClass} ${readonlyClass}" ${onClick}>
+                    ${blockText ? `<span class="calendar-block-text">${blockText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>` : ''}
+                </div>
+            </div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        if (mobileUI) {
+            requestAnimationFrame(() => {
+                const activeTab = document.querySelector('#calendarDayTabs .calendar-day-tab.active');
+                if (activeTab) activeTab.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+            });
+        }
+    }
+
+    window.selectCalendarDay = function(dateKey) {
+        calendarSelectedDateKey = dateKey;
+        renderCalendar();
+    };
+
+    window.clickCalendarSlot = function(dateKey, hour, blockId) {
+        const todayKey = getTodayEST();
+        if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
+
+        if (typeof blockId === 'string' && blockId.startsWith('preset-')) {
+            const parts = blockId.replace('preset-', '').split('-');
+            const start = parseFloat(parts[0]);
+            const end = parseFloat(parts[1]);
+            calendarEditingBlock = { dateKey, block: null, newStart: start };
+            document.getElementById('calendarBlockModalTitle').textContent = 'Add Block (overrides default)';
+            document.getElementById('calendarBlockTimeEdit').style.display = 'none';
+            document.getElementById('calendarBlockTimeAdd').style.display = 'block';
+            const startSelect = document.getElementById('calendarBlockStartSelect');
+            const endSelect = document.getElementById('calendarBlockEndSelect');
+            startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === start ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+            const allEndSlots = getAllSlots().filter(s => s > start);
+            if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
+            endSelect.innerHTML = allEndSlots.map(s => `<option value="${s}" ${s === end ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+            document.getElementById('calendarBlockText').value = '';
+            document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
+            document.getElementById('calendarBlockModal').classList.add('open');
+            return;
+        }
+
+        if (blockId) {
+            const blocks = state.calendarBlocks[dateKey] || [];
+            const block = blocks.find(b => b.id === blockId);
+            if (block) {
+                calendarEditingBlock = { dateKey, block };
+                document.getElementById('calendarBlockModalTitle').textContent = 'Edit Block';
+                document.getElementById('calendarBlockTimeEdit').style.display = 'block';
+                document.getElementById('calendarBlockTimeAdd').style.display = 'none';
+                document.getElementById('calendarBlockStartHour').textContent = hourToLabel(block.start);
+                document.getElementById('calendarBlockEndHour').textContent = hourToLabel(block.end);
+                document.getElementById('calendarBlockText').value = block.text || '';
+                document.getElementById('calendarBlockDeleteBtn').style.display = 'block';
+                document.getElementById('calendarBlockModal').classList.add('open');
+            }
+        } else {
+            calendarEditingBlock = { dateKey, block: null, newStart: hour };
+            document.getElementById('calendarBlockModalTitle').textContent = 'Add Block';
+            document.getElementById('calendarBlockTimeEdit').style.display = 'none';
+            document.getElementById('calendarBlockTimeAdd').style.display = 'block';
+            const startSelect = document.getElementById('calendarBlockStartSelect');
+            const endSelect = document.getElementById('calendarBlockEndSelect');
+            startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === hour ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+            updateCalendarBlockEndOptions();
+            document.getElementById('calendarBlockText').value = '';
+            document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
+            document.getElementById('calendarBlockModal').classList.add('open');
+        }
+    };
+
+    window.closeCalendarBlockModal = function() {
+        calendarEditingBlock = null;
+        document.getElementById('calendarBlockModal').classList.remove('open');
+    };
+
+    window.updateCalendarBlockEndOptions = function() {
+        if (!calendarEditingBlock || calendarEditingBlock.block) return;
+        const startVal = parseFloat(document.getElementById('calendarBlockStartSelect').value);
+        const endSelect = document.getElementById('calendarBlockEndSelect');
+        const allEndSlots = getAllSlots().filter(s => s > startVal);
+        if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
+        const defaultEnd = allEndSlots[0] || CALENDAR_HOUR_END;
+        endSelect.innerHTML = allEndSlots.map(s => `<option value="${s}" ${s === defaultEnd ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+    };
+
+    window.saveCalendarBlock = async function() {
+        if (!calendarEditingBlock) return;
+        const text = document.getElementById('calendarBlockText').value.trim();
+        const { dateKey, block } = calendarEditingBlock;
+
+        if (!state.calendarBlocks[dateKey]) state.calendarBlocks[dateKey] = [];
+
+        if (block) {
+            block.text = text || 'Blocked';
+        } else {
+            const start = parseFloat(document.getElementById('calendarBlockStartSelect').value);
+            const end = parseFloat(document.getElementById('calendarBlockEndSelect').value);
+            if (end <= start) return;
+            state.calendarBlocks[dateKey].push({ id: Date.now(), start, end, text: text || 'Blocked' });
+        }
+
+        closeCalendarBlockModal();
+        renderCalendar();
+        await saveAction();
+    };
+
+    window.deleteCalendarBlock = async function() {
+        if (!calendarEditingBlock || !calendarEditingBlock.block) return;
+        const { dateKey, block } = calendarEditingBlock;
+        state.calendarBlocks[dateKey] = (state.calendarBlocks[dateKey] || []).filter(b => b.id !== block.id);
+        closeCalendarBlockModal();
+        renderCalendar();
+        await saveAction();
+    };
 
     async function saveAction() {
         renderUI();
         await syncToCloud();
     }
 
-    function getStreakMessage(cfg, streak) {
-        const total = cfg.streakDaysForBonus;
-        const bonus = cfg.bonusAmount;
-        const bonusStr = bonus % 1 === 0 ? `$${bonus}` : `$${bonus.toFixed(2)}`;
-        const bonusSpan = `<span class="bonus-highlight">${bonusStr} bonus</span>`;
-        const remaining = total - streak;
-        if (streak === 0) {
-            return `Ready to start? Complete all today's chores to bank Day 1 on your path to that ${bonusSpan}! ⚡️`;
+    function formatWeekKey(key) {
+        if (!key) return 'Unknown';
+        const parts = key.split('-');
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        const date = new Date(y, m, d);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' week';
+    }
+
+    function getMondayOffsetEST() {
+        const n = getDayNumEST(0);
+        return n === 0 ? -6 : 1 - n;
+    }
+    function getDcForSummaryDate(dateKey, todayKey) {
+        let dc = state.dayCompletions[dateKey];
+        if (!dc && dateKey === todayKey) dc = { completed: [...state.completedToday], waived: [...state.waivedToday] };
+        return dc || { completed: [], waived: [] };
+    }
+    function getWeekdayProgressData() {
+        const todayKey = getTodayEST();
+        const monOff = getMondayOffsetEST();
+        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        const segments = [];
+        let doneOrFree = 0;
+        let elapsed = 0;
+        let missedPast = 0;
+        let todayAllDone = false;
+        let todayPartial = false;
+        let todayOpen = false;
+        for (let d = 0; d < 5; d++) {
+            const dateKey = getDateESTOffset(monOff + d);
+            const dayNum = getDayNumForDate(dateKey);
+            const dt = parseLocaleDateKey(dateKey);
+            const todayD = parseLocaleDateKey(todayKey);
+            const isFuture = dt && todayD && dt > todayD;
+            const dayTasks = state.tasks.filter(t => t.days.includes(dayNum));
+            let status = 'upcoming';
+            if (isFuture) {
+                status = 'upcoming';
+            } else {
+                elapsed++;
+                if (dayTasks.length === 0) {
+                    status = 'free';
+                    doneOrFree++;
+                } else {
+                    const dc = getDcForSummaryDate(dateKey, todayKey);
+                    const allDone = dayTasks.every(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+                    const someDone = dayTasks.some(t => dc.completed.includes(t.id) || dc.waived.includes(t.id));
+                    if (allDone) {
+                        status = 'done';
+                        doneOrFree++;
+                        if (dateKey === todayKey) todayAllDone = true;
+                    } else if (dateKey === todayKey) {
+                        todayPartial = someDone;
+                        todayOpen = !someDone;
+                        status = someDone ? 'partial' : 'open';
+                    } else {
+                        status = 'missed';
+                        missedPast++;
+                    }
+                }
+            }
+            segments.push({ label: labels[d], status });
         }
-        if (remaining === 1) {
-            const numWord = streak === 1 ? 'One' : streak === 2 ? 'Two' : streak === 3 ? 'Three' : streak === 4 ? 'Four' : String(streak);
-            return `${numWord} down, one to go! ⚡️ One more day and that ${bonusSpan} is yours!`;
-        }
-        const numWords = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-        const downWord = streak <= 9 ? numWords[streak] : String(streak);
-        const toGoWord = remaining <= 9 ? numWords[remaining] : String(remaining);
-        if (streak === 1) {
-            return `${downWord} down, ${toGoWord.toLowerCase()} to go! ⚡️ You just banked Day 1 on your path to that ${bonusSpan}. Let's keep this energy rolling!`;
-        }
-        const messages = {
-            2: "You're building momentum toward that",
-            3: "Halfway there—you're so close to that",
-            4: "Almost there—that"
-        };
-        const mid = messages[streak] || "You're crushing it toward that";
-        return `${downWord} down, ${toGoWord.toLowerCase()} to go! ⚡️ ${mid} ${bonusSpan}. Keep it up!`;
+        const barPct = elapsed > 0 ? Math.round((doneOrFree / elapsed) * 100) : 0;
+        return { segments, barPct, doneOrFree, elapsed, missedPast, todayAllDone, todayPartial, todayOpen };
+    }
+    function pickWeekdayMotivation(w) {
+        const { doneOrFree, elapsed, missedPast, todayAllDone, todayPartial, todayOpen } = w;
+        if (elapsed === 0) return "New week loading—Monday will be here before you know it. Ready to shine? ✨";
+        if (missedPast === 0 && todayAllDone && elapsed >= 1) return "Crushing it—you've nailed every day so far this week! Keep that energy going! 🌟";
+        if (missedPast === 0 && todayPartial) return "You're partway there today—finish strong and lock in another perfect day! 💪";
+        if (missedPast === 0 && todayOpen) return "Fresh morning energy—tick off your chores and watch your Weekly Pot grow! 🚀";
+        if (missedPast === 0 && doneOrFree === elapsed) return "Solid week—every day you've stayed on track. That's how champions build habits! 🏆";
+        if (todayAllDone && missedPast > 0) return "Today was a win—yesterday doesn't define you. Stack more wins this week! 💚";
+        if (todayPartial && missedPast > 0) return "Keep pushing—you've got chores left today, and every one still counts! 🔥";
+        if (missedPast > 0 && todayOpen) return "New day, new chance—start with one chore and build momentum! You've got this. 🌈";
+        if (missedPast > 0) return "Rough patches happen—what matters is what you do next. One chore at a time! 🙌";
+        return "You're doing great—small steps add up to a big Weekly Pot. Keep going! ⭐";
     }
 
     function renderUI() {
-        const potEl = document.getElementById('allowancePot');
-        potEl.innerText = `$${state.pot.toFixed(2)}`;
-        potEl.classList.toggle('pot-editable', document.body.classList.contains('parent-active'));
         const cfg = getCfg();
-        const total = cfg.streakDaysForBonus;
-        const streakMsgEl = document.getElementById('streakMessage');
-        if (streakMsgEl) streakMsgEl.innerHTML = getStreakMessage(cfg, state.streak);
-        const streakBoxesEl = document.getElementById('streakBoxes');
-        if (streakBoxesEl) {
-            let boxesHtml = '';
-            for (let i = 0; i < total; i++) {
-                const done = i < state.streak;
-                const cls = done ? 'streak-box done' : 'streak-box pending';
-                const icon = done ? '✓' : '';
-                boxesHtml += `<div class="${cls}">${icon}</div>`;
-            }
-            streakBoxesEl.innerHTML = boxesHtml;
-            streakBoxesEl.title = `${state.streak} of ${total} consecutive days toward bonus`;
+        const todayNum = getDayNumEST(0);
+        const todayKey = getTodayEST();
+
+        document.getElementById('guhansBank').innerText = `$${state.guhansBank.toFixed(2)}`;
+        document.getElementById('guhansBank').className = 'bank-value ' + (state.guhansBank >= 0 ? 'positive' : 'negative') + ' pot-editable';
+        document.getElementById('guhansBank').classList.toggle('pot-editable', document.body.classList.contains('parent-active'));
+
+        const wpEl = document.getElementById('weeklyPot');
+        wpEl.innerText = `$${state.weeklyPot.toFixed(2)}`;
+        wpEl.className = 'bank-value ' + (state.weeklyPot > 0 ? 'positive' : state.weeklyPot < 0 ? 'negative' : 'neutral');
+
+        const maxPot = cfg.weeklyPotStart + 5 * cfg.dailySuccessAmount;
+        const minPot = cfg.weeklyPotStart - 5 * cfg.dailyFailureAmount;
+        const range = maxPot - minPot;
+        const pct = Math.max(0, Math.min(100, ((state.weeklyPot - minPot) / range) * 100));
+        const fillEl = document.getElementById('weeklyProgressFill');
+        fillEl.style.width = pct + '%';
+        fillEl.className = 'progress-bar-fill ' + (state.weeklyPot > 0 ? 'positive' : state.weeklyPot < 0 ? 'negative' : 'zero');
+        document.getElementById('weeklyProgressLabel').innerText = `$${state.weeklyPot.toFixed(2)} / max ~$${maxPot.toFixed(0)} this week`;
+
+        const monthTotal = getMonthlyBankTransfersSum();
+        const mpEl = document.getElementById('monthlyPotTotal');
+        if (mpEl) {
+            mpEl.innerText = `$${monthTotal.toFixed(2)}`;
+            mpEl.className = 'bank-value ' + (monthTotal > 0 ? 'positive' : monthTotal < 0 ? 'negative' : 'neutral');
         }
+        const mpLabel = document.getElementById('monthlyPotMonthLabel');
+        if (mpLabel) mpLabel.textContent = formatCurrentMonthLabelEST();
+
+        const summaryEl = document.getElementById('weeklySummary');
+        if (isWeekday(todayNum)) {
+            const w = getWeekdayProgressData();
+            const msg = pickWeekdayMotivation(w);
+            const segHtml = w.segments.map(s => `<div class="weekday-progress-seg ${s.status}" title="${s.label}"></div>`).join('');
+            const lblHtml = w.segments.map(s => `<span>${s.label}</span>`).join('');
+            const potHint = state.weeklyPot < 0
+                ? 'Weekly Pot is below zero—finish chores to move it back up before Friday.'
+                : `Roughly <strong>$${state.weeklyPot.toFixed(2)}</strong> in your Weekly Pot could move to Guhan's Bank after Friday (if rules stay the same).`;
+            summaryEl.style.display = 'block';
+            summaryEl.innerHTML = `<h4>📅 Weekday progress</h4><div class="weekday-progress-wrap"><div class="weekday-progress-labels">${lblHtml}</div><div class="weekday-progress-bar">${segHtml}</div><p class="weekday-motivate">${msg}</p><p class="weekday-pot-hint">${potHint}</p></div>`;
+        } else if (todayNum === 6 || todayNum === 0) {
+            summaryEl.style.display = 'block';
+            summaryEl.innerHTML = `<h4>🌴 Weekend</h4><p>It's a task-free day. Enjoy! Your Weekly Pot will reset Monday.</p>`;
+        } else {
+            summaryEl.style.display = 'none';
+        }
+
+        const weekMsgEl = document.getElementById('weekMessage');
+        if (isTaskFreeDay(todayNum)) {
+            weekMsgEl.textContent = "🌴 No chores today—enjoy your weekend!";
+        } else {
+            const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
+            const doneCount = todayTasks.filter(t => state.completedToday.includes(t.id) || state.waivedToday.includes(t.id)).length;
+            if (todayTasks.length === 0) weekMsgEl.textContent = "No chores scheduled for today.";
+            else if (doneCount === todayTasks.length) weekMsgEl.textContent = "✅ All done for today! Keep it up!";
+            else weekMsgEl.textContent = `${doneCount} of ${todayTasks.length} chores complete. Finish them all to add $${cfg.dailySuccessAmount} to your Weekly Pot!`;
+        }
+
         const pastMonthsEl = document.getElementById('pastMonthsList');
-        if (pastMonthsEl) {
-            const prevKey = getPreviousMonthKey();
-            const prevAmount = state.monthlyPots && state.monthlyPots[prevKey];
-            pastMonthsEl.innerHTML = prevAmount != null
-                ? `<div class="past-week-day" style="margin-bottom:6px"><div class="past-week-day-title">${formatMonthKey(prevKey)}</div><span style="font-size:1rem;font-weight:700;color:var(--success)">$${Number(prevAmount).toFixed(2)}</span></div>`
-                : '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin:0">No data</p>';
-        }
+        const prevWeekKey = getWeekKey(parseLocaleDateKey(getDateESTOffset(-7)));
+        const prevAmount = state.weeklyDeposits && state.weeklyDeposits[prevWeekKey];
+        pastMonthsEl.innerHTML = prevAmount != null
+            ? `<div class="past-week-day"><div class="past-week-day-title">${formatWeekKey(prevWeekKey)}</div><span style="font-size:1rem;font-weight:700;color:${prevAmount >= 0 ? 'var(--success)' : 'var(--danger)'}">${prevAmount >= 0 ? '+' : ''}$${Number(prevAmount).toFixed(2)}</span></div>`
+            : '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin:0">No data</p>';
+
         loadConfigIntoUI();
+        renderDefaultScheduleCalendar();
+
         const rulesEl = document.getElementById('rulesList');
-        if (rulesEl) {
-            rulesEl.innerHTML = `
-                <li>Complete your daily chores and check them off when done.</li>
-                <li>Add an optional comment when marking a chore complete.</li>
-                <li>Complete all chores for <b>${cfg.streakDaysForBonus} consecutive days</b> to earn a <span class="bonus-highlight">${cfg.bonusAmount % 1 === 0 ? '$' + cfg.bonusAmount : '$' + cfg.bonusAmount.toFixed(2)} bonus</span>—the streak resets after each bonus so you can earn another.</li>
-                <li>Miss a day's chores and a <b>$${cfg.penaltyAmount.toFixed(2)}</b> penalty is applied to your allowance.</li>
-                <li>Your allowance pot and streak are updated each day.</li>
-                <li>The allowance pot resets to <b>$${cfg.startingAllowance.toFixed(2)}</b> at the beginning of each month.</li>`;
-        }
+        rulesEl.innerHTML = `
+            <li>Complete your daily chores (Mon–Fri) and check them off when done.</li>
+            <li>Every <b>Monday</b>, your Weekly Pot resets to <b>$${cfg.weeklyPotStart}</b>.</li>
+            <li><b>Complete all chores</b> on a weekday → <b>+$${cfg.dailySuccessAmount}</b> to Weekly Pot.</li>
+            <li><b>Miss any chore</b> on a weekday → <b>−$${cfg.dailyFailureAmount}</b> from Weekly Pot.</li>
+            <li><b>Saturday & Sunday</b> are task-free—no changes.</li>
+            <li>Every <b>Friday night</b>, your Weekly Pot balance moves to <b>Guhan's Bank</b>. If the Weekly Pot is negative, that amount is subtracted from the Bank.</li>
+            <li>The <b>Monthly Pot</b> shows the <b>running total</b> of those Friday transfers during the <b>current calendar month</b> (Eastern Time). It updates automatically—each new month starts fresh.</li>
+            <li>Guhan's Bank is your permanent savings—it never resets!</li>`;
+
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST });
 
-        const reminderEl = document.getElementById('reminderNotes');
-        if (reminderEl && document.activeElement !== reminderEl) {
-            reminderEl.value = state.reminderNotes || '';
-        }
-        
+        renderCalendar();
+
         const list = document.getElementById('taskList');
         list.innerHTML = '';
-        const todayNum = getDayNumEST(0);
         state.tasks.filter(t => t.days.includes(todayNum)).forEach(task => {
             const isDone = state.completedToday.includes(task.id);
             const isWaived = state.waivedToday.includes(task.id);
@@ -1142,18 +1833,12 @@
                 </div>`;
         });
         (state.customChoresToday || []).forEach(msg => {
-            list.innerHTML += `
-                <div class="task-item" style="opacity:0.9;">
-                    <span style="color:var(--success);font-weight:bold;">✓</span>
-                    <span class="task-name" style="color:var(--text-muted)">${msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>
-                    <span style="font-size:0.7rem;color:var(--text-muted)">(extra)</span>
-                </div>`;
+            list.innerHTML += `<div class="task-item" style="opacity:0.9;"><span style="color:var(--success);font-weight:bold;">✓</span><span class="task-name" style="color:var(--text-muted)">${msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span><span style="font-size:0.7rem;color:var(--text-muted)">(extra)</span></div>`;
         });
-        if(list.innerHTML === '') list.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores for today!</p>";
+        if (list.innerHTML === '') list.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores for today!</p>";
 
         const pastWeekEl = document.getElementById('pastWeekList');
         if (pastWeekEl) {
-            const todayKey = getTodayEST();
             const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
             let html = '';
             for (let i = 0; i < 7; i++) {
@@ -1165,24 +1850,14 @@
                 dc = dc || { completed: [], waived: [] };
                 const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : dayNames[dayNum] + ' ' + dateKey;
                 html += `<div class="past-week-day"><div class="past-week-day-title">${dayLabel}</div>`;
-                if (dayTasks.length === 0) {
-                    html += '<span style="font-size:0.85rem;color:var(--text-muted)">No chores</span>';
-                } else {
+                if (dayTasks.length === 0) html += '<span style="font-size:0.85rem;color:var(--text-muted)">No chores</span>';
+                else {
                     dayTasks.forEach(t => {
                         const isComp = dc.completed.includes(t.id);
                         const isWaived = dc.waived.includes(t.id);
                         const icon = isComp ? '✓' : isWaived ? '–' : '✗';
                         const clr = isComp ? 'var(--success)' : isWaived ? 'var(--warning)' : 'var(--danger)';
-                        const label = isComp ? 'Done' : isWaived ? 'Waived' : 'Missed';
-                        const escapedDate = dateKey.replace(/'/g, "\\'");
-                        const undoMissedLabel = isComp ? 'Undo' : 'Missed';
-                        const pastActions = document.body.classList.contains('parent-active') 
-                            ? ` <span style="display:flex;gap:4px;margin-left:auto;">
-                                <button class="btn" style="padding:3px 6px;font-size:0.65rem;background:${isComp?'var(--success)':'rgba(8,145,178,0.12)'};color:${isComp?'white':'var(--text)'}" onclick="togglePastWeekChore('${escapedDate}',${t.id},'completed');event.stopPropagation()">Done</button>
-                                <button class="btn" style="padding:3px 6px;font-size:0.65rem;background:${isWaived?'rgba(245,158,11,0.3)':'rgba(8,145,178,0.12)'};color:${isWaived?'var(--warning)':'var(--text)'}" onclick="togglePastWeekChore('${escapedDate}',${t.id},'waived');event.stopPropagation()">Waive</button>
-                                <button class="btn" style="padding:3px 6px;font-size:0.65rem;background:${!isComp&&!isWaived?'rgba(220,38,38,0.15)':'rgba(8,145,178,0.12)'};color:${!isComp&&!isWaived?'var(--danger)':'var(--text)'}" onclick="togglePastWeekChore('${escapedDate}',${t.id},'pending');event.stopPropagation()">${undoMissedLabel}</button>
-                            </span>` : '';
-                        html += `<div style="display:flex;align-items:center;gap:8px;font-size:0.9rem;margin:4px 0;flex-wrap:wrap;"><span style="color:${clr};font-weight:bold">${icon}</span><span style="${isComp||isWaived?'text-decoration:line-through;color:var(--text-muted)':''}">${t.name}</span><span style="font-size:0.75rem;color:${clr}">(${label})</span>${pastActions}</div>`;
+                        html += `<div style="display:flex;align-items:center;gap:8px;font-size:0.9rem;margin:4px 0;"><span style="color:${clr};font-weight:bold">${icon}</span><span style="${isComp||isWaived?'text-decoration:line-through;color:var(--text-muted)':''}">${t.name}</span></div>`;
                     });
                 }
                 html += '</div>';
@@ -1194,19 +1869,15 @@
         const dayCodes = ['S','M','T','W','T','F','S'];
         const allList = document.getElementById('allTasksList');
         if (allList) {
-            if (state.tasks.length === 0) {
-                allList.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>";
-            } else {
+            if (state.tasks.length === 0) allList.innerHTML = "<p style='text-align:center;color:var(--text-muted)'>No chores yet. Add one above!</p>";
+            else {
                 const headerRow = `<thead><tr><th class="task-cell">Task</th>${dayNames.map((d,i) => `<th class="day-cell" title="${d}">${dayCodes[i]}</th>`).join('')}<th class="actions-cell">Actions</th></tr></thead>`;
                 const bodyRows = state.tasks.map(t => {
                     const dayCells = [0,1,2,3,4,5,6].map(d => {
                         const on = t.days.includes(d);
                         return `<td class="day-cell ${on ? 'day-on' : 'day-off'}">${on ? '✓' : '—'}</td>`;
                     }).join('');
-                    return `<tr>
-                        <td class="task-cell">${t.name}</td>${dayCells}
-                        <td class="actions-cell"><button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" onclick="openEditTask(${t.id})">Edit</button><button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button></td>
-                    </tr>`;
+                    return `<tr><td class="task-cell">${t.name}</td>${dayCells}<td class="actions-cell"><button class="btn" style="background:rgba(8,145,178,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" onclick="openEditTask(${t.id})">Edit</button><button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button></td></tr>`;
                 }).join('');
                 allList.innerHTML = `<div style="overflow-x:auto"><table class="chores-matrix">${headerRow}<tbody>${bodyRows}</tbody></table></div>`;
             }
@@ -1216,17 +1887,13 @@
         if (histDiv) {
             histDiv.innerHTML = state.history.slice(0, 15).map(h => {
                 const dt = h.timestamp || h.date;
-                return `<div class="history-item">
-                    <span style="font-weight:500; color:var(--text-muted); font-size:0.7rem; white-space:nowrap">${dt}</span>
-                    <span style="flex-grow:1; margin-left:10px">${h.msg}</span>
-                    <span class="${h.class || ''}">${h.amt}</span>
-                </div>`;
+                return `<div class="history-item"><span style="font-weight:500;color:var(--text-muted);font-size:0.7rem;white-space:nowrap">${dt}</span><span style="flex-grow:1;margin-left:10px">${h.msg}</span><span class="${h.class || ''}">${h.amt}</span></div>`;
             }).join('');
         }
     }
 
-    // Startup
     loadCloudData();
+})();
 </script>
 </body>
 </html>

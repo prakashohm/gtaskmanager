@@ -2,7 +2,7 @@
 
 A chore tracker and allowance management web app for kids. Track daily chores, earn streaks, and manage allowance with bonuses and penalties. Data syncs to the cloud for access across devices.
 
-> **Version 2** — Use `index-v2.html` for the new "Bank and Weekly Pot" system with Guhan's Bank (permanent savings), Weekly Pot (resets Mondays), weekday success/penalty logic, and gamified toasts/animations.
+> **Main app** (`index.html`) — "Bank and Weekly Pot" system: Guhan's Bank (permanent savings), Weekly Pot (resets Mondays), weekday success/penalty logic, Daily Schedule, Monthly Pot summary, and gamified toasts/animations. **Legacy v1** (streak/monthly pot model) lives in `index-v1.html` and uses a separate cloud key (`GuhanApp`).
 
 ![Built with HTML, CSS, JavaScript, Supabase](https://img.shields.io/badge/Stack-HTML%20%7C%20CSS%20%7C%20JS%20%7C%20Supabase-0891b2)
 
@@ -45,7 +45,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 - **Change Password** — Update parent password
 - **Reset All Data** — Clear chores, history, and reset pot (destructive)
 
-### Version 2 (index-v2.html) — Bank & Weekly Pot
+### Main app (`index.html`) — Bank & Weekly Pot
 
 | Feature | Description |
 |---------|--------------|
@@ -67,7 +67,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Client (Browser)                          │
 │  ┌─────────────────────────────────────────────────────────────┐│
-│  │  index.html                                                  ││
+│  │  index.html (main) · index-v1.html (legacy)                  ││
 │  │  • Single-file SPA (no build step)                           ││
 │  │  • Vanilla JS + inline CSS                                   ││
 │  │  • State held in memory (state object)                       ││
@@ -80,7 +80,7 @@ A chore tracker and allowance management web app for kids. Track daily chores, e
 │                     Supabase (BaaS)                              │
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │  Table: chore_app_state                                      ││
-│  │  • app_name (PK): 'GuhanApp'                                 ││
+│  │  • app_name (PK): 'GuhanApp' (v1) · 'GuhanAppV2' (main)     ││
 │  │  • app_data (JSONB): full state snapshot                     ││
 │  └─────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────┘
@@ -275,7 +275,8 @@ No build step required.
 
 ```
 gtaskmanager/
-├── index.html      # Single-file app (HTML + CSS + JS)
+├── index.html      # Main app: Bank & Weekly Pot (Supabase: GuhanAppV2)
+├── index-v1.html # Legacy: streak / monthly allowance (Supabase: GuhanApp)
 ├── guhan.png       # Profile image for header
 ├── README.md       # This file
 └── .git/           # Git repository
