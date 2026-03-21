@@ -194,7 +194,7 @@ Optional **`config.defaultSlots`** — per weekday (0–6) arrays of `{ start, e
 
 ### Deployment
 
-Ship `index.html`, `rewardhub-header-full.png`, and `guhan.png` (icons). No build step.
+Ship `index.html` and `guhan.png` (icons). The app header is styled in CSS (no banner image). No build step.
 
 ### PWA (install / offline shell)
 
@@ -265,7 +265,6 @@ gtaskmanager/
 ├── sw.js                # Service worker (offline cache for same-origin)
 ├── index-v1.html        # Legacy streak / monthly model
 ├── guhan.png                   # PWA icons (optional)
-├── rewardhub-header-full.png   # Full-width header banner used in app (brand + Tirukkural art)
 ├── imag1.png                   # Extra image asset (source / backup)
 ├── GuhansRewardhubLogo.png     # Wordmark logo asset (optional branding)
 ├── README.md

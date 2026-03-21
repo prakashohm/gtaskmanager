@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0d9488">
     <meta name="description" content="Chores, Weekly Pot, Guhan's Bank, and daily schedule for RewardHub.">
-    <title>Guhan's RewardHub — Bank & Weekly Pot</title>
+    <title>Guhan's RewardHub — productivity earns rewards.</title>
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" type="image/png" href="./guhan.png">
     <link rel="apple-touch-icon" href="./guhan.png">
@@ -14,11 +14,16 @@
     <meta name="apple-mobile-web-app-title" content="RewardHub">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;1,600;1,700&family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
     <style>
+        
+
         :root {
             --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            /* App header wordmark: paired faces (see .app-header-title-*) */
+            --font-title-name: 'Fraunces', Georgia, 'Times New Roman', serif;
+            --font-title-brand: 'Outfit', 'Plus Jakarta Sans', sans-serif;
             --primary: #0d9488;
             --primary-bright: #2dd4bf;
             --primary-dark: #0f766e;
@@ -71,60 +76,217 @@
             box-shadow: var(--shadow-md), 0 0 0 1px var(--border);
         }
 
-        .header-full-banner {
-            padding: 0;
-            margin: 0;
-            border-bottom: 1px solid rgba(13, 148, 136, 0.12);
-            background: #f0f7ff;
-            overflow: hidden;
-        }
-        .header-banner-full-wrap {
+        /* App header — modern CSS banner (no raster art) */
+        .app-header {
             position: relative;
-            width: 100%;
-            line-height: 0;
-        }
-        .header-banner-full-heading {
             margin: 0;
             padding: 0;
-            font-size: 0;
-            line-height: 0;
+            border-bottom: 1px solid rgba(13, 148, 136, 0.14);
+            overflow: hidden;
+            background: linear-gradient(155deg, #f8fafc 0%, #ecfdf5 38%, #f5f3ff 100%);
         }
-        .header-banner-full-img {
-            display: block;
-            width: 100%;
-            height: auto;
-            vertical-align: top;
-        }
-        /* Live date over banner art; tune inset if art changes */
-        #todayDate.header-banner-date-overlay {
+        .app-header-bg {
             position: absolute;
-            bottom: clamp(3.5%, 5vw, 9%);
-            right: clamp(0.4rem, 1.5vw, 0.85rem);
-            left: auto;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 90% 70% at 92% -10%, rgba(45, 212, 191, 0.35), transparent 52%),
+                radial-gradient(ellipse 70% 60% at -5% 105%, rgba(129, 140, 248, 0.28), transparent 48%),
+                radial-gradient(ellipse 50% 40% at 50% 120%, rgba(251, 191, 36, 0.12), transparent 45%);
+            opacity: 1;
+        }
+        .app-header-grid {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.35;
+            background-image:
+                linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+            background-size: 24px 24px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 85%);
+        }
+        .app-header-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem 1.5rem;
+            padding:
+                max(1.15rem, env(safe-area-inset-top, 0px))
+                clamp(1rem, 4vw, 1.85rem)
+                1.35rem;
+        }
+        .app-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            min-width: 0;
+        }
+        .app-header-mark {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            overflow: hidden;
+            display: block;
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.95) 0%, rgba(15, 118, 110, 1) 45%, rgba(79, 70, 229, 0.88) 100%);
+            box-shadow:
+                0 8px 28px -6px rgba(13, 148, 136, 0.55),
+                0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+        }
+        .app-header-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+        }
+        .app-header-titles {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+        }
+        .app-header-kicker {
             margin: 0;
-            max-width: min(52%, 16rem);
-            font-size: clamp(0.62rem, 2.1vw, 0.84rem);
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            opacity: 0.88;
+            line-height: 1.2;
+        }
+        .app-header-title {
+            margin: 0.1rem 0 0;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.28em 0.42em;
+            row-gap: 0.32em;
+            max-width: 100%;
+            font-size: clamp(1.28rem, 3.95vw, 1.82rem);
+            font-weight: 400;
+            line-height: 1.14;
+        }
+        
+        .app-header-title-name {
+            font-family: var(--font-title-name);
+            font-weight: 700;
+            font-style: italic;
+            font-size: 1em;
+            letter-spacing: -0.03em;
+            color: #52606d;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.65),
+                0 2px 10px rgba(15, 23, 42, 0.06);
+        }
+        .app-header-title-brand {
+            font-family: var(--font-title-brand);
+            font-weight: 800;
+            font-style: normal;
+            font-size: 0.97em;
+            letter-spacing: -0.045em;
+            text-transform: none;
+            color: #0f766e;
+            text-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.55),
+                0 2px 6px rgba(15, 23, 42, 0.08),
+                0 4px 14px rgba(13, 148, 136, 0.12);
+        }
+        @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+            .app-header-title-brand {
+                background: linear-gradient(120deg, #0f766e 0%, #0d9488 42%, #4338ca 100%);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                color: transparent;
+                text-shadow: none;
+                filter:
+                    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.45))
+                    drop-shadow(0 2px 4px rgba(15, 23, 42, 0.1))
+                    drop-shadow(0 6px 16px rgba(13, 148, 136, 0.16));
+            }
+        }
+        .app-header-tagline {
+            margin: 0.6rem 0 0;
+            max-width: min(26rem, 100%);
+            font-family: var(--font-display);
+            font-size: clamp(0.8rem, 2.1vw, 0.9rem);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+            color: rgba(51, 65, 85, 0.85);
+
+            /* Typewriter setup */
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid rgba(99, 102, 241, 0.7); /* cursor */
+            
+            /* Animation */
+            width: 0;
+            animation: typing 2.8s steps(30, end) forwards, blink 0.8s step-end infinite;
+            }
+
+            /* Typing effect */
+            @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+            }
+
+            /* Cursor blink */
+            @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+        .app-header-meta {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+        #todayDate.app-header-date {
+            margin: 0;
+            font-size: clamp(0.78rem, 2.2vw, 0.88rem);
             font-weight: 700;
             letter-spacing: 0.02em;
-            color: #5c4518;
+            color: var(--text);
             text-align: right;
-            line-height: 1.25;
-            padding: 0.35rem 0.55rem 0.4rem;
-            border-radius: 8px;
-            background: linear-gradient(180deg, rgba(255, 252, 245, 0.94) 0%, rgba(254, 249, 236, 0.92) 100%);
-            border: 1px solid rgba(180, 83, 9, 0.2);
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
-            z-index: 2;
-            pointer-events: none;
+            line-height: 1.35;
+            padding: 0.55rem 0.85rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(13, 148, 136, 0.18);
+            box-shadow: 0 4px 20px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+            max-width: min(100%, 16rem);
         }
-        @media (max-width: 520px) {
-            #todayDate.header-banner-date-overlay {
-                bottom: 2.5%;
-                right: max(0.35rem, 2vw);
-                left: auto;
-                max-width: 58%;
-                padding: 0.28rem 0.45rem;
-                font-size: clamp(0.55rem, 2.8vw, 0.72rem);
+        @media (max-width: 560px) {
+            .app-header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-top: 1.05rem;
+                padding-bottom: 1.15rem;
+            }
+            .app-header-meta {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            #todayDate.app-header-date {
+                text-align: left;
+                max-width: 100%;
+            }
+            .app-header-mark {
+                width: 48px;
+                height: 48px;
+                border-radius: 14px;
             }
         }
 
@@ -1842,12 +2004,25 @@
 
 <div class="container">
     <div class="flow-panel">
-        <header class="header-full-banner">
-            <div class="header-banner-full-wrap">
-                <h1 class="header-banner-full-heading">
-                    <img src="rewardhub-header-full.png" alt="Guhan's RewardHub — profile, learning, and Tirukkural" class="header-banner-full-img" width="1600" height="420" decoding="async" fetchpriority="high">
-                </h1>
-                <p id="todayDate" class="header-banner-date-overlay" aria-live="polite"></p>
+        <header class="app-header" role="banner">
+            <div class="app-header-bg" aria-hidden="true"></div>
+            <div class="app-header-grid" aria-hidden="true"></div>
+            <div class="app-header-inner">
+                <div class="app-header-brand">
+                    <div class="app-header-mark" aria-hidden="true">
+                        <img src="guhan.png" alt="" width="52" height="52" decoding="async" fetchpriority="high" />
+                    </div>
+                    <div class="app-header-titles">
+                        <p class="app-header-kicker"></p>
+                        <h1 class="app-header-title" aria-label="Guhan's RewardHub">
+                            <span class="app-header-title-name">Guhan&rsquo;s</span><span class="app-header-title-brand">RewardHub</span>
+                        </h1>
+                        <p class="app-header-tagline">Sincerity earns rewards. Focus earns more.</p>
+                    </div>
+                </div>
+                <div class="app-header-meta">
+                    <p id="todayDate" class="app-header-date" aria-live="polite"></p>
+                </div>
             </div>
         </header>
 
