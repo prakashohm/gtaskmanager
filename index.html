@@ -132,11 +132,12 @@
         .app-main-tabs { width: 100%; }
         .app-tab-bar {
             display: flex;
-            gap: 4px;
-            padding: 0.65rem clamp(1rem, 4vw, 2rem) 0.65rem;
+            gap: 6px;
+            padding: 0.7rem clamp(1rem, 4vw, 2rem) 0.75rem;
             margin: 0;
-            border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.35);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.88) 100%);
+            box-shadow: 0 8px 28px -18px rgba(15, 23, 42, 0.08);
             flex-wrap: nowrap;
         }
         .ledger-full-list {
@@ -178,12 +179,10 @@
             max-height: min(45vh, 300px);
             overflow-y: auto;
         }
-        .goals-tab-inner .section:nth-of-type(1) {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.85) 0%, rgba(13, 148, 136, 0.06) 100%);
-        }
-        .goals-tab-inner .section:nth-of-type(2) {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.85) 0%, rgba(99, 102, 241, 0.06) 100%);
-        }
+        .goals-tab-inner { padding: 1rem 2rem 0; }
+        .ledger-tab-inner { padding: 1rem 2rem 1.25rem; }
+        .parent-panel-pad { padding: 0 2rem 1rem; }
+        .schedule-tab-pad { padding: 0 2rem 1.5rem; }
         .schedule-tab-inner .section { margin-left: 2rem; margin-right: 2rem; }
         .schedule-tab-inner .section:first-of-type { margin-top: 1rem; }
 
@@ -191,12 +190,6 @@
             padding: clamp(1.25rem, 4vw, 1.75rem) clamp(1rem, 4vw, 2rem);
             background: linear-gradient(155deg, rgba(255, 255, 255, 0.5) 0%, rgba(13, 148, 136, 0.07) 38%, rgba(99, 102, 241, 0.05) 70%, rgba(249, 115, 22, 0.04) 100%);
         }
-        @media (max-width: 600px) {
-            .app-tab-bar { padding-left: 1rem; padding-right: 1rem; gap: 4px; }
-            .activity-log-section { margin-left: 1rem; margin-right: 1rem; }
-            .schedule-tab-inner .section { margin-left: 1rem; margin-right: 1rem; }
-        }
-        
         .flow-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: stretch; padding: 0 2rem 1.5rem; }
         .flow-main { padding: 1.75rem 0.5rem 1.75rem 0; }
         .flow-side { padding: 1.75rem 0 1.75rem 0.5rem; display: flex; flex-direction: column; min-height: 0; }
@@ -206,21 +199,177 @@
         .section {
             padding: 1.25rem 1.35rem;
             margin-bottom: 0.75rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            background: var(--surface-2);
-            box-shadow: var(--shadow-sm);
+            border-radius: 18px;
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+            box-shadow:
+                0 12px 42px -20px rgba(15, 23, 42, 0.14),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
         }
         .section:last-child { margin-bottom: 0; }
-        .flow-main .section:nth-of-type(1) { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(13, 148, 136, 0.06) 100%); }
-        .flow-main .section:nth-of-type(2) { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(99, 102, 241, 0.06) 100%); }
-        .flow-main .section:nth-of-type(3) { background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 115, 22, 0.07) 100%);  }
-        .flow-side .section { background: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(13, 148, 136, 0.07) 100%); }
-        .chores-management { background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 115, 22, 0.06) 38%, rgba(13, 148, 136, 0.05) 100%); }
-        .section.activity-log-section {
-            background: linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(99, 102, 241, 0.04) 50%, rgba(15, 23, 42, 0.02) 100%);
+        .section.section--has-head {
+            padding: 0;
+            overflow: hidden;
         }
-        .section h3 {
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.95rem 1.15rem 0.85rem;
+            border-bottom: 1px solid transparent;
+        }
+        .section-head > div:not(.section-head-icon) {
+            min-width: 0;
+            flex: 1;
+        }
+        .section-head-icon {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.22), rgba(45, 212, 191, 0.12));
+            color: var(--primary-dark);
+            box-shadow: 0 3px 14px rgba(13, 148, 136, 0.16);
+        }
+        .section-head-icon svg { width: 24px; height: 24px; }
+        .section-kicker {
+            margin: 0;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            line-height: 1.2;
+            opacity: 0.92;
+        }
+        .section-title {
+            margin: 0.12rem 0 0;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            line-height: 1.15;
+        }
+        .section-body { padding: 1rem 1.15rem 1.15rem; }
+        .section--teal {
+            border-color: rgba(13, 148, 136, 0.22);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.55) 100%);
+            box-shadow:
+                0 12px 44px -18px rgba(13, 148, 136, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+        }
+        .section--teal .section-head {
+            border-bottom-color: rgba(13, 148, 136, 0.14);
+            background: linear-gradient(125deg, rgba(13, 148, 136, 0.11) 0%, rgba(45, 212, 191, 0.05) 55%, transparent 100%);
+        }
+        .section--teal .section-kicker { color: var(--primary-dark); }
+        .section--teal .section-head-icon {
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.26), rgba(45, 212, 191, 0.14));
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.18);
+        }
+        .section--violet {
+            border-color: rgba(99, 102, 241, 0.22);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(238, 242, 255, 0.55) 100%);
+            box-shadow:
+                0 12px 44px -18px rgba(79, 70, 229, 0.18),
+                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+        }
+        .section--violet .section-head {
+            border-bottom-color: rgba(99, 102, 241, 0.14);
+            background: linear-gradient(125deg, rgba(99, 102, 241, 0.12) 0%, rgba(129, 140, 248, 0.06) 55%, transparent 100%);
+        }
+        .section--violet .section-kicker { color: #4f46e5; }
+        .section--violet .section-head-icon {
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.28), rgba(129, 140, 248, 0.14));
+            color: #3730a3;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+        }
+        .section--amber {
+            border-color: rgba(245, 158, 11, 0.28);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.65) 100%);
+            box-shadow:
+                0 12px 44px -18px rgba(217, 119, 6, 0.16),
+                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+        }
+        .section--amber .section-head {
+            border-bottom-color: rgba(245, 158, 11, 0.18);
+            background: linear-gradient(125deg, rgba(251, 191, 36, 0.14) 0%, rgba(254, 243, 199, 0.35) 55%, transparent 100%);
+        }
+        .section--amber .section-kicker { color: #b45309; }
+        .section--amber .section-head-icon {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.35), rgba(249, 115, 22, 0.12));
+            color: #c2410c;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+        .section--slate {
+            border-color: rgba(71, 85, 105, 0.16);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 249, 0.75) 100%);
+            box-shadow:
+                0 12px 44px -20px rgba(51, 65, 85, 0.18),
+                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+        }
+        .section--slate .section-head {
+            border-bottom-color: rgba(71, 85, 105, 0.12);
+            background: linear-gradient(125deg, rgba(148, 163, 184, 0.14) 0%, rgba(241, 245, 249, 0.5) 55%, transparent 100%);
+        }
+        .section--slate .section-kicker { color: #475569; }
+        .section--slate .section-head-icon {
+            background: linear-gradient(145deg, rgba(71, 85, 105, 0.2), rgba(148, 163, 184, 0.12));
+            color: #334155;
+            box-shadow: 0 4px 16px rgba(51, 65, 85, 0.12);
+        }
+        .section-subtitle {
+            margin: 1.25rem 0 0.65rem;
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .section-body .section-subtitle:first-child { margin-top: 0; }
+        .extra-chore-panel {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(13, 148, 136, 0.2);
+        }
+        .extra-chore-panel > p { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.5rem; }
+        .extra-chore-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+        .extra-chore-row input { flex: 1; min-width: 140px; }
+        .pot-overview-card {
+            border-radius: 18px;
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.45) 100%);
+            box-shadow:
+                0 12px 44px -18px rgba(13, 148, 136, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+            overflow: hidden;
+        }
+        .pot-overview-card .section-head {
+            border-bottom-color: rgba(13, 148, 136, 0.14);
+            background: linear-gradient(125deg, rgba(13, 148, 136, 0.11) 0%, rgba(45, 212, 191, 0.05) 55%, transparent 100%);
+        }
+        .pot-overview-card .section-body { padding-bottom: 1.25rem; }
+        .week-msg-line {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0.65rem 0 0;
+            line-height: 1.45;
+        }
+        .activity-log-footnote {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 0.75rem 0 0;
+            line-height: 1.4;
+        }
+        .chores-management.section--amber { background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.55) 55%, rgba(240, 253, 250, 0.25) 100%); }
+        .section.activity-log-section.section--violet {
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(238, 242, 255, 0.45) 100%);
+        }
+        .section:not(:has(.section-head)) h3 {
             margin: 0 0 1rem 0;
             font-size: 0.6875rem;
             font-weight: 800;
@@ -490,10 +639,236 @@
         .btn-waive { background: var(--accent-soft); color: #b45309; font-size: 0.8rem; font-weight: 600; }
         .btn-change-pwd { background: transparent; color: var(--primary-dark); border: 2px solid rgba(13, 148, 136, 0.35); font-size: 0.85rem; }
         .btn-change-pwd:hover { background: var(--primary-soft); border-color: var(--primary); }
+        /* Override Past chores — distinct from primary Add (amber, dashed = “edit history”) */
+        .btn.btn-past-override {
+            width: 100%;
+            margin-top: 0.85rem;
+            padding: 0.65rem 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            color: #9a3412;
+            background: linear-gradient(175deg, rgba(255, 253, 248, 0.98) 0%, rgba(254, 243, 199, 0.45) 55%, rgba(251, 191, 36, 0.08) 100%);
+            border: 2px dashed rgba(217, 119, 6, 0.5);
+            border-radius: 14px;
+            box-shadow: 0 2px 14px rgba(245, 158, 11, 0.12);
+            transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
+        }
+        .btn.btn-past-override:hover {
+            color: #7c2d12;
+            background: linear-gradient(175deg, #fff 0%, rgba(254, 243, 199, 0.65) 50%, rgba(251, 191, 36, 0.12) 100%);
+            border-color: rgba(217, 119, 6, 0.72);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px -6px rgba(217, 119, 6, 0.28);
+        }
+        .btn.btn-past-override:active { transform: translateY(0); }
+        .btn-past-override-icon {
+            flex-shrink: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.35), rgba(249, 115, 22, 0.12));
+            color: #c2410c;
+            box-shadow: 0 1px 6px rgba(245, 158, 11, 0.2);
+        }
+        .btn-past-override-icon svg { width: 17px; height: 17px; }
         .settings-group { display: flex; flex-direction: column; gap: 0.75rem; }
         .settings-actions { display: flex; align-items: center; gap: 8px; }
         .btn-save-settings { padding: 0.45rem 0.95rem; font-size: 0.8rem; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 2px 10px rgba(13, 148, 136, 0.35); border-radius: var(--radius-sm); }
         .btn-save-settings:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(13, 148, 136, 0.4); }
+
+        /* Parent Settings — violet “control panel” (distinct from teal Rules) */
+        .parent-settings-wrap { padding: 0 2rem 1.35rem; }
+        .parent-settings-card {
+            border-radius: 18px;
+            border: 1px solid rgba(99, 102, 241, 0.24);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 42%, rgba(237, 242, 255, 0.52) 100%);
+            box-shadow:
+                0 10px 40px -14px rgba(67, 56, 202, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+            overflow: hidden;
+        }
+        .parent-settings-card-head {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.05rem 1.2rem 0.9rem;
+            background: linear-gradient(125deg, rgba(99, 102, 241, 0.14) 0%, rgba(129, 140, 248, 0.07) 50%, transparent 100%);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.14);
+        }
+        .parent-settings-card-head > div:not(.parent-settings-card-head-icon) {
+            min-width: 0;
+            flex: 1;
+        }
+        .parent-settings-card-head-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.32), rgba(129, 140, 248, 0.14));
+            color: #3730a3;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.22);
+        }
+        .parent-settings-card-head-icon svg { width: 26px; height: 26px; }
+        .parent-settings-kicker {
+            margin: 0;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #4f46e5;
+            opacity: 0.92;
+        }
+        .parent-settings-title {
+            margin: 0.12rem 0 0;
+            font-family: var(--font-display);
+            font-size: 1.32rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            line-height: 1.15;
+        }
+        .parent-settings-summary {
+            margin: 0;
+            padding: 0.65rem 1.2rem 0.85rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            border-bottom: 1px dashed rgba(99, 102, 241, 0.18);
+        }
+        .parent-settings-body.settings-group {
+            padding: 1rem 1.1rem 1.2rem;
+            gap: 1rem;
+        }
+        .settings-fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+            gap: 0.65rem;
+        }
+        .settings-field-tile {
+            display: flex;
+            flex-direction: column;
+            gap: 0.42rem;
+            margin: 0;
+            padding: 0.72rem 0.78rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(99, 102, 241, 0.12);
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95) inset;
+            cursor: pointer;
+        }
+        .settings-field-tile:focus-within {
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+        .settings-field-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.055em;
+            color: var(--text-muted);
+            line-height: 1.2;
+        }
+        .settings-num-input {
+            width: 100%;
+            padding: 0.48rem 0.55rem;
+            font-size: 1.02rem;
+            font-weight: 700;
+            font-family: inherit;
+            color: var(--text);
+            border: 1px solid rgba(99, 102, 241, 0.22);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.96);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .settings-num-input:focus {
+            outline: none;
+            border-color: rgba(99, 102, 241, 0.55);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+        }
+        .parent-settings-body .settings-save-row {
+            margin-top: 0.15rem;
+        }
+        .parent-settings-body .settings-save-row .btn-save-settings {
+            border-radius: 999px;
+            padding: 0.52rem 1.2rem;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            box-shadow: 0 4px 18px -4px rgba(79, 70, 229, 0.45);
+        }
+        .parent-settings-body .settings-save-row .btn-save-settings:hover {
+            box-shadow: 0 6px 22px -4px rgba(79, 70, 229, 0.5);
+        }
+        .settings-subcard {
+            padding: 0.8rem 0.88rem;
+            border-radius: 12px;
+            background: rgba(248, 250, 255, 0.72);
+            border: 1px solid rgba(99, 102, 241, 0.11);
+        }
+        .settings-subcard--password {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .settings-subcard--password .btn-change-pwd {
+            border-radius: 999px;
+            padding: 0.45rem 1rem;
+            font-weight: 700;
+            border-width: 1.5px;
+            border-color: rgba(99, 102, 241, 0.35);
+            color: #4338ca;
+        }
+        .settings-subcard--password .btn-change-pwd:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        .settings-subcard--sync {
+            font-size: 0.85rem;
+        }
+        .settings-subcard--sync .rh-subcard-h {
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.62rem;
+            color: #4f46e5;
+            margin: 0 0 0.4rem;
+        }
+        .settings-subcard--sync .rh-sync-status {
+            margin: 0 0 0.5rem;
+            color: var(--text);
+            line-height: 1.45;
+        }
+        .settings-subcard--sync .rh-sync-hint {
+            margin: 0 0 0.65rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .settings-subcard--sync .btn-rh-supabase-test {
+            font-size: 0.82rem;
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            font-weight: 700;
+            background: rgba(99, 102, 241, 0.14);
+            color: #4338ca;
+            border: 1px solid rgba(99, 102, 241, 0.28);
+        }
+        .settings-subcard--sync .btn-rh-supabase-test:hover {
+            background: rgba(99, 102, 241, 0.22);
+        }
 
         .history-list { overflow-y: auto; font-size: 0.875rem; }
         .flow-main .history-list { max-height: 200px; }
@@ -594,17 +969,274 @@
             50% { transform: translateY(-8px); }
         }
         
-        .modal-overlay { position:fixed; inset:0; background: rgba(15, 23, 42, 0.48); display:none; align-items:center; justify-content:center; z-index:1200; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(160deg, rgba(15, 23, 42, 0.58) 0%, rgba(15, 23, 42, 0.42) 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            backdrop-filter: blur(14px) saturate(1.15);
+            -webkit-backdrop-filter: blur(14px) saturate(1.15);
+            padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+            box-sizing: border-box;
+        }
         .modal-overlay.open { display: flex; }
+        .modal-overlay.open .modal { animation: modalPopIn 0.32s cubic-bezier(0.34, 1.35, 0.64, 1); }
+        @keyframes modalPopIn {
+            from { opacity: 0; transform: scale(0.94) translateY(14px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
         .modal {
-            background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
-            padding: clamp(1.35rem, 4vw, 1.85rem);
-            border-radius: var(--radius-xl);
+            position: relative;
+            border-radius: 22px;
             max-width: 400px;
-            width: 90%;
-            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+            width: 100%;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(240, 253, 250, 0.42) 100%);
+            box-shadow:
+                0 28px 64px -16px rgba(15, 23, 42, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
         }
         .modal-parent-password { max-width: 360px; }
+        .modal-wide { max-width: 420px; }
+        .modal-wider { max-width: 500px; }
+        .modal-head {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 1rem 1.15rem 0.9rem;
+            border-bottom: 1px solid rgba(13, 148, 136, 0.12);
+            background: linear-gradient(125deg, rgba(13, 148, 136, 0.1) 0%, rgba(45, 212, 191, 0.05) 55%, transparent 100%);
+        }
+        .modal-head > div:not(.modal-head-icon) {
+            min-width: 0;
+            flex: 1;
+        }
+        .modal-head-icon {
+            flex-shrink: 0;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.24), rgba(45, 212, 191, 0.12));
+            color: var(--primary-dark);
+            box-shadow: 0 4px 14px rgba(13, 148, 136, 0.18);
+        }
+        .modal-head-icon svg { width: 24px; height: 24px; }
+        .modal-kicker {
+            margin: 0;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            opacity: 0.92;
+            line-height: 1.2;
+        }
+        .modal-title {
+            margin: 0.12rem 0 0;
+            font-family: var(--font-display);
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .modal-body { padding: 1.15rem 1.25rem 1.35rem; }
+        .modal-body > :last-child { margin-bottom: 0; }
+        .modal-text { margin: 0 0 0.85rem; font-size: 0.875rem; color: var(--text-muted); line-height: 1.45; }
+        .modal-text strong { color: var(--text); }
+        .modal-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin: 0 0 0.4rem;
+        }
+        .modal-input,
+        .modal textarea.modal-input {
+            width: 100%;
+            padding: 0.65rem 0.8rem;
+            border-radius: 12px;
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            background: rgba(255, 255, 255, 0.96);
+            font-size: 0.95rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            margin: 0 0 0.85rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .modal textarea.modal-input { resize: vertical; min-height: 4.5rem; line-height: 1.45; }
+        .modal-input:focus,
+        .modal textarea.modal-input:focus {
+            outline: none;
+            border-color: rgba(13, 148, 136, 0.5);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+        }
+        .modal-actions { display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center; }
+        .modal-actions .btn { border-radius: 12px; font-weight: 800; }
+        .modal-actions .btn-primary { box-shadow: 0 4px 16px -4px rgba(13, 148, 136, 0.45); }
+        .btn-modal-cancel {
+            background: rgba(148, 163, 184, 0.16) !important;
+            color: #475569 !important;
+            border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        }
+        .btn-modal-cancel:hover { background: rgba(148, 163, 184, 0.26) !important; }
+        .modal--violet {
+            border-color: rgba(99, 102, 241, 0.26);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(238, 242, 255, 0.48) 100%);
+            box-shadow:
+                0 28px 64px -16px rgba(79, 70, 229, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
+        }
+        .modal--violet .modal-head {
+            border-bottom-color: rgba(99, 102, 241, 0.14);
+            background: linear-gradient(125deg, rgba(99, 102, 241, 0.12) 0%, rgba(129, 140, 248, 0.06) 55%, transparent 100%);
+        }
+        .modal--violet .modal-kicker { color: #4f46e5; }
+        .modal--violet .modal-head-icon {
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.3), rgba(129, 140, 248, 0.14));
+            color: #4338ca;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.22);
+        }
+        .modal--violet .modal-input,
+        .modal--violet textarea.modal-input {
+            border-color: rgba(99, 102, 241, 0.22);
+        }
+        .modal--violet .modal-input:focus,
+        .modal--violet textarea.modal-input:focus {
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+        }
+        .modal--amber {
+            border-color: rgba(245, 158, 11, 0.28);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 251, 235, 0.55) 100%);
+            box-shadow:
+                0 28px 64px -16px rgba(217, 119, 6, 0.18),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
+        }
+        .modal--amber .modal-head {
+            border-bottom-color: rgba(245, 158, 11, 0.16);
+            background: linear-gradient(125deg, rgba(251, 191, 36, 0.14) 0%, rgba(254, 243, 199, 0.35) 55%, transparent 100%);
+        }
+        .modal--amber .modal-kicker { color: #b45309; }
+        .modal--amber .modal-head-icon {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.38), rgba(249, 115, 22, 0.14));
+            color: #c2410c;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+        }
+        .modal--amber .modal-input,
+        .modal--amber textarea.modal-input,
+        .modal--amber input[type="date"].modal-input {
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+        .modal--amber .modal-input:focus,
+        .modal--amber textarea.modal-input:focus {
+            border-color: rgba(217, 119, 6, 0.45);
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+        }
+        .modal--slate {
+            border-color: rgba(71, 85, 105, 0.18);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(241, 245, 249, 0.65) 100%);
+            box-shadow:
+                0 28px 64px -18px rgba(51, 65, 85, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
+        }
+        .modal--slate .modal-head {
+            border-bottom-color: rgba(71, 85, 105, 0.12);
+            background: linear-gradient(125deg, rgba(148, 163, 184, 0.14) 0%, rgba(241, 245, 249, 0.45) 55%, transparent 100%);
+        }
+        .modal--slate .modal-kicker { color: #475569; }
+        .modal--slate .modal-head-icon {
+            background: linear-gradient(145deg, rgba(71, 85, 105, 0.22), rgba(148, 163, 184, 0.12));
+            color: #334155;
+            box-shadow: 0 4px 14px rgba(51, 65, 85, 0.12);
+        }
+        .modal--slate .modal-input,
+        .modal--slate textarea.modal-input {
+            border-color: rgba(71, 85, 105, 0.18);
+        }
+        .modal--slate .modal-input:focus,
+        .modal--slate textarea.modal-input:focus {
+            border-color: rgba(71, 85, 105, 0.45);
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.15);
+        }
+        .modal--danger {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(254, 242, 242, 0.65) 100%);
+            box-shadow:
+                0 28px 64px -16px rgba(220, 38, 38, 0.22),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
+        }
+        .modal--danger .modal-head {
+            border-bottom-color: rgba(239, 68, 68, 0.14);
+            background: linear-gradient(125deg, rgba(254, 202, 202, 0.35) 0%, rgba(254, 226, 226, 0.4) 55%, transparent 100%);
+        }
+        .modal--danger .modal-kicker { color: #b91c1c; }
+        .modal--danger .modal-head-icon {
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.35), rgba(239, 68, 68, 0.18));
+            color: #991b1b;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+        }
+        .modal--success {
+            border-color: rgba(5, 150, 105, 0.28);
+            background: linear-gradient(168deg, rgba(255, 255, 255, 0.99) 0%, rgba(236, 253, 245, 0.55) 100%);
+            box-shadow:
+                0 28px 64px -16px rgba(5, 150, 105, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.72) inset;
+        }
+        .modal--success .modal-head {
+            border-bottom-color: rgba(16, 185, 129, 0.14);
+            background: linear-gradient(125deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.06) 55%, transparent 100%);
+        }
+        .modal--success .modal-kicker { color: #047857; }
+        .modal--success .modal-head-icon {
+            background: linear-gradient(145deg, rgba(52, 211, 153, 0.3), rgba(16, 185, 129, 0.14));
+            color: #047857;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+        }
+        .modal--success .modal-input:focus { border-color: rgba(5, 150, 105, 0.45); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12); }
+        .modal-error { color: var(--danger); font-size: 0.85rem; margin: -0.35rem 0 0.85rem; min-height: 1.2em; }
+        .modal .edit-day-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 12px;
+            background: rgba(13, 148, 136, 0.06);
+            border: 1px solid rgba(13, 148, 136, 0.1);
+        }
+        .modal--amber .edit-day-grid {
+            background: rgba(251, 191, 36, 0.08);
+            border-color: rgba(245, 158, 11, 0.15);
+        }
+        .modal-pill-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+        .modal-pill-row label { display: flex; align-items: center; gap: 0.45rem; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+        .modal-select {
+            width: 100%;
+            padding: 0.55rem 0.75rem;
+            border-radius: 12px;
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            background: rgba(255, 255, 255, 0.96);
+            font-size: 0.9rem;
+            font-family: inherit;
+            margin-bottom: 0.5rem;
+            box-sizing: border-box;
+        }
+        .modal--teal .modal-select:focus { outline: none; border-color: rgba(13, 148, 136, 0.5); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1); }
+        .modal--teal .modal-select { border-color: rgba(13, 148, 136, 0.22); }
+        #calendarBlockTimeWrap { margin-bottom: 0.75rem; }
+        .modal-hint { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 0.75rem; line-height: 1.4; }
+        .modal-time-muted { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        #pastChoresList.history-list { max-height: min(40vh, 280px); margin-bottom: 1rem; }
         
         .toggle-bar {
             display: flex;
@@ -639,25 +1271,231 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
+        /* Past week list can exceed 900px; allow scroll like Rules */
+        #pastWeekContent.toggle-content.open {
+            max-height: min(92vh, 2400px);
+            max-height: min(92dvh, 2400px);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Rules section — refreshed card + list (does not affect Past week / Caution toggles) */
+        .rules-section {
+            margin-top: 0.35rem;
+            padding: 0 2rem 1.5rem;
+        }
+        .rules-toggle {
+            margin-top: 0 !important;
+            padding: 1rem 1.15rem;
+            gap: 0.75rem;
+            border-radius: 16px;
+            border: 1px solid rgba(13, 148, 136, 0.2);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.88) 45%, rgba(224, 242, 254, 0.35) 100%);
+            box-shadow: 0 4px 28px -12px rgba(13, 148, 136, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+            align-items: center;
+        }
+        .rules-toggle:hover {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(240, 253, 250, 0.95) 50%, rgba(224, 242, 254, 0.45) 100%);
+            border-color: rgba(13, 148, 136, 0.28);
+            color: var(--text);
+        }
+        .rules-toggle.open {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-color: rgba(13, 148, 136, 0.12);
+            box-shadow: 0 2px 16px -8px rgba(13, 148, 136, 0.2);
+        }
+        .rules-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            min-width: 0;
+            flex: 1;
+        }
+        .rules-toggle-icon {
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.18), rgba(45, 212, 191, 0.12));
+            color: var(--primary-dark);
+            box-shadow: 0 2px 10px rgba(13, 148, 136, 0.15);
+        }
+        .rules-toggle-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+        .rules-toggle-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.2rem;
+            text-align: left;
+            min-width: 0;
+        }
+        .rules-toggle-kicker {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            opacity: 0.88;
+        }
+        .rules-toggle-title {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        /* Past week — amber card toggle (matches Rules structure) */
+        .past-week-toggle {
+            margin-top: 0.75rem !important;
+            padding: 1rem 1.15rem;
+            gap: 0.75rem;
+            border-radius: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.92) 45%, rgba(254, 243, 199, 0.4) 100%);
+            box-shadow: 0 4px 28px -12px rgba(217, 119, 6, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+            align-items: center;
+        }
+        .past-week-toggle:hover {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(255, 251, 235, 0.98) 50%, rgba(254, 243, 199, 0.5) 100%);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: var(--text);
+        }
+        .past-week-toggle.open {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-color: rgba(245, 158, 11, 0.15);
+            box-shadow: 0 2px 16px -8px rgba(217, 119, 6, 0.15);
+        }
+        .past-week-toggle .rules-toggle-icon {
+            background: linear-gradient(145deg, rgba(251, 191, 36, 0.35), rgba(249, 115, 22, 0.14));
+            color: #c2410c;
+            box-shadow: 0 2px 12px rgba(245, 158, 11, 0.22);
+        }
+        .past-week-toggle .rules-toggle-kicker { color: #b45309; opacity: 0.95; }
+        .past-week-inner {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.35) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.18);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+        }
+        /* Caution — danger card toggle */
+        .caution-toggle {
+            margin-top: 0 !important;
+            padding: 1rem 1.15rem;
+            gap: 0.75rem;
+            border-radius: 16px;
+            border: 1px solid rgba(239, 68, 68, 0.28);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 226, 226, 0.75) 50%, rgba(254, 202, 202, 0.25) 100%);
+            box-shadow: 0 4px 28px -12px rgba(220, 38, 38, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+            align-items: center;
+            color: var(--text);
+        }
+        .caution-toggle:hover {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 1) 0%, rgba(254, 226, 226, 0.88) 55%, rgba(254, 202, 202, 0.35) 100%);
+            border-color: rgba(239, 68, 68, 0.38);
+        }
+        .caution-toggle.open {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-color: rgba(239, 68, 68, 0.12);
+        }
+        .caution-toggle .rules-toggle-icon {
+            background: linear-gradient(145deg, rgba(248, 113, 113, 0.35), rgba(239, 68, 68, 0.18));
+            color: #b91c1c;
+            box-shadow: 0 2px 12px rgba(239, 68, 68, 0.2);
+        }
+        .caution-toggle .rules-toggle-kicker { color: #b91c1c; opacity: 0.95; }
+        .caution-inner {
+            border-radius: 0 0 16px 16px;
+            border: 1px solid rgba(239, 68, 68, 0.16);
+            border-top: none;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(254, 242, 242, 0.65) 100%);
+        }
+        .rules-content .toggle-inner.rules-inner {
+            padding: 0.85rem 0.95rem 1.15rem;
+            margin: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 55%, rgba(240, 253, 250, 0.35) 100%);
+            border: 1px solid rgba(13, 148, 136, 0.16);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 12px 40px -20px rgba(15, 23, 42, 0.12);
+        }
+        ul.rules-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+        ul.rules-list li {
+            margin: 0;
+            padding: 0.65rem 0.75rem 0.65rem 0.85rem;
+            font-size: 0.875rem;
+            line-height: 1.55;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(13, 148, 136, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95) inset;
+            border-left: 3px solid rgba(13, 148, 136, 0.45);
+        }
+        ul.rules-list li b {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
         .rules-footer-actions {
-            margin-top: 1.1rem;
+            margin-top: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid var(--border);
+            border-top: 1px dashed rgba(13, 148, 136, 0.22);
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 0.75rem 1.25rem;
         }
+        .rules-footer-actions .parent-mode-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 1rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            background: rgba(13, 148, 136, 0.12);
+            border: 1px solid rgba(13, 148, 136, 0.2);
+            text-decoration: none;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .rules-footer-actions .parent-mode-link:hover {
+            background: rgba(13, 148, 136, 0.2);
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+        .rules-footer-actions .parent-mode-link.active {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.28);
+        }
         .rules-footer-actions .v1-legacy-link {
             font-size: 0.85rem;
             color: var(--text-muted);
-            text-decoration: none;
             font-weight: 600;
+            padding: 0.35rem 0.5rem;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
         }
         .rules-footer-actions .v1-legacy-link:hover {
             color: var(--primary-dark);
+            background: rgba(100, 116, 139, 0.1);
         }
-        .caution-inner { background: rgba(254, 226, 226, 0.4); }
         
         .past-week-day { background: linear-gradient(135deg, rgba(13, 148, 136, 0.07) 0%, rgba(245, 158, 11, 0.03) 100%); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 6px; border: 1px solid rgba(13, 148, 136, 0.06); }
         .past-week-day-title { font-weight: 700; font-size: 0.8rem; color: var(--primary); margin-bottom: 0.4rem; }
@@ -792,10 +1630,13 @@
             .calendar-block-text { white-space: normal; font-size: 0.95rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
             .calendar-occupancy { font-size: 0.8rem; }
             .modal-overlay.modal-calendar-block { align-items: flex-end; padding: 0; }
+            .modal-overlay.modal-calendar-block.open .modal { animation: calendarSheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
             .modal-overlay.modal-calendar-block .modal {
-                width: 100%; max-width: 100%; margin: 0; border-radius: 20px 20px 0 0;
-                padding: 1.25rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
-                max-height: 88vh; overflow-y: auto; animation: calendarSheetUp 0.25s ease-out;
+                width: 100%; max-width: 100%; margin: 0; border-radius: 22px 22px 0 0;
+                max-height: 88vh; overflow-y: auto;
+            }
+            .modal-overlay.modal-calendar-block .modal-body {
+                padding: 1.1rem 1.2rem max(1.2rem, env(safe-area-inset-bottom));
             }
             .modal-overlay.modal-calendar-block .modal .btn { min-height: 48px; font-size: 0.95rem; }
             .modal-overlay.modal-calendar-block .calendar-modal-actions { flex-direction: column; gap: 10px !important; }
@@ -808,6 +1649,7 @@
         ::selection { background: rgba(13, 148, 136, 0.2); color: var(--text); }
 
         .modal-daily-reminders { max-width: 440px; }
+        .modal-overlay:has(.modal-daily-reminders).open .modal { animation: modalPopIn 0.3s cubic-bezier(0.34, 1.35, 0.64, 1); }
         .daily-reminders-sub { font-size: 0.875rem; color: var(--text-muted); margin: -0.35rem 0 1rem; line-height: 1.45; }
         .daily-reminders-empty {
             margin: 0;
@@ -864,12 +1706,130 @@
         }
         @media (max-width: 480px) {
             .modal-overlay:has(.modal-daily-reminders) { align-items: flex-end; padding: 0; }
+            .modal-overlay:has(.modal-daily-reminders).open .modal { animation: calendarSheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
             .modal-daily-reminders {
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                border-radius: 22px 22px 0 0;
+            }
+            .modal-daily-reminders .modal-body {
+                padding-bottom: max(1.15rem, env(safe-area-inset-bottom));
+            }
+        }
+
+        /* Mobile & narrow screens: safe areas, touch targets, no horizontal clip */
+        @media (max-width: 600px) {
+            body {
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+            .app-tab-bar {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                gap: 4px;
+            }
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left));
+                padding-right: max(0.75rem, env(safe-area-inset-right));
+                padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            }
+            .goals-tab-inner {
+                padding: 1rem max(1rem, env(safe-area-inset-left)) 0 max(1rem, env(safe-area-inset-right));
+            }
+            .ledger-tab-inner {
+                padding: 1rem max(1rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-right));
+            }
+            .parent-panel-pad {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
                 padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+            .schedule-tab-pad {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+            }
+            .parent-settings-wrap {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+            }
+            .rules-section {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+            }
+            .activity-log-section {
+                margin-left: max(1rem, env(safe-area-inset-left));
+                margin-right: max(1rem, env(safe-area-inset-right));
+            }
+            .pot-hero {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+            }
+            .schedule-tab-inner .section {
+                margin-left: max(1rem, env(safe-area-inset-left));
+                margin-right: max(1rem, env(safe-area-inset-right));
+            }
+            .section-title,
+            .parent-settings-title,
+            .modal-title,
+            .rules-toggle-title {
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+            .app-tab-btn {
+                min-height: 44px;
+                padding-top: 0.65rem;
+                padding-bottom: 0.65rem;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .toggle-bar.rules-toggle,
+            .toggle-bar.past-week-toggle,
+            .toggle-bar.caution-toggle {
+                min-height: 48px;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .btn.btn-primary,
+            .btn.btn-modal-cancel {
+                min-height: 44px;
+            }
+            .btn.btn-past-override {
+                min-height: 48px;
+                padding: 0.75rem 1rem;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .btn.btn-save-settings,
+            .btn.btn-change-pwd,
+            .btn.btn-rh-supabase-test {
+                min-height: 44px;
+            }
+            .modal-actions .btn {
+                min-height: 48px;
+            }
+            .modal-overlay {
+                padding-left: max(0.5rem, env(safe-area-inset-left));
+                padding-right: max(0.5rem, env(safe-area-inset-right));
+            }
+            .extra-chore-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .extra-chore-row .btn {
+                width: 100%;
+            }
+            .rules-footer-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .rules-footer-actions .parent-mode-link,
+            .rules-footer-actions .v1-legacy-link {
+                justify-content: center;
+                text-align: center;
+            }
+            .settings-fields-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -901,7 +1861,17 @@
 
             <div id="tab-panel-status" class="app-tab-panel active" role="tabpanel" aria-labelledby="appTabStatus">
         <div class="pot-hero">
-            <div class="section pot-center" style="background: none; border: none;">
+            <div class="pot-overview-card pot-center">
+                <div class="section-head">
+                    <div class="section-head-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><path d="M6 3h4"/><path d="M6 21h4"/></svg>
+                    </div>
+                    <div>
+                        <p class="section-kicker" style="color:var(--primary-dark);">Overview</p>
+                        <h3 class="section-title" style="margin:0.12rem 0 0;">Weekly pot &amp; bank</h3>
+                    </div>
+                </div>
+                <div class="section-body">
                 <div class="bank-row">
                     <div class="bank-card piggy" id="piggyCard">
                         <span class="bank-label">Weekly Pot</span>
@@ -923,35 +1893,81 @@
                     </div>
                 </div>
                 <div id="weeklySummary" class="summary-box" style="display:none;"></div>
-                <p id="weekMessage" style="font-size:0.9rem; font-weight:600; color:var(--text); margin:0.5rem 0 0;"></p>
+                <p id="weekMessage" class="week-msg-line"></p>
+                </div>
             </div>
         </div>
-                <div class="section activity-log-section parent-only">
-                    <h3>Activity Log</h3>
+                <div class="section activity-log-section parent-only section--has-head section--violet">
+                    <div class="section-head">
+                        <div class="section-head-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                        </div>
+                        <div>
+                            <p class="section-kicker">Recent</p>
+                            <h3 class="section-title" style="margin:0.12rem 0 0;">Activity log</h3>
+                        </div>
+                    </div>
+                    <div class="section-body">
                     <div id="historyLog" class="history-list"></div>
-                    <p style="font-size:0.78rem;color:var(--text-muted);margin:0.75rem 0 0;line-height:1.4;">For the full Weekly Pot ledger with all dated entries, open the <strong>Ledger</strong> tab.</p>
+                    <p class="activity-log-footnote">For the full Weekly Pot ledger with all dated entries, open the <strong>Ledger</strong> tab.</p>
+                    </div>
                 </div>
             </div>
 
             <div id="tab-panel-goals" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabGoals">
-                <div class="goals-tab-inner" style="padding: 1rem 2rem 0;">
-                <div class="section">
-                    <h3>Today's Chores</h3>
-                    <div id="taskList">Loading...</div>
-                    <div id="pastWeekToggle" class="toggle-bar" onclick="togglePastWeek()"><span>View past week</span><span class="chevron">▼</span></div>
-                    <div id="pastWeekContent" class="toggle-content"><div id="pastWeekList" style="margin-top:8px;"></div></div>
-                    <div style="margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.1);">
-                        <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 6px 0;">Did something extra? (optional—does not affect Weekly Pot)</p>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <input type="text" id="customChoreInput" placeholder="Log a chore I did..." style="flex:1; min-width:140px">
-                            <button class="btn btn-primary" onclick="logCustomChore()" style="padding:0.5rem 1rem; font-size:0.85rem;">Log it</button>
+                <div class="goals-tab-inner">
+                <div class="section section--has-head section--teal">
+                    <div class="section-head">
+                        <div class="section-head-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                         </div>
+                        <div>
+                            <p class="section-kicker">Today</p>
+                            <h3 class="section-title" style="margin:0.12rem 0 0;">Today&rsquo;s chores</h3>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                    <div id="taskList">Loading...</div>
+                    <div id="pastWeekToggle" class="toggle-bar past-week-toggle" onclick="togglePastWeek()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePastWeek();}" role="button" tabindex="0" aria-expanded="false" aria-controls="pastWeekContent">
+                        <span class="rules-toggle-left">
+                            <span class="rules-toggle-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            </span>
+                            <span class="rules-toggle-text">
+                                <span class="rules-toggle-kicker">History</span>
+                                <span class="rules-toggle-title">Past week</span>
+                            </span>
+                        </span>
+                        <span class="chevron" aria-hidden="true">▼</span>
+                    </div>
+                    <div id="pastWeekContent" class="toggle-content">
+                        <div class="toggle-inner past-week-inner">
+                            <div id="pastWeekList" class="past-week-list-inner"></div>
+                        </div>
+                    </div>
+                    <div class="extra-chore-panel">
+                        <p>Did something extra? (optional—does not affect Weekly Pot)</p>
+                        <div class="extra-chore-row">
+                            <input type="text" id="customChoreInput" placeholder="Log a chore I did...">
+                            <button type="button" class="btn btn-primary" onclick="logCustomChore()" style="padding:0.5rem 1rem; font-size:0.85rem;">Log it</button>
+                        </div>
+                    </div>
                     </div>
                 </div>
                 </div>
-                <div class="parent-only" style="padding:0 2rem 1rem;">
-            <div class="section chores-management">
-                <h3>Add Chore</h3>
+                <div class="parent-only parent-panel-pad">
+            <div class="section chores-management section--has-head section--amber">
+                <div class="section-head">
+                    <div class="section-head-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    </div>
+                    <div>
+                        <p class="section-kicker">Parent</p>
+                        <h3 class="section-title" style="margin:0.12rem 0 0;">Manage chores</h3>
+                    </div>
+                </div>
+                <div class="section-body">
+                <h3 class="section-subtitle">Add chore</h3>
                 <input type="text" id="taskName" placeholder="New chore..." style="margin-bottom:8px">
                 <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.8rem; margin-bottom:8px;">
                     <label><input type="checkbox" class="day-check" value="1" checked> M</label>
@@ -962,19 +1978,34 @@
                     <label><input type="checkbox" class="day-check" value="6"> S</label>
                     <label><input type="checkbox" class="day-check" value="0"> S</label>
                 </div>
-                <button class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
-                <h3 style="margin-top:1rem">All Chores</h3>
+                <button type="button" class="btn btn-primary" onclick="addTask()" style="margin-bottom:1rem">Add</button>
+                <h3 class="section-subtitle">All chores</h3>
                 <div id="allTasksList" class="history-list">Loading...</div>
-                <button class="btn" onclick="openPastChoresModal()" style="width:100%; margin-top:8px; font-size:0.8rem;">Override Past chores</button>
+                <button type="button" class="btn btn-past-override" onclick="openPastChoresModal()">
+                    <span class="btn-past-override-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M12 14v3"/><path d="M10 16h4"/></svg>
+                    </span>
+                    <span>Override Past chores</span>
+                </button>
+                </div>
             </div>
                 </div>
             </div>
 
             <div id="tab-panel-schedule" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabSchedule">
                 <div class="schedule-tab-inner">
-        <div class="parent-only" style="padding:0 2rem 1rem;">
-            <div class="section default-schedule-section chores-management">
-                <h3>Default schedule</h3>
+        <div class="parent-only parent-panel-pad">
+            <div class="section default-schedule-section chores-management section--has-head section--amber">
+                <div class="section-head">
+                    <div class="section-head-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <div>
+                        <p class="section-kicker">Templates</p>
+                        <h3 class="section-title" style="margin:0.12rem 0 0;">Default schedule</h3>
+                    </div>
+                </div>
+                <div class="section-body">
                 <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Preset blocks shown on the calendar per day. User blocks override these.</p>
                 <div class="calendar-wrap default-schedule-calendar">
                     <div class="calendar-day-tabs" id="defaultScheduleDayTabs"></div>
@@ -990,12 +2021,22 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
 
-        <div style="padding:0 2rem 1.5rem;">
-            <div class="section" style="margin-bottom:0.75rem;">
-                <h3>Daily Schedule</h3>
+        <div class="schedule-tab-pad">
+            <div class="section section--has-head section--teal" style="margin-bottom:0.75rem;">
+                <div class="section-head">
+                    <div class="section-head-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+                    </div>
+                    <div>
+                        <p class="section-kicker">Your week</p>
+                        <h3 class="section-title" style="margin:0.12rem 0 0;">Daily schedule</h3>
+                    </div>
+                </div>
+                <div class="section-body">
                 <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Plan your day: scroll days, then use <strong>By time</strong> (grid) or <strong>Activities</strong> (list) on your phone—tap to add or edit.</p>
                 <div class="calendar-wrap">
                     <div class="calendar-toolbar" id="calendarToolbar" aria-hidden="true">
@@ -1013,53 +2054,92 @@
                     </div>
                     <p class="calendar-add-hint" id="calendarAddHint">Click an empty hour to add a block, or a filled block to edit.</p>
                 </div>
+                </div>
             </div>
         </div>
                 </div>
             </div>
 
             <div id="tab-panel-ledger" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabLedger">
-                <div class="ledger-tab-inner" style="padding: 1rem 2rem 1.25rem;">
-                    <div class="section">
-                        <h3>Ledger</h3>
-                        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 1rem;line-height:1.45;"><strong>Weekly Pot:</strong> <strong>WEEK_START</strong> (Monday base), <strong>WEEKDAY_BONUS</strong> / <strong>WEEKDAY_PENALTY</strong>, reversals, <strong>FRIDAY_SETTLE</strong> (to bank). <strong>Guhan's Bank (parent):</strong> <strong>BANK_ADD</strong> / <strong>BANK_DEDUCT</strong> — these do not change the Weekly Pot. Chore activity rows may show $0 (—). <strong>Newest first.</strong> Hover a row for its id.</p>
+                <div class="ledger-tab-inner">
+                    <div class="section section--has-head section--slate">
+                        <div class="section-head">
+                            <div class="section-head-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>
+                            </div>
+                            <div>
+                                <p class="section-kicker">Full history</p>
+                                <h3 class="section-title" style="margin:0.12rem 0 0;">Ledger</h3>
+                            </div>
+                        </div>
+                        <div class="section-body">
+                        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 1rem;line-height:1.45;"><strong>List of all ledger entries.</strong></p>
                         <div id="ledgerFullList" class="history-list ledger-full-list"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="parent-only" style="padding:0 2rem 0;">
-            <div class="section" style="margin-bottom: 0.75rem;">
-                <h3>Settings</h3>
-                <p id="cfgCurrentSummary" style="font-size:0.8rem; color:var(--text-muted); margin:0 0 0.5rem 0;"></p>
-                <div class="settings-group">
-                    <div style="display:grid; gap:8px; font-size:0.9rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
-                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Weekly pot start ($):</span><input type="number" id="cfgWeeklyStart" min="0" step="0.5" style="width:72px"></label>
-                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Success bonus ($):</span><input type="number" id="cfgSuccessAmt" min="0" step="0.5" style="width:72px"></label>
-                        <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="min-width:140px">Miss penalty ($):</span><input type="number" id="cfgPenaltyAmt" min="0" step="0.5" style="width:72px"></label>
+        <div class="parent-only parent-settings-wrap">
+            <section class="parent-settings-card" aria-labelledby="parentSettingsHeading">
+                <div class="parent-settings-card-head">
+                    <div class="parent-settings-card-head-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                     </div>
-                    <div class="settings-actions">
-                        <button class="btn btn-save-settings" onclick="saveConfig()">Save settings</button>
-                    </div>
-                    <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15);">
-                        <button class="btn btn-change-pwd" onclick="openChangePasswordModal()">Change Password</button>
-                    </div>
-                    <div id="rhSupabasePanel" style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid rgba(13,148,136,0.15); font-size:0.85rem;">
-                        <div style="font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:0.06em; font-size:0.72rem; margin-bottom:0.35rem;">Cloud sync (Supabase)</div>
-                        <p id="rhSupabaseStatusLine" style="margin:0 0 0.5rem 0; color:var(--text); line-height:1.45;">Checking…</p>
-                        <p id="rhSupabaseHint" style="margin:0 0 0.6rem 0; font-size:0.78rem; color:var(--text-muted); line-height:1.4;">Table <code style="font-size:0.85em;">chore_app_state</code>, row <code style="font-size:0.85em;">app_name = GuhanAppV2</code>. Use the <strong>anon public</strong> JWT (<code style="font-size:0.85em;">eyJ…</code>) from Supabase → Settings → API. If RLS is on, add a policy so anon can SELECT/INSERT/UPDATE this table.</p>
-                        <button type="button" class="btn" style="font-size:0.82rem; padding:0.45rem 0.85rem; background:rgba(13,148,136,0.12); color:var(--primary);" onclick="testRhSupabaseConnection()">Test connection &amp; read</button>
+                    <div>
+                        <p class="parent-settings-kicker">Reward amounts</p>
+                        <h3 id="parentSettingsHeading" class="parent-settings-title">Settings</h3>
                     </div>
                 </div>
-            </div>
+                <p id="cfgCurrentSummary" class="parent-settings-summary"></p>
+                <div class="settings-group parent-settings-body">
+                    <div class="settings-fields-grid">
+                        <label class="settings-field-tile">
+                            <span class="settings-field-label">Weekly pot start ($)</span>
+                            <input type="number" class="settings-num-input" id="cfgWeeklyStart" min="0" step="0.5">
+                        </label>
+                        <label class="settings-field-tile">
+                            <span class="settings-field-label">Success bonus ($)</span>
+                            <input type="number" class="settings-num-input" id="cfgSuccessAmt" min="0" step="0.5">
+                        </label>
+                        <label class="settings-field-tile">
+                            <span class="settings-field-label">Miss penalty ($)</span>
+                            <input type="number" class="settings-num-input" id="cfgPenaltyAmt" min="0" step="0.5">
+                        </label>
+                    </div>
+                    <div class="settings-actions settings-save-row">
+                        <button type="button" class="btn btn-save-settings" onclick="saveConfig()">Save settings</button>
+                    </div>
+                    <div class="settings-subcard settings-subcard--password">
+                        <button type="button" class="btn btn-change-pwd" onclick="openChangePasswordModal()">Change password</button>
+                    </div>
+                    <div id="rhSupabasePanel" class="settings-subcard settings-subcard--sync">
+                        <div class="rh-subcard-h">Cloud sync (Supabase)</div>
+                        <p id="rhSupabaseStatusLine" class="rh-sync-status">Checking…</p>
+                        <p id="rhSupabaseHint" class="rh-sync-hint">Table <code style="font-size:0.85em;">chore_app_state</code>, row <code style="font-size:0.85em;">app_name = GuhanAppV2</code>. Use the <strong>anon public</strong> JWT (<code style="font-size:0.85em;">eyJ…</code>) from Supabase → Settings → API. If RLS is on, add a policy so anon can SELECT/INSERT/UPDATE this table.</p>
+                        <button type="button" class="btn btn-rh-supabase-test" onclick="testRhSupabaseConnection()">Test connection &amp; read</button>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <div style="padding:0 2rem 1.5rem;">
-            <div id="rulesToggle" class="toggle-bar" onclick="toggleRules()"><span>Rules</span><span class="chevron">▼</span></div>
+        <div class="rules-section">
+            <div id="rulesToggle" class="toggle-bar rules-toggle" onclick="toggleRules()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleRules();}" role="button" tabindex="0" aria-expanded="false" aria-controls="rulesContent">
+                <span class="rules-toggle-left">
+                    <span class="rules-toggle-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                    </span>
+                    <span class="rules-toggle-text">
+                        <span class="rules-toggle-kicker">How RewardHub works</span>
+                        <span class="rules-toggle-title">Rules</span>
+                    </span>
+                </span>
+                <span class="chevron" aria-hidden="true">▼</span>
+            </div>
             <div id="rulesContent" class="toggle-content rules-content">
                 <div class="toggle-inner rules-inner">
-                    <ul id="rulesList" style="margin:0 0 0 1.2rem; padding:0; line-height:1.9; color:var(--text);"></ul>
+                    <ul id="rulesList" class="rules-list"></ul>
                     <div class="rules-footer-actions">
                         <a href="#" id="lockBtn" class="parent-mode-link" onclick="toggleParentMode(); return false;">Parent login</a>
                         <a href="index-v1.html" class="parent-only v1-legacy-link" id="v1LegacyLink">← v1 (classic)</a>
@@ -1068,12 +2148,23 @@
             </div>
         </div>
 
-        <div class="parent-only" style="padding:0 2rem 1rem;">
-            <div id="cautionToggle" class="toggle-bar caution-toggle" onclick="toggleCaution()"><span>Caution</span><span class="chevron">▼</span></div>
+        <div class="parent-only caution-section-wrap parent-panel-pad">
+            <div id="cautionToggle" class="toggle-bar caution-toggle" onclick="toggleCaution()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCaution();}" role="button" tabindex="0" aria-expanded="false" aria-controls="cautionContent">
+                <span class="rules-toggle-left">
+                    <span class="rules-toggle-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </span>
+                    <span class="rules-toggle-text">
+                        <span class="rules-toggle-kicker">Danger zone</span>
+                        <span class="rules-toggle-title">Caution</span>
+                    </span>
+                </span>
+                <span class="chevron" aria-hidden="true">▼</span>
+            </div>
             <div id="cautionContent" class="toggle-content caution-content">
                 <div class="toggle-inner caution-inner">
-                    <p style="font-size:0.85rem; margin:0 0 10px 0">Reset all data. This cannot be undone.</p>
-                    <button class="btn" onclick="openResetDataModal()" style="background:rgba(220,38,38,0.9); color:white; width:100%">Reset All Data</button>
+                    <p style="font-size:0.85rem; margin:0 0 10px 0; color:var(--text);">Reset all data. This cannot be undone.</p>
+                    <button type="button" class="btn" onclick="openResetDataModal()" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:white; width:100%; border-radius:12px; font-weight:800;">Reset all data</button>
                 </div>
             </div>
         </div>
@@ -1082,138 +2173,230 @@
 </div>
 
 <div id="changePasswordModal" class="modal-overlay" onclick="if(event.target===this)closeChangePasswordModal()">
-    <div class="modal modal-parent-password" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0; text-align:center;">Change Parent Password</h3>
-        <input type="password" id="changePwdCurrent" placeholder="Current password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;">
-        <input type="password" id="changePwdNew" placeholder="New password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;">
-        <input type="password" id="changePwdConfirm" placeholder="Confirm new password" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;" onkeydown="if(event.key==='Enter')submitChangePassword()">
-        <p id="changePwdError" style="color:var(--danger); font-size:0.85rem; margin:0 0 1rem 0; display:none;"></p>
-        <div style="display:flex; gap:10px;">
-            <button class="btn btn-primary" onclick="submitChangePassword()" style="flex:1">Change Password</button>
-            <button class="btn" onclick="closeChangePasswordModal()" style="background:#e2e8f0; color:#475569">Cancel</button>
+    <div class="modal modal--violet modal-parent-password" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Security</p>
+                <h3 class="modal-title">Change parent password</h3>
+            </div>
+        </div>
+        <div class="modal-body">
+            <input type="password" id="changePwdCurrent" class="modal-input" placeholder="Current password" autocomplete="current-password">
+            <input type="password" id="changePwdNew" class="modal-input" placeholder="New password" autocomplete="new-password">
+            <input type="password" id="changePwdConfirm" class="modal-input" placeholder="Confirm new password" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitChangePassword()">
+            <p id="changePwdError" class="modal-error" style="display:none;"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="submitChangePassword()" style="flex:1">Change password</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeChangePasswordModal()">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="parentPasswordModal" class="modal-overlay" onclick="if(event.target===this)closeParentPasswordModal()">
-    <div class="modal modal-parent-password" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0; text-align:center;">Parent login</h3>
-        <input type="password" id="parentPasswordInput" placeholder="Enter password" style="width:100%; padding:14px; margin-bottom:10px; border-radius:10px; border:2px solid #e2e8f0; box-sizing:border-box;" onkeydown="if(event.key==='Enter')submitParentPassword()">
-        <p id="parentPasswordError" style="color:var(--danger); font-size:0.85rem; margin:0 0 1rem 0; display:none;"></p>
-        <div style="display:flex; gap:10px;">
-            <button class="btn btn-primary" onclick="submitParentPassword()" style="flex:1">Unlock</button>
-            <button class="btn" onclick="closeParentPasswordModal()" style="background:#e2e8f0; color:#475569">Cancel</button>
+    <div class="modal modal--violet modal-parent-password" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Parent mode</p>
+                <h3 class="modal-title">Unlock</h3>
+            </div>
+        </div>
+        <div class="modal-body">
+            <input type="password" id="parentPasswordInput" class="modal-input" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitParentPassword()">
+            <p id="parentPasswordError" class="modal-error" style="display:none;"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="submitParentPassword()" style="flex:1">Unlock</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeParentPasswordModal()">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="dailyRemindersModal" class="modal-overlay" onclick="if(event.target===this)closeDailyRemindersModal()" role="dialog" aria-modal="true" aria-labelledby="dailyRemindersTitle">
-    <div class="modal modal-daily-reminders" onclick="event.stopPropagation()">
-        <h3 id="dailyRemindersTitle" style="margin-top:0;">Today's reminders</h3>
-        <p id="dailyRemindersSub" class="daily-reminders-sub"></p>
-        <div id="dailyRemindersList" class="daily-reminders-list-wrap"></div>
-        <button type="button" class="btn btn-primary" style="width:100%; margin-top:1.25rem;" onclick="closeDailyRemindersModal()">Got it</button>
+    <div class="modal modal--teal modal-daily-reminders" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Heads up</p>
+                <h3 id="dailyRemindersTitle" class="modal-title">Today&rsquo;s reminders</h3>
+            </div>
+        </div>
+        <div class="modal-body">
+            <p id="dailyRemindersSub" class="daily-reminders-sub" style="margin-top:0;"></p>
+            <div id="dailyRemindersList" class="daily-reminders-list-wrap"></div>
+            <button type="button" class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="closeDailyRemindersModal()">Got it</button>
+        </div>
     </div>
 </div>
 
 <div id="completeModal" class="modal-overlay" onclick="if(event.target===this)cancelComplete()">
-    <div class="modal" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0;">Complete Goal</h3>
-        <p id="completeTaskName" style="font-weight:600;margin-bottom:1rem;"></p>
-        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Add a comment (optional):</label>
-        <textarea id="completeComment" placeholder="How did it go?..." rows="3" style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box;resize:vertical"></textarea>
-        <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="confirmComplete()" style="flex:1;background:var(--success)">Confirm</button>
-            <button class="btn" onclick="cancelComplete()" style="background:#e2e8f0;color:#475569">Cancel</button>
+    <div class="modal modal--success" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Nice work</p>
+                <h3 class="modal-title">Complete goal</h3>
+            </div>
+        </div>
+        <div class="modal-body">
+            <p id="completeTaskName" style="font-weight:700;margin:0 0 1rem;font-size:1rem;color:var(--text);"></p>
+            <label class="modal-label" for="completeComment">Add a comment (optional)</label>
+            <textarea id="completeComment" class="modal-input" placeholder="How did it go?..." rows="3"></textarea>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="confirmComplete()" style="flex:1;background:linear-gradient(135deg,var(--success),#059669);box-shadow:0 4px 16px -4px rgba(5,150,105,0.45);">Confirm</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="cancelComplete()">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="editModal" class="modal-overlay" onclick="if(event.target===this)closeEditModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-        <h3 style="margin-top:0;">Edit Chore</h3>
-        <input type="hidden" id="editTaskId">
-        <input type="text" id="editTaskName" placeholder="Task description..." style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 0.8rem; margin-bottom: 1rem;">
-            <label><input type="checkbox" class="edit-day-check" value="1"> M</label>
-            <label><input type="checkbox" class="edit-day-check" value="2"> T</label>
-            <label><input type="checkbox" class="edit-day-check" value="3"> W</label>
-            <label><input type="checkbox" class="edit-day-check" value="4"> T</label>
-            <label><input type="checkbox" class="edit-day-check" value="5"> F</label>
-            <label><input type="checkbox" class="edit-day-check" value="6"> S</label>
-            <label><input type="checkbox" class="edit-day-check" value="0"> S</label>
+    <div class="modal modal--amber" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Chores</p>
+                <h3 class="modal-title">Edit chore</h3>
+            </div>
         </div>
-        <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="saveEditTask()" style="flex:1">Save</button>
-            <button class="btn" onclick="closeEditModal()" style="background:#e2e8f0;color:#475569">Cancel</button>
+        <div class="modal-body">
+            <input type="hidden" id="editTaskId">
+            <label class="modal-label" for="editTaskName">Description</label>
+            <input type="text" id="editTaskName" class="modal-input" placeholder="Task description...">
+            <p class="modal-label" style="margin-bottom:0.5rem;">Days</p>
+            <div class="edit-day-grid">
+                <label><input type="checkbox" class="edit-day-check" value="1"> M</label>
+                <label><input type="checkbox" class="edit-day-check" value="2"> T</label>
+                <label><input type="checkbox" class="edit-day-check" value="3"> W</label>
+                <label><input type="checkbox" class="edit-day-check" value="4"> T</label>
+                <label><input type="checkbox" class="edit-day-check" value="5"> F</label>
+                <label><input type="checkbox" class="edit-day-check" value="6"> S</label>
+                <label><input type="checkbox" class="edit-day-check" value="0"> S</label>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="saveEditTask()" style="flex:1">Save</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="resetDataModal" class="modal-overlay" onclick="if(event.target===this)closeResetDataModal()">
-    <div class="modal modal-parent-password" onclick="event.stopPropagation()" style="max-width:400px;text-align:center">
-        <h3 style="margin:0 0 0.5rem;">Reset All Data?</h3>
-        <p id="resetModalMessage" style="font-size:0.9rem; color:var(--text-muted); margin:0 0 1.25rem; line-height:1.5"></p>
-        <div style="display:flex;gap:10px;">
-            <button class="btn" onclick="closeResetDataModal()" style="flex:1;background:#e2e8f0;color:#475569">Cancel</button>
-            <button class="btn" onclick="confirmResetAllData()" style="flex:1;background:rgba(220,38,38,0.9);color:white">Reset All Data</button>
+    <div class="modal modal--danger" onclick="event.stopPropagation()" style="max-width:400px">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Cannot undo</p>
+                <h3 class="modal-title">Reset all data?</h3>
+            </div>
+        </div>
+        <div class="modal-body" style="text-align:center;">
+            <p id="resetModalMessage" class="modal-text" style="text-align:left;"></p>
+            <div class="modal-actions" style="justify-content:center;">
+                <button type="button" class="btn btn-modal-cancel" onclick="closeResetDataModal()" style="flex:1">Cancel</button>
+                <button type="button" class="btn" onclick="confirmResetAllData()" style="flex:1;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;font-weight:800;border:none;">Reset all data</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="calendarBlockModal" class="modal-overlay modal-calendar-block" onclick="if(event.target===this)closeCalendarBlockModal()">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width:380px">
-        <h3 style="margin-top:0;" id="calendarBlockModalTitle">Block Time</h3>
-        <div id="calendarBlockTimeWrap" style="margin-bottom:1rem;">
-            <div id="calendarBlockTimeEdit" style="display:none;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">From <span id="calendarBlockStartHour"></span> to <span id="calendarBlockEndHour"></span></div>
-            <div id="calendarBlockTimeAdd" style="display:none;">
-                <label style="display:block;font-size:0.85rem;margin-bottom:4px">Start</label>
-                <select id="calendarBlockStartSelect" onchange="updateCalendarBlockEndOptions()" style="width:100%;padding:8px 12px;margin-bottom:8px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box"></select>
-                <label style="display:block;font-size:0.85rem;margin-bottom:4px">End</label>
-                <select id="calendarBlockEndSelect" style="width:100%;padding:8px 12px;margin-bottom:4px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box"></select>
-                <p style="font-size:0.75rem;color:var(--text-muted);margin:0">Select end time to span multiple slots</p>
+    <div class="modal modal--teal" onclick="event.stopPropagation()" style="max-width:380px">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Schedule</p>
+                <h3 class="modal-title" id="calendarBlockModalTitle">Block time</h3>
             </div>
         </div>
-        <label style="display:block;font-size:0.85rem;margin-bottom:4px">What are you doing?</label>
-        <textarea id="calendarBlockText" placeholder="e.g. Math class, Homework, Soccer practice..." rows="3" style="width:100%;padding:12px;border-radius:10px;border:2px solid #e2e8f0;box-sizing:border-box;resize:vertical;margin-bottom:1rem"></textarea>
-        <div class="calendar-modal-actions" style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save</button>
-            <button class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger)" id="calendarBlockDeleteBtn">Delete</button>
-            <button class="btn" onclick="closeCalendarBlockModal()" style="background:#e2e8f0;color:#475569">Cancel</button>
+        <div class="modal-body">
+            <div id="calendarBlockTimeWrap">
+                <div id="calendarBlockTimeEdit" class="modal-time-muted" style="display:none;">From <span id="calendarBlockStartHour"></span> to <span id="calendarBlockEndHour"></span></div>
+                <div id="calendarBlockTimeAdd" style="display:none;">
+                    <label class="modal-label" for="calendarBlockStartSelect">Start</label>
+                    <select id="calendarBlockStartSelect" class="modal-select" onchange="updateCalendarBlockEndOptions()"></select>
+                    <label class="modal-label" for="calendarBlockEndSelect">End</label>
+                    <select id="calendarBlockEndSelect" class="modal-select"></select>
+                    <p class="modal-hint">Select end time to span multiple slots</p>
+                </div>
+            </div>
+            <label class="modal-label" for="calendarBlockText">What are you doing?</label>
+            <textarea id="calendarBlockText" class="modal-input" placeholder="e.g. Math class, Homework, Soccer practice..." rows="3"></textarea>
+            <div class="calendar-modal-actions modal-actions">
+                <button type="button" class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save</button>
+                <button type="button" class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger);font-weight:700;border:1px solid rgba(239,68,68,0.25);" id="calendarBlockDeleteBtn">Delete</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeCalendarBlockModal()">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="bankAdjustModal" class="modal-overlay" onclick="if(event.target===this)closeBankAdjustModal()">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width:420px">
-        <h3 style="margin-top:0;">Adjust Guhan's Bank</h3>
-        <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 12px;line-height:1.45;">Parent-only: add or subtract an amount and record why (shown in Activity Log).</p>
-        <p style="font-size:0.9rem;margin:0 0 14px;">Current balance: <strong id="bankAdjustCurrentLbl">$0.00</strong></p>
-        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;"><input type="radio" name="bankAdjustDir" value="add" checked> Add money</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.9rem;"><input type="radio" name="bankAdjustDir" value="deduct"> Deduct money</label>
+    <div class="modal modal--slate modal-wide" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V12.75M15.75 21V12.75M8.25 21V12.75M3 9L12 3L21 9M19.5 21V10.3325C17.0563 9.94906 14.5514 9.75 12 9.75C9.44861 9.75 6.94372 9.94906 4.5 10.3325V21M3 21H21M12 6.75H12.0075V6.7575H12V6.75Z"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Parent only</p>
+                <h3 class="modal-title">Adjust Guhan&rsquo;s Bank</h3>
+            </div>
         </div>
-        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Amount ($)</label>
-        <input type="number" id="bankAdjustAmount" min="0.01" step="0.01" placeholder="0.00" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
-        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Reason / note <span style="color:var(--danger)">*</span></label>
-        <textarea id="bankAdjustReason" rows="3" placeholder="e.g. Birthday gift, toy purchase, correction…" style="width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box;resize:vertical"></textarea>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="btn btn-primary" onclick="confirmBankAdjust()" style="flex:1">Apply</button>
-            <button type="button" class="btn" onclick="closeBankAdjustModal()" style="flex:1;background:#e2e8f0;color:#475569">Cancel</button>
+        <div class="modal-body">
+            <p class="modal-text" style="margin-top:0;">Add or subtract an amount and record why (shown in Activity Log).</p>
+            <p class="modal-text" style="font-size:0.95rem;color:var(--text);">Current balance: <strong id="bankAdjustCurrentLbl">$0.00</strong></p>
+            <div class="modal-pill-row">
+                <label><input type="radio" name="bankAdjustDir" value="add" checked> Add money</label>
+                <label><input type="radio" name="bankAdjustDir" value="deduct"> Deduct money</label>
+            </div>
+            <label class="modal-label" for="bankAdjustAmount">Amount ($)</label>
+            <input type="number" id="bankAdjustAmount" class="modal-input" min="0.01" step="0.01" placeholder="0.00">
+            <label class="modal-label" for="bankAdjustReason">Reason / note <span style="color:var(--danger)">*</span></label>
+            <textarea id="bankAdjustReason" class="modal-input" rows="3" placeholder="e.g. Birthday gift, toy purchase, correction…"></textarea>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="confirmBankAdjust()" style="flex:1">Apply</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closeBankAdjustModal()" style="flex:1">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
 
 <div id="pastChoresModal" class="modal-overlay" onclick="if(event.target===this)closePastChoresModal()">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
-        <h3 style="margin-top:0;">Past Chores</h3>
-        <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 10px 0">Parent: set <b>Done</b>, <b>Waive</b> (counts like done for the pot), or <b>Missed</b> for any weekday. Saves update the ledger &amp; Weekly Pot. Dates use <b>Eastern (US)</b> — same as chores.</p>
-        <label style="display:block;font-size:0.85rem;color:#64748b;margin-bottom:6px">Select date:</label>
-        <input type="date" id="pastChoresDate" onchange="renderPastChoresForDate()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:1rem;box-sizing:border-box">
-        <div id="pastChoresList" class="history-list" style="max-height:280px;margin-bottom:1rem"></div>
-        <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary" onclick="savePastChoresChanges()">Save Changes</button>
-            <button class="btn" onclick="closePastChoresModal()" style="background:#e2e8f0;color:#475569">Close</button>
+    <div class="modal modal--amber modal-wider" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-head-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
+            </div>
+            <div>
+                <p class="modal-kicker">Parent</p>
+                <h3 class="modal-title">Past chores</h3>
+            </div>
+        </div>
+        <div class="modal-body">
+            <p class="modal-text" style="font-size:0.8rem;margin-top:0;">Set <b>Done</b>, <b>Waive</b> (counts like done for the pot), or <b>Missed</b> for any weekday. Saves update the ledger &amp; Weekly Pot. Dates use <b>Eastern (US)</b> — same as chores.</p>
+            <label class="modal-label" for="pastChoresDate">Select date</label>
+            <input type="date" id="pastChoresDate" class="modal-input" onchange="renderPastChoresForDate()">
+            <div id="pastChoresList" class="history-list"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-primary" onclick="savePastChoresChanges()">Save changes</button>
+                <button type="button" class="btn btn-modal-cancel" onclick="closePastChoresModal()">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -2101,16 +3284,25 @@
     };
 
     window.toggleCaution = function() {
-        document.getElementById('cautionToggle').classList.toggle('open');
-        document.getElementById('cautionContent').classList.toggle('open');
+        const t = document.getElementById('cautionToggle');
+        const c = document.getElementById('cautionContent');
+        t.classList.toggle('open');
+        c.classList.toggle('open');
+        t.setAttribute('aria-expanded', String(t.classList.contains('open')));
     };
     window.togglePastWeek = function() {
-        document.getElementById('pastWeekToggle').classList.toggle('open');
-        document.getElementById('pastWeekContent').classList.toggle('open');
+        const t = document.getElementById('pastWeekToggle');
+        const c = document.getElementById('pastWeekContent');
+        t.classList.toggle('open');
+        c.classList.toggle('open');
+        t.setAttribute('aria-expanded', String(t.classList.contains('open')));
     };
     window.toggleRules = function() {
-        document.getElementById('rulesToggle').classList.toggle('open');
-        document.getElementById('rulesContent').classList.toggle('open');
+        const t = document.getElementById('rulesToggle');
+        const c = document.getElementById('rulesContent');
+        t.classList.toggle('open');
+        c.classList.toggle('open');
+        t.setAttribute('aria-expanded', String(t.classList.contains('open')));
     };
 
     window.addTask = async function() {
@@ -3082,15 +4274,15 @@
 
         const rulesEl = document.getElementById('rulesList');
         rulesEl.innerHTML = `
-            <li>Complete your daily chores (Mon–Fri) and check them off when done.</li>
-            <li>Every <b>Monday</b>, your Weekly Pot resets to <b>$${cfg.weeklyPotStart}</b>.</li>
-            <li><b>Complete all chores</b> on a weekday → <b>+$${cfg.dailySuccessAmount}</b> to Weekly Pot.</li>
-            <li><b>Miss any chore</b> on a weekday → <b>−$${cfg.dailyFailureAmount}</b> from Weekly Pot <b>after that weekday ends</b> (not during the day).</li>
-            <li><b>Saturday & Sunday</b> are task-free. The Weekly Pot hides the dollar amount (rest mode) and shows a palm-tree resort icon—earning resumes Monday.</li>
-            <li>Every <b>Friday night</b>, your Weekly Pot balance moves to <b>Guhan's Bank</b>. If the Weekly Pot is negative, that amount is subtracted from the Bank.</li>
-            <li>Use the <b>Ledger</b> tab to see every dated Weekly Pot credit and debit (no duplicates).</li>
-            <li><b>Parent:</b> Use <b>Add / deduct + reason</b> (or double-click the bank) to change Guhan's Bank; the note appears in the Activity Log.</li>
-            <li>Guhan's Bank is your permanent savings—it never resets!</li>`;
+            <li>📱 Check the app daily to track progress & complete chores.</li>
+            <li>✅ Mark chores off when you’re done.</li>
+            <li>🔄 Every <b>Monday</b>, your Weekly Pot resets to <b>$${cfg.weeklyPotStart}</b>.</li>
+            <li>🎉 Finish <b>all chores</b> on a weekday → <b>+$${cfg.dailySuccessAmount}</b> added!</li>
+            <li>⚠️ Miss any chore → <b>−$${cfg.dailyFailureAmount}</b> after the day ends.</li>
+            <li>🌴 <b>Weekends = chill mode!</b> No chores, No pot!</li>
+            <li>🏦 <b>End of the week:</b> Weekly Pot moves to <b>Guhan's Bank</b> (negatives subtract).</li>
+            <li>📊 Check the <b>Ledger</b> to see details on your earnings & deductions.</li>
+            <li>💰 Guhan's Bank: Your hard earned money! Enjoy!!!</li>`;
 
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: EST });
 
