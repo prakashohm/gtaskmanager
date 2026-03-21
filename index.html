@@ -289,18 +289,140 @@
         .summary-box { margin-top: 1rem; padding: 1rem 1.25rem; border-radius: 14px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(251, 191, 36, 0.06) 100%); border: 1px solid rgba(245, 158, 11, 0.2); }
         .summary-box h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #92400e; }
         .summary-box p { margin: 0; font-size: 0.9rem; color: var(--text); }
-        .weekday-progress-wrap { margin-top: 0.35rem; }
-        .weekday-progress-bar { display: flex; gap: 6px; align-items: stretch; height: 14px; margin-bottom: 0.65rem; }
-        .weekday-progress-seg { flex: 1; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s; min-width: 0; }
-        .weekday-progress-seg.done, .weekday-progress-seg.free { background: linear-gradient(180deg, #34d399, #059669); box-shadow: 0 1px 0 rgba(0,0,0,0.06); }
-        .weekday-progress-seg.partial { background: linear-gradient(180deg, #fcd34d, #f59e0b); }
-        .weekday-progress-seg.open { background: linear-gradient(180deg, rgba(251, 191, 36, 0.5), rgba(245, 158, 11, 0.35)); border: 1px dashed rgba(180, 83, 9, 0.45); }
-        .weekday-progress-seg.missed { background: linear-gradient(180deg, #fca5a5, #dc2626); }
-        .weekday-progress-seg.upcoming { background: rgba(148, 163, 184, 0.2); border: 1px dashed rgba(100, 116, 139, 0.35); }
-        .weekday-progress-labels { display: flex; justify-content: space-between; gap: 4px; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
-        .weekday-progress-labels span { flex: 1; text-align: center; min-width: 0; }
-        .weekday-motivate { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.45; margin: 0 0 0.35rem 0; }
-        .weekday-pot-hint { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+        .summary-box.summary-box--weekday {
+            padding: 1.1rem 1.15rem 1.15rem;
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.97) 0%, rgba(240, 253, 250, 0.92) 42%, rgba(224, 242, 254, 0.35) 100%);
+            border: 1px solid rgba(13, 148, 136, 0.14);
+            box-shadow: 0 10px 40px -18px rgba(13, 148, 136, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+        }
+        .weekday-progress-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.5rem 1rem;
+            margin-bottom: 0.85rem;
+        }
+        .weekday-progress-kicker {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            opacity: 0.9;
+        }
+        .weekday-progress-score {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.1);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+        }
+        .weekday-progress-meter {
+            height: 5px;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.1);
+            overflow: hidden;
+            margin: 0 0 1rem 0;
+        }
+        .weekday-progress-meter-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--primary), #2dd4bf, #6366f1);
+            transition: width 0.45s ease;
+            box-shadow: 0 0 12px rgba(45, 212, 191, 0.45);
+        }
+        .weekday-rail {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2px;
+            position: relative;
+            padding: 0 2px 10px;
+            margin-bottom: 0.65rem;
+        }
+        .weekday-rail::before {
+            content: '';
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            top: 15px;
+            height: 2px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(13, 148, 136, 0.18), rgba(99, 102, 241, 0.14));
+            z-index: 0;
+        }
+        .weekday-node {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        .weekday-node-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            border: 2px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .weekday-node:hover .weekday-node-dot { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 148, 136, 0.2); }
+        .weekday-node-dot.done, .weekday-node-dot.free {
+            background: linear-gradient(145deg, #34d399, #059669);
+            border-color: rgba(255, 255, 255, 0.98);
+        }
+        .weekday-node-dot.partial {
+            background: linear-gradient(145deg, #fcd34d, #ea580c);
+            border-color: rgba(255, 255, 255, 0.95);
+        }
+        .weekday-node-dot.open {
+            background: linear-gradient(145deg, rgba(254, 243, 199, 0.95), rgba(251, 191, 36, 0.55));
+            border: 2px dashed rgba(217, 119, 6, 0.65);
+        }
+        .weekday-node-dot.missed {
+            background: linear-gradient(145deg, #fca5a5, #dc2626);
+            border-color: rgba(255, 255, 255, 0.95);
+        }
+        .weekday-node-dot.upcoming {
+            background: rgba(241, 245, 249, 0.95);
+            border: 2px dashed rgba(148, 163, 184, 0.55);
+            box-shadow: none;
+        }
+        .weekday-node-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .weekday-motivate { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.45; margin: 0 0 0.4rem 0; }
+        .weekday-pot-hint { font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+        @media (max-width: 540px) {
+            .weekday-rail { flex-direction: column; align-items: stretch; gap: 0; padding: 0; margin-bottom: 0.75rem; }
+            .weekday-rail::before { display: none; }
+            .weekday-node {
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 12px;
+                padding: 8px 10px;
+                margin-bottom: 6px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.55);
+                border: 1px solid rgba(13, 148, 136, 0.1);
+            }
+            .weekday-node:last-child { margin-bottom: 0; }
+            .weekday-node-label { font-size: 0.72rem; min-width: 2.25rem; }
+        }
         
         .pot-editable { cursor: pointer; }
         .parent-active .pot-editable:hover { text-decoration: underline; text-decoration-style: dotted; }
@@ -2814,6 +2936,17 @@
         const barPct = elapsed > 0 ? Math.round((doneOrFree / elapsed) * 100) : 0;
         return { segments, barPct, doneOrFree, elapsed, missedPast, todayAllDone, todayPartial, todayOpen };
     }
+    function weekdayStatusTip(status) {
+        switch (status) {
+            case 'done': return 'All chores done';
+            case 'free': return 'No chores';
+            case 'partial': return 'In progress today';
+            case 'open': return 'Chores still open';
+            case 'missed': return 'Day missed';
+            case 'upcoming': return 'Not yet';
+            default: return '';
+        }
+    }
     function pickWeekdayMotivation(w) {
         const { doneOrFree, elapsed, missedPast, todayAllDone, todayPartial, todayOpen } = w;
         if (elapsed === 0) return "New week loading—Monday will be here before you know it. Ready to shine? ✨";
@@ -2883,18 +3016,33 @@
         if (isWeekday(todayNum)) {
             const w = getWeekdayProgressData();
             const msg = pickWeekdayMotivation(w);
-            const segHtml = w.segments.map(s => `<div class="weekday-progress-seg ${s.status}" title="${s.label}"></div>`).join('');
-            const lblHtml = w.segments.map(s => `<span>${s.label}</span>`).join('');
             const potHint = displayPot < 0
                 ? 'Weekly Pot is below zero—finish chores to move it back up before Friday.'
                 : `Roughly <strong>$${displayPot.toFixed(2)}</strong> in your Weekly Pot could move to Guhan's Bank after Friday (if rules stay the same).`;
+            const nodesHtml = w.segments.map(s => {
+                const tip = weekdayStatusTip(s.status);
+                return `<div class="weekday-node" role="listitem" title="${s.label} — ${tip}"><span class="weekday-node-dot ${s.status}" aria-hidden="true"></span><span class="weekday-node-label">${s.label}</span></div>`;
+            }).join('');
             summaryEl.style.display = 'block';
-            summaryEl.innerHTML = `<h4>📅 Weekday progress</h4><div class="weekday-progress-wrap"><div class="weekday-progress-labels">${lblHtml}</div><div class="weekday-progress-bar">${segHtml}</div><p class="weekday-motivate">${msg}</p><p class="weekday-pot-hint">${potHint}</p></div>`;
+            summaryEl.className = 'summary-box summary-box--weekday';
+            summaryEl.innerHTML = `
+                <div class="weekday-progress-modern">
+                    <div class="weekday-progress-head">
+                        <span class="weekday-progress-kicker">This week</span>
+                        <span class="weekday-progress-score">${w.elapsed > 0 ? w.doneOrFree + ' of ' + w.elapsed + ' days on track' : 'Week loading'}</span>
+                    </div>
+                    <div class="weekday-rail" role="list">${nodesHtml}</div>
+                    <div class="weekday-progress-meter" aria-hidden="true"><div class="weekday-progress-meter-fill" style="width:${w.barPct}%"></div></div>
+                    <p class="weekday-motivate">${msg}</p>
+                    <p class="weekday-pot-hint">${potHint}</p>
+                </div>`;
         } else if (todayNum === 6 || todayNum === 0) {
             summaryEl.style.display = 'block';
+            summaryEl.className = 'summary-box';
             summaryEl.innerHTML = `<h4>Weekend rest</h4><p>Your <strong>Weekly Pot</strong> is on pause—no chores, no earning today. Rest up, have fun, and get ready for <strong>Monday</strong> with your <strong>$${cfg.weeklyPotStart}</strong> base!</p>`;
         } else {
             summaryEl.style.display = 'none';
+            summaryEl.className = 'summary-box';
         }
 
         const weekMsgEl = document.getElementById('weekMessage');
