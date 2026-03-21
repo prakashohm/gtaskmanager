@@ -345,7 +345,8 @@
         .ledger-tab-inner { padding: 1rem 2rem 1.25rem; }
         .parent-panel-pad { padding: 0 2rem 1rem; }
         .schedule-tab-pad { padding: 0 2rem 1.5rem; }
-        .schedule-tab-inner .section { margin-left: 2rem; margin-right: 2rem; }
+        /* Single 2rem gutter via .parent-panel-pad / .schedule-tab-pad — matches .rules-section */
+        .schedule-tab-inner .section { margin-left: 0; margin-right: 0; }
         .schedule-tab-inner .section:first-of-type { margin-top: 1rem; }
 
         .pot-hero {
@@ -1645,6 +1646,15 @@
             background: rgba(239, 68, 68, 0.1);
             border-color: rgba(239, 68, 68, 0.28);
         }
+        .rules-footer-actions .rules-ledger-link {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.28);
+            color: #4338ca;
+        }
+        .rules-footer-actions .rules-ledger-link:hover {
+            background: rgba(99, 102, 241, 0.18);
+            color: #3730a3;
+        }
         .rules-footer-actions .v1-legacy-link {
             font-size: 0.85rem;
             color: var(--text-muted);
@@ -1931,8 +1941,8 @@
                 padding-right: max(1rem, env(safe-area-inset-right));
             }
             .schedule-tab-inner .section {
-                margin-left: max(1rem, env(safe-area-inset-left));
-                margin-right: max(1rem, env(safe-area-inset-right));
+                margin-left: 0;
+                margin-right: 0;
             }
             .section-title,
             .parent-settings-title,
@@ -1986,6 +1996,7 @@
                 align-items: stretch;
             }
             .rules-footer-actions .parent-mode-link,
+            .rules-footer-actions .rules-ledger-link,
             .rules-footer-actions .v1-legacy-link {
                 justify-content: center;
                 text-align: center;
@@ -2031,7 +2042,6 @@
                 <button type="button" class="app-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-panel-status" id="appTabStatus" data-app-tab="status" onclick="setAppMainTab('status')">Status</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-goals" id="appTabGoals" data-app-tab="goals" onclick="setAppMainTab('goals')">Today's Chores</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-schedule" id="appTabSchedule" data-app-tab="schedule" onclick="setAppMainTab('schedule')">Schedule</button>
-                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-ledger" id="appTabLedger" data-app-tab="ledger" onclick="setAppMainTab('ledger')">Ledger</button>
             </div>
 
             <div id="tab-panel-status" class="app-tab-panel active" role="tabpanel" aria-labelledby="appTabStatus">
@@ -2084,7 +2094,7 @@
                     </div>
                     <div class="section-body">
                     <div id="historyLog" class="history-list"></div>
-                    <p class="activity-log-footnote">For the full Weekly Pot ledger with all dated entries, open the <strong>Ledger</strong> tab.</p>
+                    <p class="activity-log-footnote">For the full Weekly Pot ledger with all dated entries, open <strong>Rules</strong> and use <strong>Ledger</strong>.</p>
                     </div>
                 </div>
             </div>
@@ -2235,7 +2245,7 @@
                 </div>
             </div>
 
-            <div id="tab-panel-ledger" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabLedger">
+            <div id="tab-panel-ledger" class="app-tab-panel" role="region" aria-labelledby="ledgerPanelHeading">
                 <div class="ledger-tab-inner">
                     <div class="section section--has-head section--slate">
                         <div class="section-head">
@@ -2244,7 +2254,7 @@
                             </div>
                             <div>
                                 <p class="section-kicker">Full history</p>
-                                <h3 class="section-title" style="margin:0.12rem 0 0;">Ledger</h3>
+                                <h3 id="ledgerPanelHeading" class="section-title" style="margin:0.12rem 0 0;">Ledger</h3>
                             </div>
                         </div>
                         <div class="section-body">
@@ -2317,6 +2327,7 @@
                     <ul id="rulesList" class="rules-list"></ul>
                     <div class="rules-footer-actions">
                         <a href="#" id="lockBtn" class="parent-mode-link" onclick="toggleParentMode(); return false;">Parent login</a>
+                        <a href="#" id="rulesLedgerLink" class="parent-mode-link rules-ledger-link" onclick="event.preventDefault(); setAppMainTab('ledger'); var p=document.getElementById('tab-panel-ledger'); if(p) p.scrollIntoView({ behavior: 'smooth', block: 'start' });">Ledger</a>
                         <a href="index-v1.html" class="parent-only v1-legacy-link" id="v1LegacyLink">← v1 (classic)</a>
                     </div>
                 </div>
