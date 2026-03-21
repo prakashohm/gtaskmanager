@@ -1580,6 +1580,13 @@
         return result.sort((a, b) => a.start - b.start);
     }
 
+    function getMergedBlocksForDateKey(dateKey) {
+        const dayNum = getDayNumForDate(dateKey);
+        const defaultBlocks = getDefaultSlotsForDay(dayNum);
+        const userBlocks = (state.calendarBlocks[dateKey] || []).slice().sort((a, b) => a.start - b.start);
+        return mergeBlocks(defaultBlocks, userBlocks);
+    }
+
     function migrateFromV1(loaded) {
         if (loaded.pot != null && loaded.guhansBank == null) {
             loaded.guhansBank = loaded.pot;
@@ -2567,7 +2574,7 @@
         if (isReadonly) {
             hint.textContent = 'This day is in the past—view only.';
         } else if (mobileUI) {
-            hint.textContent = listMode ? 'Tap a card to edit. Use + Add activity to start at the current time slot.' : 'Tap any row to add or edit. Activities button shows a simple list. Use Now to jump to the current time.';
+            hint.textContent = listMode ? 'Tap a card to edit. + Add activity uses the current time—if that slot is busy, you can edit the activity there.' : 'Tap a free row to add, or a filled row to edit. If a time is already taken, you\'ll open that activity to edit (not a second one).';
         } else {
             hint.textContent = 'Click an empty hour to add a block, or a filled block to edit.';
         }
@@ -2621,12 +2628,25 @@
         const todayKey = getTodayEST();
         if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
 
+        if (blockId === 'null' || blockId === '') blockId = null;
+
+        const mergedBlocks = getMergedBlocksForDateKey(dateKey);
+        const existingAtHour = getBlockAtHour(mergedBlocks, hour);
+        if ((blockId == null || blockId === undefined) && existingAtHour) {
+            if (existingAtHour.isPreset) {
+                blockId = 'preset-' + existingAtHour.start + '-' + existingAtHour.end;
+            } else {
+                blockId = existingAtHour.id;
+            }
+        }
+
         if (typeof blockId === 'string' && blockId.startsWith('preset-')) {
             const parts = blockId.replace('preset-', '').split('-');
             const start = parseFloat(parts[0]);
             const end = parseFloat(parts[1]);
+            const presetBlock = mergedBlocks.find(b => b.isPreset && b.start === start && b.end === end);
             calendarEditingBlock = { dateKey, block: null, newStart: start };
-            document.getElementById('calendarBlockModalTitle').textContent = 'Add Block (overrides default)';
+            document.getElementById('calendarBlockModalTitle').textContent = 'Edit this time (replace default)';
             document.getElementById('calendarBlockTimeEdit').style.display = 'none';
             document.getElementById('calendarBlockTimeAdd').style.display = 'block';
             const startSelect = document.getElementById('calendarBlockStartSelect');
@@ -2635,15 +2655,15 @@
             const allEndSlots = getAllSlots().filter(s => s > start);
             if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
             endSelect.innerHTML = allEndSlots.map(s => `<option value="${s}" ${s === end ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
-            document.getElementById('calendarBlockText').value = '';
+            document.getElementById('calendarBlockText').value = presetBlock ? (presetBlock.text || '') : '';
             document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
             document.getElementById('calendarBlockModal').classList.add('open');
             return;
         }
 
-        if (blockId) {
+        if (blockId != null && blockId !== undefined) {
             const blocks = state.calendarBlocks[dateKey] || [];
-            const block = blocks.find(b => b.id === blockId);
+            const block = blocks.find(b => b.id == blockId);
             if (block) {
                 calendarEditingBlock = { dateKey, block };
                 document.getElementById('calendarBlockModalTitle').textContent = 'Edit Block';
@@ -2654,20 +2674,22 @@
                 document.getElementById('calendarBlockText').value = block.text || '';
                 document.getElementById('calendarBlockDeleteBtn').style.display = 'block';
                 document.getElementById('calendarBlockModal').classList.add('open');
+                return;
             }
-        } else {
-            calendarEditingBlock = { dateKey, block: null, newStart: hour };
-            document.getElementById('calendarBlockModalTitle').textContent = 'Add Block';
-            document.getElementById('calendarBlockTimeEdit').style.display = 'none';
-            document.getElementById('calendarBlockTimeAdd').style.display = 'block';
-            const startSelect = document.getElementById('calendarBlockStartSelect');
-            const endSelect = document.getElementById('calendarBlockEndSelect');
-            startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === hour ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
-            updateCalendarBlockEndOptions();
-            document.getElementById('calendarBlockText').value = '';
-            document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
-            document.getElementById('calendarBlockModal').classList.add('open');
+            showToast('Could not find that activity.', 'warning');
+            return;
         }
+
+        calendarEditingBlock = { dateKey, block: null, newStart: hour };
+        document.getElementById('calendarBlockModalTitle').textContent = 'Add Block';
+        document.getElementById('calendarBlockTimeEdit').style.display = 'none';
+        document.getElementById('calendarBlockTimeAdd').style.display = 'block';
+        const startSelect = document.getElementById('calendarBlockStartSelect');
+        startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === hour ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+        updateCalendarBlockEndOptions();
+        document.getElementById('calendarBlockText').value = '';
+        document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
+        document.getElementById('calendarBlockModal').classList.add('open');
     };
 
     window.closeCalendarBlockModal = function() {
@@ -2698,6 +2720,12 @@
             const start = parseFloat(document.getElementById('calendarBlockStartSelect').value);
             const end = parseFloat(document.getElementById('calendarBlockEndSelect').value);
             if (end <= start) return;
+            const userBlocks = state.calendarBlocks[dateKey] || [];
+            const overlaps = userBlocks.some(b => !(end <= b.start || start >= b.end));
+            if (overlaps) {
+                showToast('That time overlaps another activity. Tap that block to edit it, or pick a different time.', 'warning');
+                return;
+            }
             state.calendarBlocks[dateKey].push({ id: Date.now(), start, end, text: text || 'Blocked' });
         }
 
