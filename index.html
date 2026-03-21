@@ -406,22 +406,40 @@
         }
         .weekday-motivate { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.45; margin: 0 0 0.4rem 0; }
         .weekday-pot-hint { font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+        /* Narrow screens: keep rail horizontal — compact dots/labels so Mon–Fri stay one row */
         @media (max-width: 540px) {
-            .weekday-rail { flex-direction: column; align-items: stretch; gap: 0; padding: 0; margin-bottom: 0.75rem; }
-            .weekday-rail::before { display: none; }
-            .weekday-node {
+            .summary-box.summary-box--weekday { padding: 0.95rem 0.65rem 1rem; }
+            .weekday-progress-head { margin-bottom: 0.65rem; }
+            .weekday-rail {
                 flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                gap: 12px;
-                padding: 8px 10px;
-                margin-bottom: 6px;
-                border-radius: 12px;
-                background: rgba(255, 255, 255, 0.55);
-                border: 1px solid rgba(13, 148, 136, 0.1);
+                flex-wrap: nowrap;
+                gap: 0;
+                padding: 0 0 6px;
+                margin-bottom: 0.55rem;
+                justify-content: space-between;
+                min-width: 0;
             }
-            .weekday-node:last-child { margin-bottom: 0; }
-            .weekday-node-label { font-size: 0.72rem; min-width: 2.25rem; }
+            .weekday-rail::before {
+                left: 5%;
+                right: 5%;
+                top: 11px;
+                height: 2px;
+            }
+            .weekday-node {
+                flex: 1 1 0;
+                min-width: 0;
+                gap: 4px;
+            }
+            .weekday-node-dot {
+                width: clamp(22px, 5.5vw, 28px);
+                height: clamp(22px, 5.5vw, 28px);
+                border-radius: 9px;
+                border-width: 1.5px;
+            }
+            .weekday-node-label {
+                font-size: clamp(0.52rem, 2.1vw, 0.65rem);
+                letter-spacing: 0.02em;
+            }
         }
         
         .pot-editable { cursor: pointer; }
