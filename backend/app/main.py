@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
+from app.db.supabase_client import check_supabase_connection, supabase_host
 from app.models import GenerateWorksheetRequest, GenerateWorksheetResult, TopicProgress
 from app.services.generator import generate_and_store_daily_worksheet
 from app.services.progress import fetch_recent_topic_progress
@@ -33,7 +34,15 @@ def health() -> dict:
         (s.llm_provider == "gemini" and s.gemini_api_key)
         or (s.llm_provider == "openai" and s.openai_api_key)
     )
-    return {"status": "ok", "llm_provider": s.llm_provider, "llm_ready": llm_ready}
+    supabase_ok, supabase_error = check_supabase_connection()
+    return {
+        "status": "ok" if supabase_ok and llm_ready else "degraded",
+        "llm_provider": s.llm_provider,
+        "llm_ready": llm_ready,
+        "supabase_host": supabase_host(s.supabase_url),
+        "supabase_ok": supabase_ok,
+        "supabase_error": supabase_error,
+    }
 
 
 def _ensure_llm_configured() -> None:
@@ -53,7 +62,16 @@ def _ensure_llm_configured() -> None:
 def get_progress(
     student_id: str, lookback_days: Optional[int] = None
 ) -> List[TopicProgress]:
-    return fetch_recent_topic_progress(student_id=student_id, lookback_days=lookback_days)
+    try:
+        return fetch_recent_topic_progress(student_id=student_id, lookback_days=lookback_days)
+    except Exception as exc:
+        detail = str(exc)
+        if "PGRST125" in detail or "Invalid path" in detail:
+            detail = (
+                "Supabase URL is misconfigured on the server. "
+                "Set SUPABASE_URL to https://YOUR_PROJECT.supabase.co (no /rest/v1)."
+            )
+        raise HTTPException(status_code=500, detail=detail) from exc
 
 
 @app.post("/generate", response_model=GenerateWorksheetResult)
@@ -68,7 +86,13 @@ def generate_worksheet(
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Worksheet generation failed: {exc}") from exc
+        detail = str(exc)
+        if "PGRST125" in detail or "Invalid path" in detail:
+            detail = (
+                "Supabase URL is misconfigured on the server. "
+                "Set SUPABASE_URL to https://YOUR_PROJECT.supabase.co (no /rest/v1)."
+            )
+        raise HTTPException(status_code=500, detail=detail) from exc
 
 
 def run() -> None:

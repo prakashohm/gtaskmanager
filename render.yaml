@@ -9,7 +9,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: SUPABASE_URL
-        sync: false
+        value: https://urfpiauvuusibgzeyjjf.supabase.co
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: STUDENT_ID
