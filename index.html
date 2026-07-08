@@ -376,8 +376,23 @@
         .app-header-meta {
             flex-shrink: 0;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.35rem;
         }
+        .app-header-parent-link {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-decoration: none;
+            padding: 0.28rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(13, 148, 136, 0.22);
+        }
+        .app-header-parent-link:hover { color: var(--text); background: #fff; }
+        .app-header-parent-link.active { color: var(--danger); border-color: rgba(239, 68, 68, 0.35); }
+        #parentPasswordModal { z-index: 1300; }
         #todayDate.app-header-date {
             margin: 0;
             font-size: clamp(0.78rem, 2.2vw, 0.88rem);
@@ -402,7 +417,7 @@
             }
             .app-header-meta {
                 width: 100%;
-                justify-content: flex-start;
+                align-items: flex-start;
             }
             #todayDate.app-header-date {
                 text-align: left;
@@ -2198,6 +2213,375 @@
                 grid-template-columns: 1fr;
             }
         }
+        .worksheet-subject-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .worksheet-subject-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .worksheet-subject-meta {
+            margin: 0.2rem 0 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .worksheet-difficulty-pill {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.2rem 0.55rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .worksheet-difficulty-pill.simplified { background: #fef3c7; color: #92400e; }
+        .worksheet-difficulty-pill.maintained { background: #e0f2fe; color: #075985; }
+        .worksheet-difficulty-pill.increased { background: #ede9fe; color: #5b21b6; }
+        .worksheet-question-list {
+            margin: 0.5rem 0 0.75rem;
+            padding-left: 1.1rem;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+        .worksheet-question-list li { margin-bottom: 0.35rem; }
+        .worksheet-hints {
+            margin: 0.35rem 0 0;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
+            background: rgba(13, 148, 136, 0.08);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .worksheet-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .worksheet-empty {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        .worksheet-reward-banner {
+            position: relative;
+            overflow: hidden;
+            margin: 0 0 1rem;
+            padding: 1rem 1.05rem 1.1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.38);
+            background: linear-gradient(135deg, rgba(255, 251, 235, 0.98) 0%, rgba(236, 253, 245, 0.94) 52%, rgba(224, 242, 254, 0.92) 100%);
+            box-shadow: 0 10px 28px rgba(13, 148, 136, 0.1);
+        }
+        .worksheet-reward-banner::before {
+            content: '';
+            position: absolute;
+            top: -2.5rem;
+            right: -1.5rem;
+            width: 7rem;
+            height: 7rem;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .worksheet-reward-banner-kicker {
+            margin: 0 0 0.35rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #b45309;
+        }
+        .worksheet-reward-banner-title {
+            margin: 0 0 0.75rem;
+            font-size: 1.12rem;
+            line-height: 1.35;
+            font-weight: 800;
+            color: #0f766e;
+        }
+        .worksheet-reward-banner-grid {
+            display: grid;
+            gap: 0.55rem;
+        }
+        @media (min-width: 520px) {
+            .worksheet-reward-banner-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.65rem;
+            }
+        }
+        .worksheet-reward-banner-card {
+            display: flex;
+            gap: 0.55rem;
+            align-items: flex-start;
+            padding: 0.65rem 0.7rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(13, 148, 136, 0.14);
+        }
+        .worksheet-reward-banner-card strong {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text);
+            margin-bottom: 0.15rem;
+        }
+        .worksheet-reward-banner-card p {
+            margin: 0;
+            font-size: 0.78rem;
+            line-height: 1.45;
+            color: var(--text-muted);
+        }
+        .worksheet-reward-banner-icon {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            background: rgba(13, 148, 136, 0.1);
+        }
+        .worksheet-reward-banner-card.is-bonus .worksheet-reward-banner-icon {
+            background: rgba(245, 158, 11, 0.18);
+        }
+        .student-worksheet-list { display: grid; gap: 0.75rem; }
+        .student-worksheet-card {
+            border: 1px solid rgba(13, 148, 136, 0.25);
+            border-radius: 14px;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .student-worksheet-card.is-done {
+            border-color: rgba(5, 150, 105, 0.45);
+            background: rgba(236, 253, 245, 0.9);
+        }
+        .student-worksheet-progress {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.12);
+            margin: 0.5rem 0 0.75rem;
+            overflow: hidden;
+        }
+        .student-worksheet-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+        .worksheet-work-progress {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+        .worksheet-work-question {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text);
+            margin: 0 0 0.75rem;
+        }
+        .worksheet-work-topic {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+        .worksheet-work-feedback {
+            margin-top: 0.65rem;
+            padding: 0.55rem 0.7rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+        .worksheet-work-feedback.ok {
+            background: rgba(5, 150, 105, 0.12);
+            color: #065f46;
+        }
+        .worksheet-work-feedback.retry {
+            background: rgba(249, 115, 22, 0.12);
+            color: #9a3412;
+        }
+        .task-item.worksheet-chore .task-name { flex: 1; }
+        .worksheet-chore-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.12);
+            color: var(--primary-dark);
+            white-space: nowrap;
+        }
+        .worksheet-chore-badge.done { background: rgba(5, 150, 105, 0.15); color: #065f46; }
+        .worksheet-hub-view[hidden], .worksheet-player-page[hidden] { display: none !important; }
+        .worksheet-player-page {
+            animation: wsPlayerIn 0.25s ease;
+        }
+        @keyframes wsPlayerIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .worksheet-player-top {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.55rem;
+            margin-bottom: 0.85rem;
+        }
+        .worksheet-player-back {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            border-radius: 999px;
+            padding: 0.35rem 0.75rem;
+            cursor: pointer;
+            line-height: 1.2;
+        }
+        .worksheet-player-back:hover { background: #fff; }
+        .worksheet-player-page .worksheet-player-title {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-transform: none;
+            color: var(--text);
+            line-height: 1.25;
+            width: 100%;
+        }
+        .worksheet-player-stats {
+            margin-bottom: 0.85rem;
+        }
+        .worksheet-player-stats-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+        .worksheet-player-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .ws-nav-pill {
+            min-width: 2.1rem;
+            height: 2.1rem;
+            padding: 0 0.45rem;
+            border-radius: 999px;
+            border: 2px solid rgba(13, 148, 136, 0.2);
+            background: #fff;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .ws-nav-pill.current {
+            border-color: var(--primary);
+            background: rgba(13, 148, 136, 0.12);
+            color: var(--primary-dark);
+        }
+        .ws-nav-pill.mastered {
+            border-color: rgba(5, 150, 105, 0.45);
+            background: rgba(5, 150, 105, 0.15);
+            color: #065f46;
+        }
+        .ws-nav-pill.skipped {
+            border-color: rgba(249, 115, 22, 0.45);
+            background: rgba(254, 243, 199, 0.85);
+            color: #9a3412;
+        }
+        .worksheet-player-card {
+            border: 1px solid rgba(13, 148, 136, 0.2);
+            border-radius: 16px;
+            padding: 1rem 1.05rem;
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .worksheet-player-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .worksheet-player-actions .btn { flex: 1; min-width: 8rem; }
+        .btn-ws-skip {
+            background: rgba(249, 115, 22, 0.12);
+            color: #9a3412;
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            font-weight: 700;
+        }
+        .btn-ws-skip:hover { background: rgba(249, 115, 22, 0.18); }
+        .worksheet-bonus-offer {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(5, 150, 105, 0.35);
+            background: linear-gradient(168deg, rgba(236, 253, 245, 0.95), rgba(240, 253, 250, 0.85));
+        }
+        .worksheet-bonus-offer p {
+            margin: 0 0 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: var(--text);
+        }
+        .worksheet-bonus-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .worksheet-bonus-actions .btn { flex: 1; min-width: 9rem; }
+        .settings-field-tile--wide { grid-column: 1 / -1; }
+        .student-worksheet-card.has-bonus {
+            border-color: rgba(5, 150, 105, 0.35);
+        }
+        .worksheet-bonus-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            background: rgba(5, 150, 105, 0.15);
+            color: #065f46;
+        }
+        .ws-gen-card {
+            border-color: rgba(13, 148, 136, 0.35);
+            background: rgba(240, 253, 250, 0.65);
+        }
+        .ws-gen-progress .student-worksheet-progress-fill {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            transition: width 0.4s ease;
+        }
+        .parent-ws-controls {
+            display: grid;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(13, 148, 136, 0.2);
+            background: rgba(255, 255, 255, 0.88);
+        }
+        .parent-ws-controls label {
+            display: grid;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+        .parent-ws-controls select {
+            padding: 0.45rem 0.55rem;
+            border-radius: 10px;
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            font-size: 0.88rem;
+            background: #fff;
+        }
     </style>
 </head>
 <body id="bodyTag">
@@ -2226,6 +2610,7 @@
                 </div>
                 <div class="app-header-meta">
                     <p id="todayDate" class="app-header-date" aria-live="polite"></p>
+                    <a href="#" id="lockBtnHeader" class="app-header-parent-link" onclick="toggleParentMode(); return false;">Parent login</a>
                 </div>
             </div>
         </header>
@@ -2235,6 +2620,7 @@
                 <button type="button" class="app-tab-btn active" role="tab" aria-selected="true" aria-controls="tab-panel-status" id="appTabStatus" data-app-tab="status" onclick="setAppMainTab('status')">Status</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-goals" id="appTabGoals" data-app-tab="goals" onclick="setAppMainTab('goals')">Today's Chores</button>
                 <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-schedule" id="appTabSchedule" data-app-tab="schedule" onclick="setAppMainTab('schedule')">Schedule</button>
+                <button type="button" class="app-tab-btn" role="tab" aria-selected="false" aria-controls="tab-panel-worksheets" id="appTabWorksheets" data-app-tab="worksheets" onclick="setAppMainTab('worksheets')">Worksheets</button>
             </div>
 
             <div id="tab-panel-status" class="app-tab-panel active" role="tabpanel" aria-labelledby="appTabStatus">
@@ -2438,6 +2824,121 @@
                 </div>
             </div>
 
+            <div id="tab-panel-worksheets" class="app-tab-panel" role="tabpanel" aria-labelledby="appTabWorksheets">
+                <div class="worksheets-tab-inner">
+                    <div id="worksheetHubView" class="worksheet-hub-view">
+                    <div class="section section--has-head section--teal">
+                        <div class="section-head">
+                            <div class="section-head-icon" aria-hidden="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h6"/></svg>
+                            </div>
+                            <div>
+                                <p class="section-kicker">Your work</p>
+                                <h3 class="section-title" style="margin:0.12rem 0 0;">My worksheet chores</h3>
+                            </div>
+                        </div>
+                        <div class="section-body">
+                            <div class="worksheet-reward-banner" id="worksheetRewardBanner" role="note" aria-label="How worksheet rewards work">
+                                <p class="worksheet-reward-banner-kicker">Reward rules</p>
+                                <h4 class="worksheet-reward-banner-title">Crack the sheet. Cash the reward. Then go for bonus gold! 🏆</h4>
+                                <div class="worksheet-reward-banner-grid">
+                                    <div class="worksheet-reward-banner-card">
+                                        <span class="worksheet-reward-banner-icon" aria-hidden="true">🎯</span>
+                                        <div>
+                                            <strong>Finish to earn</strong>
+                                            <p>Get every answer right, mark your worksheet chore done, and today&rsquo;s reward unlocks toward your Weekly Pot.</p>
+                                        </div>
+                                    </div>
+                                    <div class="worksheet-reward-banner-card is-bonus">
+                                        <span class="worksheet-reward-banner-icon" aria-hidden="true">🚀</span>
+                                        <div>
+                                            <strong>Bonus = bigger pot</strong>
+                                            <p id="worksheetRewardBonusLine">After the main sheet, smash bonus rounds for extra Weekly Pot cash!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Work through every question correctly to finish your worksheet chore. You can skip a hard one and come back later.</p>
+                            <div id="studentWorksheetList" class="student-worksheet-list">
+                                <p class="worksheet-empty">Loading your worksheets…</p>
+                            </div>
+                            <div id="worksheetStudentGenStatus" hidden></div>
+                        </div>
+                    </div>
+                    <div class="parent-only parent-panel-pad">
+                        <div class="section section--has-head section--amber">
+                            <div class="section-head">
+                                <div class="section-head-icon" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>
+                                </div>
+                                <div>
+                                    <p class="section-kicker">Parent</p>
+                                    <h3 class="section-title" style="margin:0.12rem 0 0;">Generate worksheets</h3>
+                                </div>
+                            </div>
+                            <div class="section-body">
+                                <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Replace today&rsquo;s worksheet questions (does not add extra). Pick a complexity for <strong>this generation only</strong> — future sheets adapt from how your child performs.</p>
+                                <div class="parent-ws-controls">
+                                    <label for="parentRegenerateDifficulty">
+                                        Question complexity for this sheet
+                                        <select id="parentRegenerateDifficulty">
+                                            <option value="auto">Auto — adapt from recent progress</option>
+                                            <option value="simplified">Simplified — more scaffolding</option>
+                                            <option value="maintained">Maintained — grade level</option>
+                                            <option value="increased">Increased — extra challenge</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="parentGenerateWorksheets()">Regenerate today&rsquo;s questions</button>
+                                <p id="worksheetGenStatus" class="rh-sync-hint" style="margin-top:0.65rem;"></p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <div id="worksheetPlayerView" class="worksheet-player-page" hidden>
+                        <div class="section section--has-head section--teal">
+                            <div class="section-body">
+                                <div class="worksheet-player-top">
+                                    <button type="button" class="worksheet-player-back" onclick="closeWorksheetPlayer()">← Back to list</button>
+                                    <h3 id="worksheetPlayerTitle" class="worksheet-player-title">Worksheet</h3>
+                                </div>
+                                <div class="worksheet-player-stats">
+                                    <div class="worksheet-player-stats-line">
+                                        <span id="worksheetPlayerStatsText">0 of 0 correct</span>
+                                        <span id="worksheetPlayerSkippedText"></span>
+                                    </div>
+                                    <div class="student-worksheet-progress" aria-hidden="true">
+                                        <div id="worksheetPlayerProgressFill" class="student-worksheet-progress-fill" style="width:0%"></div>
+                                    </div>
+                                </div>
+                                <div id="worksheetPlayerNav" class="worksheet-player-nav" role="tablist" aria-label="Question progress"></div>
+                                <div class="worksheet-player-card">
+                                    <p id="worksheetPlayerTopic" class="worksheet-work-topic"></p>
+                                    <p id="worksheetPlayerQuestion" class="worksheet-work-question"></p>
+                                    <div id="worksheetPlayerHints" class="worksheet-hints" style="display:none;"></div>
+                                    <label class="modal-label" for="worksheetPlayerAnswer">Your answer</label>
+                                    <input type="text" id="worksheetPlayerAnswer" class="modal-input" placeholder="Type your answer here…" onkeydown="if(event.key==='Enter')submitWorksheetAnswer()">
+                                    <p id="worksheetPlayerFeedback" class="worksheet-work-feedback" style="display:none;"></p>
+                                    <div class="worksheet-player-actions">
+                                        <button type="button" class="btn btn-primary" id="worksheetPlayerSubmitBtn" onclick="submitWorksheetAnswer()">Check answer</button>
+                                        <button type="button" class="btn btn-ws-skip" id="worksheetPlayerSkipBtn" onclick="skipWorksheetQuestion()">Skip for now</button>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="worksheetPlayerCompleteBtn" onclick="finishWorksheetChore()" style="display:none;width:100%;margin-top:0.85rem;background:linear-gradient(135deg,var(--success),#059669);">All correct — mark chore done ✓</button>
+                                    <div id="worksheetBonusOffer" class="worksheet-bonus-offer" hidden>
+                                        <p id="worksheetBonusOfferText">Great job finishing your worksheet! Want to try a bonus round for extra credit?</p>
+                                        <div class="worksheet-bonus-actions">
+                                            <button type="button" class="btn btn-primary" id="worksheetBonusAcceptBtn" onclick="acceptBonusWorksheet()">Yes — bonus worksheet</button>
+                                            <button type="button" class="btn btn-ws-skip" onclick="declineBonusWorksheet()">Not now</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="tab-panel-ledger" class="app-tab-panel" role="region" aria-labelledby="ledgerPanelHeading">
                 <div class="ledger-tab-inner">
                     <div class="section section--has-head section--slate">
@@ -2484,6 +2985,10 @@
                         <label class="settings-field-tile">
                             <span class="settings-field-label">Miss penalty ($)</span>
                             <input type="number" class="settings-num-input" id="cfgPenaltyAmt" min="0" step="0.5">
+                        </label>
+                        <label class="settings-field-tile">
+                            <span class="settings-field-label">Bonus worksheet credit ($)</span>
+                            <input type="number" class="settings-num-input" id="cfgWorksheetBonus" min="0" step="0.5">
                         </label>
                     </div>
                     <div class="settings-actions settings-save-row">
@@ -2574,6 +3079,7 @@
         </div>
     </div>
 </div>
+
 
 <div id="parentPasswordModal" class="modal-overlay" onclick="if(event.target===this)closeParentPasswordModal()">
     <div class="modal modal--violet modal-parent-password" onclick="event.stopPropagation()">
@@ -2785,14 +3291,27 @@
 (function() {
     const SUPABASE_URL = "https://urfpiauvuusibgzeyjjf.supabase.co";
     /* Project Settings → API → anon public. If read/write fail in Parent Settings, try the legacy JWT (eyJ…) instead of sb_publishable_… */
-    const SUPABASE_KEY = "sb_publishable_pt2FCjNMufUil0txOXXSaw_KgY7kcyr";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVyZnBpYXV2dXVzaWJnemV5ampmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MTg5MzksImV4cCI6MjA4NzI5NDkzOX0.h9HGk1WbKdGuT5ROWx3mDnPtZhulZq_DKJF5xq9TKl0";
     const DEFAULT_PARENT_PASS = "Admin123+";
     const APP_NAME = 'GuhanApp';
     /** Browser copy when cloud fails; key must match APP_NAME. */
     const LOCAL_STORAGE_KEY = 'GuhanRewardHub_' + APP_NAME + '_v2';
     const EST = 'America/New_York';
+    const WORKSHEET_STUDENT_ID = 'guhan';
+    const WORKSHEET_API_PROD_URL = 'https://gtaskmanager-worksheet-api.onrender.com';
+    const WORKSHEET_API_URL = (function() {
+        const host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8001';
+        return WORKSHEET_API_PROD_URL;
+    })();
 
-    const DEFAULT_CONFIG = { weeklyPotStart: 25, dailySuccessAmount: 5, dailyFailureAmount: 10, parentPassword: DEFAULT_PARENT_PASS };
+    const DEFAULT_CONFIG = {
+        weeklyPotStart: 25,
+        dailySuccessAmount: 5,
+        dailyFailureAmount: 10,
+        parentPassword: DEFAULT_PARENT_PASS,
+        worksheetBonusAmount: 2
+    };
 
     const DEFAULT_SLOTS_WEEKDAY = {
         1: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
@@ -2841,7 +3360,11 @@
         weeklyLedger: [],
         weeklyDeposits: {},
         reminderNotes: '',
-        calendarBlocks: {}
+        calendarBlocks: {},
+        worksheetMasteredToday: [],
+        worksheetSkippedToday: [],
+        worksheetActiveSet: {},
+        worksheetBonusSetsPaid: {}
     };
 
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
@@ -3312,7 +3835,11 @@
             customChoresToday: loaded.customChoresToday || [],
             reminderNotes: loaded.reminderNotes || '',
             calendarBlocks: loaded.calendarBlocks || {},
-            weeklyLedger: Array.isArray(loaded.weeklyLedger) ? loaded.weeklyLedger : []
+            weeklyLedger: Array.isArray(loaded.weeklyLedger) ? loaded.weeklyLedger : [],
+            worksheetMasteredToday: Array.isArray(loaded.worksheetMasteredToday) ? loaded.worksheetMasteredToday : [],
+            worksheetSkippedToday: Array.isArray(loaded.worksheetSkippedToday) ? loaded.worksheetSkippedToday : [],
+            worksheetActiveSet: (loaded.worksheetActiveSet && typeof loaded.worksheetActiveSet === 'object') ? loaded.worksheetActiveSet : {},
+            worksheetBonusSetsPaid: (loaded.worksheetBonusSetsPaid && typeof loaded.worksheetBonusSetsPaid === 'object') ? loaded.worksheetBonusSetsPaid : {}
         };
         return true;
     }
@@ -3387,32 +3914,53 @@
             updateRhSupabasePanel();
             return rhSupabaseDiag;
         }
-        const { error, data } = await supabaseClient.from('chore_app_state').select('app_name').limit(1);
-        if (error) {
+        try {
+            const { error, data } = await supabaseClient.from('chore_app_state').select('app_name').limit(1);
+            if (error) {
+                rhSupabaseDiag.readOk = false;
+                rhSupabaseDiag.readMsg = error.message || String(error);
+                rhSupabaseDiag.readCode = error.code || '';
+                if (error.hint) rhSupabaseDiag.readMsg += ' — hint: ' + error.hint;
+                console.error('RewardHub Supabase read check:', error);
+            } else {
+                rhSupabaseDiag.readOk = true;
+                rhSupabaseDiag.readMsg = 'sample ' + (data ? data.length : 0) + ' row(s)';
+                rhSupabaseDiag.readCode = '';
+            }
+        } catch (e) {
             rhSupabaseDiag.readOk = false;
-            rhSupabaseDiag.readMsg = error.message || String(error);
-            rhSupabaseDiag.readCode = error.code || '';
-            if (error.hint) rhSupabaseDiag.readMsg += ' — hint: ' + error.hint;
-            console.error('RewardHub Supabase read check:', error);
-        } else {
-            rhSupabaseDiag.readOk = true;
-            rhSupabaseDiag.readMsg = 'sample ' + (data ? data.length : 0) + ' row(s)';
+            rhSupabaseDiag.readMsg = formatSupabaseNetworkError(e);
             rhSupabaseDiag.readCode = '';
+            console.error('RewardHub Supabase read check:', e);
         }
 
         if (testWrite) {
-            const up = await persistAppStateRowToSupabase();
-            if (up.error) {
+            try {
+                const up = await persistAppStateRowToSupabase();
+                if (up.error) {
+                    rhSupabaseDiag.writeOk = false;
+                    rhSupabaseDiag.writeMsg = (up.error.message || up.error.code || '') + (up.error.hint ? ' — ' + up.error.hint : '');
+                    console.error('RewardHub Supabase write test:', up.error);
+                } else {
+                    rhSupabaseDiag.writeOk = true;
+                    rhSupabaseDiag.writeMsg = '';
+                }
+            } catch (e) {
                 rhSupabaseDiag.writeOk = false;
-                rhSupabaseDiag.writeMsg = (up.error.message || up.error.code || '') + (up.error.hint ? ' — ' + up.error.hint : '');
-                console.error('RewardHub Supabase write test:', up.error);
-            } else {
-                rhSupabaseDiag.writeOk = true;
-                rhSupabaseDiag.writeMsg = '';
+                rhSupabaseDiag.writeMsg = formatSupabaseNetworkError(e);
+                console.error('RewardHub Supabase write test:', e);
             }
         }
         updateRhSupabasePanel();
         return rhSupabaseDiag;
+    }
+
+    function formatSupabaseNetworkError(err) {
+        const msg = (err && err.message) ? String(err.message) : String(err || '');
+        if (/failed to fetch|networkerror|load failed/i.test(msg)) {
+            return 'Cannot reach Supabase (' + SUPABASE_URL + '). Check the project URL/key in index.html, your internet connection, and ad blockers. The project may be paused or deleted in the Supabase dashboard.';
+        }
+        return msg;
     }
 
     window.testRhSupabaseConnection = async function() {
@@ -3473,6 +4021,7 @@
         await saveAction({ skipRender: true });
         await runRhSupabaseHealthCheck(false);
         updateRhSupabasePanel();
+        refreshWorksheetPanel().catch(function() { /* optional tables */ });
     }
 
     async function syncToCloud() {
@@ -3510,6 +4059,10 @@
             state.customChoresToday = [];
             state.completedToday = [];
             state.waivedToday = [];
+            state.worksheetMasteredToday = [];
+            state.worksheetSkippedToday = [];
+            state.worksheetActiveSet = {};
+            state.worksheetBonusSetsPaid = {};
 
             const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
             let fridaySettledInLoop = false;
@@ -3630,17 +4183,30 @@
         setTimeout(() => card.classList.remove(cls), 500);
     }
 
+    function syncParentLoginButtons() {
+        const inParent = document.body.classList.contains('parent-active');
+        const label = inParent ? 'Exit Parent Mode' : 'Parent login';
+        ['lockBtn', 'lockBtnHeader'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = label;
+            el.classList.toggle('active', inParent);
+        });
+    }
+
     window.toggleParentMode = function() {
         if (document.body.classList.contains('parent-active')) {
             document.body.classList.remove('parent-active');
-            document.getElementById('lockBtn').innerText = "Parent login";
-            document.getElementById('lockBtn').classList.remove('active');
+            syncParentLoginButtons();
             syncGoalsTabLabel();
         } else {
+            window.closeDailyRemindersModal();
             document.getElementById('parentPasswordInput').value = '';
-            document.getElementById('parentPasswordError').style.display = 'none';
+            const errEl = document.getElementById('parentPasswordError');
+            errEl.style.display = 'none';
+            errEl.textContent = '';
             document.getElementById('parentPasswordModal').classList.add('open');
-            setTimeout(() => document.getElementById('parentPasswordInput').focus(), 100);
+            setTimeout(function() { document.getElementById('parentPasswordInput').focus(); }, 100);
         }
     };
     window.closeParentPasswordModal = function() {
@@ -3649,14 +4215,15 @@
     window.submitParentPassword = function() {
         const input = document.getElementById('parentPasswordInput');
         const errEl = document.getElementById('parentPasswordError');
-        if (input.value === getParentPassword()) {
+        const entered = (input.value || '').trim();
+        if (entered === getParentPassword()) {
             document.body.classList.add('parent-active');
-            document.getElementById('lockBtn').innerText = "Exit Parent Mode";
-            document.getElementById('lockBtn').classList.add('active');
+            syncParentLoginButtons();
             document.getElementById('parentPasswordModal').classList.remove('open');
             loadConfigIntoUI();
             syncGoalsTabLabel();
         } else {
+            errEl.textContent = 'Incorrect password. Default is Admin123+ unless you changed it in Settings.';
             errEl.style.display = 'block';
             input.select();
         }
@@ -3693,9 +4260,31 @@
         await saveAction();
     };
 
+    function taskIdEquals(a, b) {
+        return String(a) === String(b);
+    }
+
+    function findTaskById(taskId) {
+        return state.tasks.find(function(t) { return taskIdEquals(t.id, taskId); });
+    }
+
+    window.deleteTask = async function(taskId) {
+        const task = findTaskById(taskId);
+        if (!task) {
+            showToast('Chore not found — try refreshing the page.', 'warning');
+            return;
+        }
+        if (!confirm('Delete chore "' + task.name + '"?')) return;
+        state.tasks = state.tasks.filter(function(t) { return !taskIdEquals(t.id, taskId); });
+        state.completedToday = (state.completedToday || []).filter(function(id) { return !taskIdEquals(id, taskId); });
+        state.waivedToday = (state.waivedToday || []).filter(function(id) { return !taskIdEquals(id, taskId); });
+        await saveAction();
+        showToast('Chore deleted.', 'info');
+    };
+
     let pendingCompleteTaskId = null;
     window.openCompleteModal = function(taskId) {
-        const task = state.tasks.find(t => t.id === taskId);
+        const task = findTaskById(taskId);
         if (!task) return;
         pendingCompleteTaskId = taskId;
         document.getElementById('completeTaskName').innerText = task.name;
@@ -3709,8 +4298,17 @@
     };
     window.confirmComplete = async function() {
         if (!pendingCompleteTaskId) return;
+        const task = findTaskById(pendingCompleteTaskId);
+        const wsSubject = getWorksheetSubjectFromTask(task);
+        if (wsSubject && !isWorksheetSubjectMastered(wsSubject)) {
+            showToast('Finish every worksheet question correctly before marking this chore done.', 'warning');
+            document.getElementById('completeModal').classList.remove('open');
+            openWorksheetWork(wsSubject);
+            pendingCompleteTaskId = null;
+            renderUI();
+            return;
+        }
         const cfg = getCfg();
-        const task = state.tasks.find(t => t.id === pendingCompleteTaskId);
         const comment = document.getElementById('completeComment').value.trim();
         const todayNum = getDayNumEST(0);
         const todayTasks = state.tasks.filter(t => t.days.includes(todayNum));
@@ -3731,6 +4329,9 @@
             showToast("Daily win! Weekly Pot: $" + getTodayPotPreview().total.toFixed(2) + " — nice work! 🎊", "level-up");
         } else {
             showToast("Awesome job! You're a superstar! 🌟", "success");
+        }
+        if (wsSubject && isWorksheetSubjectMastered(wsSubject)) {
+            maybeOfferBonusWorksheet(wsSubject);
         }
         await saveAction({ skipRender: true });
     };
@@ -3759,6 +4360,13 @@
             }
             await saveAction({ skipRender: true });
         } else {
+            const wsSubject = getWorksheetSubjectFromTask(task);
+            if (wsSubject && !isWorksheetSubjectMastered(wsSubject)) {
+                showToast('Finish every worksheet question correctly first.', 'info');
+                openWorksheetWork(wsSubject);
+                renderUI();
+                return;
+            }
             openCompleteModal(taskId);
         }
     };
@@ -3916,20 +4524,20 @@
     };
 
     window.openEditTask = function(taskId) {
-        const task = state.tasks.find(t => t.id === taskId);
+        const task = findTaskById(taskId);
         if (!task) return;
-        document.getElementById('editTaskId').value = taskId;
+        document.getElementById('editTaskId').value = task.id;
         document.getElementById('editTaskName').value = task.name;
         document.querySelectorAll('.edit-day-check').forEach(cb => cb.checked = task.days.includes(parseInt(cb.value)));
         document.getElementById('editModal').classList.add('open');
     };
     window.closeEditModal = function() { document.getElementById('editModal').classList.remove('open'); };
     window.saveEditTask = async function() {
-        const id = parseInt(document.getElementById('editTaskId').value);
+        const id = document.getElementById('editTaskId').value;
         const name = document.getElementById('editTaskName').value.trim();
         const days = Array.from(document.querySelectorAll('.edit-day-check:checked')).map(i => parseInt(i.value));
         if (!name) return;
-        const task = state.tasks.find(t => t.id === id);
+        const task = findTaskById(id);
         if (!task) return;
         task.name = name;
         task.days = days;
@@ -3944,7 +4552,8 @@
             ...state.config,
             weeklyPotStart: n(document.getElementById('cfgWeeklyStart').value, cfg.weeklyPotStart),
             dailySuccessAmount: n(document.getElementById('cfgSuccessAmt').value, cfg.dailySuccessAmount),
-            dailyFailureAmount: n(document.getElementById('cfgPenaltyAmt').value, cfg.dailyFailureAmount)
+            dailyFailureAmount: n(document.getElementById('cfgPenaltyAmt').value, cfg.dailyFailureAmount),
+            worksheetBonusAmount: n(document.getElementById('cfgWorksheetBonus').value, cfg.worksheetBonusAmount)
         };
         saveAction();
     };
@@ -4038,7 +4647,8 @@
         if (sf('cfgWeeklyStart')) sf('cfgWeeklyStart').value = cfg.weeklyPotStart;
         if (sf('cfgSuccessAmt')) sf('cfgSuccessAmt').value = cfg.dailySuccessAmount;
         if (sf('cfgPenaltyAmt')) sf('cfgPenaltyAmt').value = cfg.dailyFailureAmount;
-        if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = `Weekly start: $${cfg.weeklyPotStart} · Success: +$${cfg.dailySuccessAmount} · Miss: −$${cfg.dailyFailureAmount}`;
+        if (sf('cfgWorksheetBonus')) sf('cfgWorksheetBonus').value = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
+        if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = 'Weekly start: $' + cfg.weeklyPotStart + ' · Success: +$' + cfg.dailySuccessAmount + ' · Miss: −$' + cfg.dailyFailureAmount + ' · Bonus worksheet: +$' + (cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2);
         updateRhSupabasePanel();
     }
 
@@ -4673,10 +5283,19 @@
             const isDone = state.completedToday.includes(task.id);
             const isWaived = state.waivedToday.includes(task.id);
             const canUndo = (isDone || isWaived) && document.body.classList.contains('parent-active');
+            const wsSubject = getWorksheetSubjectFromTask(task);
+            const wsProg = wsSubject ? getWorksheetProgressForSubject(wsSubject) : null;
+            const wsMastered = wsSubject ? isWorksheetSubjectMastered(wsSubject) : true;
+            let choreControls = '';
+            if (wsSubject && !isDone && !isWaived) {
+                choreControls = '<span class="worksheet-chore-badge' + (wsMastered ? ' done' : '') + '">' + wsProg.mastered + '/' + wsProg.total + ' correct</span>' +
+                    '<button type="button" class="btn btn-primary" style="font-size:0.75rem;padding:0.35rem 0.65rem;" data-ws-subject="' + escapeHtml(wsSubject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">' + (wsMastered ? 'Review' : 'Work on it') + '</button>';
+            }
             list.innerHTML += `
-                <div class="task-item">
-                    <input type="checkbox" ${isDone || isWaived ? 'checked' : ''} onchange="toggleTask(${task.id})" ${(isDone || isWaived) && !canUndo ? 'disabled' : ''}>
-                    <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${task.name} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
+                <div class="task-item${wsSubject ? ' worksheet-chore' : ''}">
+                    <input type="checkbox" ${isDone || isWaived ? 'checked' : ''} onchange="toggleTask(${task.id})" ${(isDone || isWaived) && !canUndo ? 'disabled' : (wsSubject && !wsMastered ? 'disabled' : '')}>
+                    <span class="task-name" style="${isDone || isWaived ? 'text-decoration:line-through;color:var(--text-muted)' : ''}">${escapeHtml(task.name)} ${isWaived ? '<b>(Waived)</b>' : ''}</span>
+                    ${choreControls}
                     <div class="parent-only" style="display:flex; gap:5px;">
                         ${isDone || isWaived ? `<button class="btn" style="font-size:0.8rem;padding:4px 8px;background:rgba(100,116,139,0.15);color:var(--text-muted)" onclick="undoCompletedTask(${task.id})">Undo</button>` : ''}
                         ${!isWaived ? `<button class="btn btn-waive" onclick="waiveTask(${task.id}, '${(task.name||'').replace(/'/g, "\\'")}')">Waive</button>` : ''}
@@ -4726,7 +5345,11 @@
                         const on = t.days.includes(d);
                         return `<td class="day-cell ${on ? 'day-on' : 'day-off'}">${on ? '✓' : '—'}</td>`;
                     }).join('');
-                    return `<tr><td class="task-cell">${t.name}</td>${dayCells}<td class="actions-cell"><button class="btn" style="background:rgba(13,148,136,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" onclick="openEditTask(${t.id})">Edit</button><button class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" onclick="state.tasks=state.tasks.filter(x=>x.id!==${t.id});saveAction()">Del</button></td></tr>`;
+                    const taskIdAttr = escapeHtml(String(t.id));
+                    return '<tr><td class="task-cell">' + escapeHtml(t.name) + '</td>' + dayCells + '<td class="actions-cell">' +
+                        '<button type="button" class="btn" style="background:rgba(13,148,136,0.15);color:var(--primary);padding:4px 6px;font-size:0.65rem;margin-right:4px" data-task-id="' + taskIdAttr + '" onclick="openEditTask(this.getAttribute(\'data-task-id\'))">Edit</button>' +
+                        '<button type="button" class="btn" style="background:rgba(220,38,38,0.12);color:var(--danger);padding:4px 6px;font-size:0.65rem" data-task-id="' + taskIdAttr + '" onclick="deleteTask(this.getAttribute(\'data-task-id\'))">Del</button>' +
+                        '</td></tr>';
                 }).join('');
                 allList.innerHTML = `<div style="overflow-x:auto"><table class="chores-matrix">${headerRow}<tbody>${bodyRows}</tbody></table></div>`;
             }
@@ -4762,15 +5385,965 @@
         syncGoalsTabLabel();
     }
 
+    let worksheetQuestionsCache = [];
+    let worksheetCatalogSubjects = ['Math', 'Reading'];
+    let worksheetSetColumnAvailable = true;
+    let activeWorksheetSubject = null;
+    let activeWorksheetQuestionIndex = 0;
+    let worksheetGenerateInFlight = {};
+    let worksheetGenUi = { active: false, label: '', startedAt: 0, timerId: null, error: null };
+    const WORKSHEET_GEN_ESTIMATE_MS = 90000;
+    const WORKSHEET_QUESTIONS_PER_SUBJECT = 10;
+
+    function getParentRegenerateDifficulty() {
+        const sel = document.getElementById('parentRegenerateDifficulty');
+        if (!sel) return 'auto';
+        return sel.value || 'auto';
+    }
+
+    function getWorksheetGenerateBody(opts) {
+        opts = opts || {};
+        const body = {
+            student_id: WORKSHEET_STUDENT_ID,
+            question_date: getTodayISODateEST(),
+            worksheet_set: opts.worksheetSet || 1,
+            replace_existing: !!opts.replaceExisting
+        };
+        if (opts.subjects && opts.subjects.length) body.subjects = opts.subjects;
+        if (opts.forParentRegenerate) {
+            const diff = getParentRegenerateDifficulty();
+            if (diff && diff !== 'auto') body.difficulty_override = diff;
+        }
+        return body;
+    }
+
+    function clearWorksheetProgressForSet(setNum, subjects) {
+        const ids = new Set();
+        worksheetQuestionsCache.forEach(function(q) {
+            if (getWorksheetSetNumber(q) !== setNum) return;
+            if (subjects && subjects.length && subjects.indexOf(q.subject) < 0) return;
+            ids.add(String(q.id));
+        });
+        if (!ids.size) return;
+        state.worksheetMasteredToday = (state.worksheetMasteredToday || []).filter(function(id) {
+            return !ids.has(String(id));
+        });
+        state.worksheetSkippedToday = (state.worksheetSkippedToday || []).filter(function(id) {
+            return !ids.has(String(id));
+        });
+        if (setNum === 1 && subjects && subjects.length === 1) {
+            if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
+            state.worksheetActiveSet[subjects[0]] = 1;
+        }
+    }
+
+    function beginWorksheetGenUi(label) {
+        if (worksheetGenUi.timerId) clearInterval(worksheetGenUi.timerId);
+        worksheetGenUi = {
+            active: true,
+            label: label || 'Generating worksheet…',
+            startedAt: Date.now(),
+            timerId: setInterval(updateWorksheetGenProgressUi, 400),
+            error: null
+        };
+        updateWorksheetGenProgressUi();
+        renderStudentWorksheetPanel();
+    }
+
+    function endWorksheetGenUi(errorMsg) {
+        if (worksheetGenUi.timerId) clearInterval(worksheetGenUi.timerId);
+        worksheetGenUi.active = false;
+        worksheetGenUi.error = errorMsg || null;
+        worksheetGenUi.timerId = null;
+        renderStudentWorksheetPanel();
+        if (activeWorksheetSubject) renderWorksheetPlayer();
+    }
+
+    function updateWorksheetGenProgressUi() {
+        if (!worksheetGenUi.active) return;
+        const elapsed = Date.now() - worksheetGenUi.startedAt;
+        const pct = Math.min(96, Math.round((elapsed / WORKSHEET_GEN_ESTIMATE_MS) * 100));
+        const remainingSec = Math.max(0, Math.ceil((WORKSHEET_GEN_ESTIMATE_MS - elapsed) / 1000));
+        document.querySelectorAll('.ws-gen-progress-fill').forEach(function(el) {
+            el.style.width = pct + '%';
+        });
+        document.querySelectorAll('.ws-gen-eta').forEach(function(el) {
+            el.textContent = 'About ' + remainingSec + 's remaining…';
+        });
+        const statusEl = document.getElementById('worksheetStudentGenStatus');
+        if (statusEl && !statusEl.hidden) {
+            statusEl.querySelector('.ws-gen-progress-fill').style.width = pct + '%';
+            const eta = statusEl.querySelector('.ws-gen-eta');
+            if (eta) eta.textContent = 'About ' + remainingSec + 's remaining…';
+        }
+    }
+
+    function renderWorksheetGenLoadingHtml(label) {
+        return '<article class="student-worksheet-card ws-gen-card">' +
+            '<h4 class="worksheet-subject-title">' + escapeHtml(label) + '</h4>' +
+            '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating worksheet questions — about 10 per subject, usually takes 60–90 seconds.</p>' +
+            '<div class="student-worksheet-progress ws-gen-progress" aria-hidden="true"><div class="student-worksheet-progress-fill ws-gen-progress-fill" style="width:8%"></div></div>' +
+            '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">About 90s remaining…</p>' +
+            '</article>';
+    }
+
+    async function fetchWorksheetCatalogSubjects() {
+        if (!supabaseClient) return ['Math', 'Reading'];
+        try {
+            const { data, error } = await supabaseClient
+                .from('tasks')
+                .select('subject')
+                .eq('student_id', WORKSHEET_STUDENT_ID)
+                .eq('is_active', true);
+            if (error) throw error;
+            const subjects = [];
+            (data || []).forEach(function(row) {
+                if (row.subject && subjects.indexOf(row.subject) < 0) subjects.push(row.subject);
+            });
+            subjects.sort();
+            return subjects.length ? subjects : ['Math', 'Reading'];
+        } catch (e) {
+            console.warn('Worksheet subject catalog load failed:', e);
+            return ['Math', 'Reading'];
+        }
+    }
+
+    async function fetchTodayWorksheetQuestions() {
+        if (!supabaseClient) return [];
+        const todayIso = getTodayISODateEST();
+        const fullSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, worksheet_set';
+        const baseSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore';
+        let data = null;
+        let error = null;
+        const fullResp = await supabaseClient
+            .from('daily_generated_questions')
+            .select(fullSelect)
+            .eq('student_id', WORKSHEET_STUDENT_ID)
+            .eq('question_date', todayIso)
+            .order('subject')
+            .order('topic');
+        data = fullResp.data;
+        error = fullResp.error;
+        if (error && /worksheet_set|column|schema cache/i.test(String(error.message || error.details || ''))) {
+            worksheetSetColumnAvailable = false;
+            const baseResp = await supabaseClient
+                .from('daily_generated_questions')
+                .select(baseSelect)
+                .eq('student_id', WORKSHEET_STUDENT_ID)
+                .eq('question_date', todayIso)
+                .order('subject')
+                .order('topic');
+            data = baseResp.data;
+            error = baseResp.error;
+        } else {
+            worksheetSetColumnAvailable = true;
+        }
+        if (error) {
+            console.warn('Worksheet load failed:', error);
+            return [];
+        }
+        return (data || []).map(function(row) {
+            if (row.worksheet_set == null) row.worksheet_set = 1;
+            return row;
+        });
+    }
+
+    function getWorksheetSetNumber(q) {
+        return q && q.worksheet_set != null ? Number(q.worksheet_set) : 1;
+    }
+
+    function getActiveWorksheetSet(subject) {
+        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
+        return state.worksheetActiveSet[subject] || 1;
+    }
+
+    function setActiveWorksheetSet(subject, setNum) {
+        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
+        state.worksheetActiveSet[subject] = setNum;
+    }
+
+    function getQuestionsForSubjectSet(subject, setNum) {
+        return worksheetQuestionsCache.filter(function(q) {
+            return q.subject === subject && getWorksheetSetNumber(q) === setNum;
+        });
+    }
+
+    function getMaxWorksheetSetForSubject(subject) {
+        let maxSet = 1;
+        worksheetQuestionsCache.forEach(function(q) {
+            if (q.subject === subject) {
+                const s = getWorksheetSetNumber(q);
+                if (s > maxSet) maxSet = s;
+            }
+        });
+        return maxSet;
+    }
+
+    async function callWorksheetGenerate(opts) {
+        opts = opts || {};
+        const key = (opts.subjects || []).join(',') + ':' + (opts.worksheetSet || 1) + ':' + (opts.replaceExisting ? 'r' : 'n');
+        if (worksheetGenerateInFlight[key]) return worksheetGenerateInFlight[key];
+        const promise = (async function() {
+            const res = await fetch(WORKSHEET_API_URL + '/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(getWorksheetGenerateBody(opts))
+            });
+            let payload = {};
+            const raw = await res.text();
+            try { payload = raw ? JSON.parse(raw) : {}; } catch (parseErr) { /* plain-text error body */ }
+            if (!res.ok) {
+                const detail = payload.detail;
+                const msg = typeof detail === 'string' ? detail : (Array.isArray(detail) ? detail.map(function(d) { return d.msg || d; }).join('; ') : (raw || res.statusText));
+                throw new Error(msg);
+            }
+            return payload;
+        })();
+        worksheetGenerateInFlight[key] = promise;
+        try {
+            return await promise;
+        } finally {
+            delete worksheetGenerateInFlight[key];
+        }
+    }
+
+    async function autoGenerateWorksheet(subject, setNum, opts) {
+        opts = opts || {};
+        if (subject) {
+            const existing = getQuestionsForSubjectSet(subject, setNum);
+            if (existing.length) return { ok: true, inserted: 0, cached: true };
+        }
+        const label = subject ? (subject + ' worksheet') : 'Daily worksheets';
+        beginWorksheetGenUi(label);
+        try {
+            const payload = await callWorksheetGenerate({
+                subjects: subject ? [subject] : undefined,
+                worksheetSet: setNum,
+                replaceExisting: false
+            });
+            endWorksheetGenUi();
+            if (!opts.silent) {
+                showToast('New ' + (subject || 'daily') + ' worksheet ready!', 'success');
+            }
+            return { ok: true, inserted: payload.inserted_count || 0 };
+        } catch (e) {
+            const msg = String(e.message || e);
+            endWorksheetGenUi(msg);
+            console.warn('Worksheet auto-generate failed:', msg);
+            if (!opts.silent) {
+                if (/failed to fetch/i.test(msg)) {
+                    showToast('Cannot reach worksheet API — is the backend running on port 8001?', 'warning');
+                } else {
+                    showToast('Could not generate worksheet: ' + msg, 'warning');
+                }
+            }
+            return { ok: false, error: msg };
+        }
+    }
+
+    function isWorksheetChoreDone(subject) {
+        const taskId = getWorksheetTaskIdForSubject(subject);
+        return taskId ? state.completedToday.includes(taskId) : false;
+    }
+
+    function isBonusSetPaid(subject, setNum) {
+        const paid = (state.worksheetBonusSetsPaid || {})[subject] || [];
+        return paid.indexOf(setNum) >= 0;
+    }
+
+    function markBonusSetPaid(subject, setNum) {
+        if (!state.worksheetBonusSetsPaid) state.worksheetBonusSetsPaid = {};
+        if (!state.worksheetBonusSetsPaid[subject]) state.worksheetBonusSetsPaid[subject] = [];
+        if (state.worksheetBonusSetsPaid[subject].indexOf(setNum) < 0) {
+            state.worksheetBonusSetsPaid[subject].push(setNum);
+        }
+    }
+
+    function awardWorksheetBonusCredit(subject, setNum) {
+        if (setNum < 2 || isBonusSetPaid(subject, setNum)) return false;
+        const cfg = getCfg();
+        const amount = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
+        if (amount <= 0) {
+            markBonusSetPaid(subject, setNum);
+            return false;
+        }
+        const todayKey = getTodayEST();
+        const id = 'ws_bonus_' + WORKSHEET_STUDENT_ID + '_' + lidDateKey(todayKey) + '_' + subject.replace(/\s+/g, '_') + '_s' + setNum;
+        const posted = postLedgerUnique(id, 'WORKSHEET_BONUS', todayKey, amount,
+            'Bonus worksheet: ' + subject + ' (round ' + setNum + ')');
+        if (posted) {
+            markBonusSetPaid(subject, setNum);
+            flashWeeklyPotDisplay('up');
+            showToast('Bonus worksheet complete! +$' + amount.toFixed(2) + ' added to your Weekly Pot.', 'level-up');
+            return true;
+        }
+        markBonusSetPaid(subject, setNum);
+        return false;
+    }
+
+    function canOfferBonusWorksheet(subject) {
+        if (!isWorksheetSubjectMastered(subject)) return false;
+        if (!isWorksheetChoreDone(subject)) return false;
+        const activeSet = getActiveWorksheetSet(subject);
+        if (activeSet > 1 && !getWorksheetProgressForSubject(subject).complete) return false;
+        return true;
+    }
+
+    function updateWorksheetBonusOfferUI() {
+        const panel = document.getElementById('worksheetBonusOffer');
+        const textEl = document.getElementById('worksheetBonusOfferText');
+        const acceptBtn = document.getElementById('worksheetBonusAcceptBtn');
+        if (!panel || !activeWorksheetSubject) return;
+        const subject = activeWorksheetSubject;
+        const cfg = getCfg();
+        const bonusAmt = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
+        const activeSet = getActiveWorksheetSet(subject);
+        const prog = getWorksheetProgressForSubject(subject);
+        const choreDone = isWorksheetChoreDone(subject);
+        const set1Done = getWorksheetProgressForSubjectSet(subject, 1).complete;
+
+        if (activeSet >= 2 && prog.complete) {
+            panel.hidden = false;
+            textEl.textContent = 'Bonus round complete! Want another bonus worksheet for +$' + bonusAmt.toFixed(2) + '?';
+            if (acceptBtn) acceptBtn.textContent = 'Yes — another bonus (+$' + bonusAmt.toFixed(2) + ')';
+            return;
+        }
+        if (canOfferBonusWorksheet(subject) && set1Done && choreDone && activeSet === 1 && prog.complete) {
+            panel.hidden = false;
+            textEl.textContent = 'Great job finishing your worksheet chore! Want a bonus round for +$' + bonusAmt.toFixed(2) + ' toward your Weekly Pot?';
+            if (acceptBtn) acceptBtn.textContent = 'Yes — bonus worksheet (+$' + bonusAmt.toFixed(2) + ')';
+            return;
+        }
+        panel.hidden = true;
+    }
+
+    function getWorksheetProgressForSubjectSet(subject, setNum) {
+        const qs = getQuestionsForSubjectSet(subject, setNum);
+        const mastered = qs.filter(function(q) { return isQuestionMastered(q.id); }).length;
+        const skipped = qs.filter(function(q) { return !isQuestionMastered(q.id) && isQuestionSkipped(q.id); }).length;
+        return { total: qs.length, mastered: mastered, skipped: skipped, complete: qs.length > 0 && mastered === qs.length };
+    }
+
+    window.maybeOfferBonusWorksheet = function(subject) {
+        if (!subject) return;
+        activeWorksheetSubject = subject;
+        setActiveWorksheetSet(subject, 1);
+        window.setAppMainTab('worksheets');
+        showWorksheetPlayerView();
+        renderWorksheetPlayer();
+    };
+
+    window.acceptBonusWorksheet = async function() {
+        if (!activeWorksheetSubject) return;
+        const subject = activeWorksheetSubject;
+        const currentSet = getActiveWorksheetSet(subject);
+
+        if (currentSet === 1) {
+            if (!isWorksheetSubjectMastered(subject) || !isWorksheetChoreDone(subject)) {
+                showToast('Finish your worksheet chore first, then you can try a bonus round.', 'info');
+                return;
+            }
+        } else if (!getWorksheetProgressForSubjectSet(subject, currentSet).complete) {
+            showToast('Finish this bonus round first.', 'info');
+            return;
+        }
+
+        let nextSet = currentSet === 1 ? 2 : currentSet + 1;
+        while (getQuestionsForSubjectSet(subject, nextSet).length &&
+            getWorksheetProgressForSubjectSet(subject, nextSet).complete) {
+            nextSet++;
+        }
+
+        const acceptBtn = document.getElementById('worksheetBonusAcceptBtn');
+        if (acceptBtn) { acceptBtn.disabled = true; acceptBtn.textContent = 'Creating worksheet…'; }
+
+        if (!getQuestionsForSubjectSet(subject, nextSet).length) {
+            const gen = await autoGenerateWorksheet(subject, nextSet, { silent: true });
+            await refreshWorksheetPanel();
+            if (!getQuestionsForSubjectSet(subject, nextSet).length) {
+                if (acceptBtn) { acceptBtn.disabled = false; updateWorksheetBonusOfferUI(); }
+                showToast('Could not create bonus worksheet. ' + (gen.error || 'Try again in a moment.'), 'warning');
+                return;
+            }
+        }
+
+        setActiveWorksheetSet(subject, nextSet);
+        activeWorksheetQuestionIndex = 0;
+        if (acceptBtn) { acceptBtn.disabled = false; }
+        document.getElementById('worksheetBonusOffer').hidden = true;
+        await saveAction({ skipRender: true });
+        renderWorksheetPlayer();
+        showToast('Bonus worksheet ready — good luck!', 'success');
+        const el = document.getElementById('worksheetPlayerAnswer');
+        if (el) el.focus();
+    };
+
+    window.declineBonusWorksheet = function() {
+        const panel = document.getElementById('worksheetBonusOffer');
+        if (panel) panel.hidden = true;
+    };
+
+    async function handleWorksheetSetCompleted(subject) {
+        const activeSet = getActiveWorksheetSet(subject);
+        if (activeSet >= 2) {
+            awardWorksheetBonusCredit(subject, activeSet);
+            updateWorksheetBonusOfferUI();
+            renderStudentWorksheetPanel();
+            renderUI();
+            await saveAction({ skipRender: true });
+            return;
+        }
+        updateWorksheetBonusOfferUI();
+    }
+
+    function getWorksheetSubjectFromTask(task) {
+        if (!task || !task.name) return null;
+        const prefix = 'Worksheet: ';
+        if (task.name.indexOf(prefix) !== 0) return null;
+        return task.name.slice(prefix.length).trim() || null;
+    }
+
+    function getWorksheetSubjectFromTaskName(name) {
+        return getWorksheetSubjectFromTask({ name: name });
+    }
+
+    function getQuestionsForSubject(subject) {
+        return getQuestionsForSubjectSet(subject, getActiveWorksheetSet(subject));
+    }
+
+    function isQuestionMastered(questionId) {
+        return (state.worksheetMasteredToday || []).includes(String(questionId));
+    }
+
+    function isQuestionSkipped(questionId) {
+        return (state.worksheetSkippedToday || []).includes(String(questionId));
+    }
+
+    function markQuestionSkipped(questionId) {
+        const id = String(questionId);
+        if (isQuestionMastered(id) || isQuestionSkipped(id)) return;
+        if (!state.worksheetSkippedToday) state.worksheetSkippedToday = [];
+        state.worksheetSkippedToday.push(id);
+    }
+
+    function clearQuestionSkipped(questionId) {
+        const id = String(questionId);
+        if (!state.worksheetSkippedToday) return;
+        state.worksheetSkippedToday = state.worksheetSkippedToday.filter(function(x) { return x !== id; });
+    }
+
+    function getWorksheetProgressForSubject(subject) {
+        return getWorksheetProgressForSubjectSet(subject, getActiveWorksheetSet(subject));
+    }
+
+    function isWorksheetSubjectMastered(subject) {
+        return getWorksheetProgressForSubjectSet(subject, 1).complete;
+    }
+
+    function getWorksheetTaskIdForSubject(subject) {
+        const todayNum = getDayNumEST(0);
+        const name = worksheetChoreName(subject);
+        const task = state.tasks.find(function(t) { return t.name === name && t.days.includes(todayNum); });
+        return task ? task.id : null;
+    }
+
+    function normalizeWorksheetAnswer(text) {
+        return String(text || '').trim().toLowerCase()
+            .replace(/\$/g, '')
+            .replace(/,/g, '')
+            .replace(/\s+/g, ' ');
+    }
+
+    function worksheetAnswersMatch(student, expected) {
+        const a = normalizeWorksheetAnswer(student);
+        const b = normalizeWorksheetAnswer(expected);
+        if (!a || !b) return false;
+        if (a === b) return true;
+        const na = parseFloat(a), nb = parseFloat(b);
+        if (!isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 0.02) return true;
+        return false;
+    }
+
+    async function logWorksheetAttempt(question, studentAnswer, isCorrect) {
+        if (!supabaseClient || !question) return;
+        try {
+            await supabaseClient.from('worksheet_entries').insert({
+                student_id: WORKSHEET_STUDENT_ID,
+                subject: question.subject,
+                topic: question.topic,
+                question_id: question.id,
+                question_text: question.question_text,
+                student_answer: studentAnswer,
+                expected_answer: question.expected_answer,
+                is_correct: isCorrect,
+                score: isCorrect ? 100 : 0,
+                entry_date: getTodayISODateEST()
+            });
+        } catch (e) {
+            console.warn('Worksheet entry log failed:', e);
+        }
+    }
+
+    function getAssignedWorksheetSubjects() {
+        const todayNum = getDayNumEST(0);
+        return state.tasks
+            .filter(function(t) { return t.days.includes(todayNum) && getWorksheetSubjectFromTask(t); })
+            .map(function(t) { return getWorksheetSubjectFromTask(t); })
+            .filter(function(s, i, arr) { return s && arr.indexOf(s) === i; });
+    }
+
+    function updateWorksheetRewardBanner() {
+        const bonusEl = document.getElementById('worksheetRewardBonusLine');
+        if (!bonusEl) return;
+        const bonus = getCfg().worksheetBonusAmount != null ? getCfg().worksheetBonusAmount : 2;
+        bonusEl.textContent = 'After the main sheet, grab bonus rounds — each one stacks +$' + bonus.toFixed(2) + ' on your Weekly Pot!';
+    }
+
+    function renderStudentWorksheetPanel() {
+        updateWorksheetRewardBanner();
+        const list = document.getElementById('studentWorksheetList');
+        const statusEl = document.getElementById('worksheetStudentGenStatus');
+        if (!list) return;
+        if (worksheetGenUi.active) {
+            list.innerHTML = renderWorksheetGenLoadingHtml(worksheetGenUi.label);
+            if (statusEl) statusEl.hidden = true;
+            return;
+        }
+        if (worksheetGenUi.error && statusEl) {
+            statusEl.hidden = false;
+            statusEl.innerHTML = '<p class="worksheet-empty" style="color:var(--danger);margin:0.5rem 0 0;">Worksheet generation failed: ' + escapeHtml(worksheetGenUi.error) + '</p>';
+        } else if (statusEl) {
+            statusEl.hidden = true;
+            statusEl.innerHTML = '';
+        }
+        const assigned = getAssignedWorksheetSubjects();
+        if (!assigned.length) {
+            list.innerHTML = '<p class="worksheet-empty">No worksheet chores assigned for today. Ask a parent to add one in <strong>Manage chores</strong> (e.g. Worksheet: Math).</p>';
+            return;
+        }
+        list.innerHTML = assigned.map(function(subject) {
+            const activeSet = getActiveWorksheetSet(subject);
+            if (activeSet === 1) setActiveWorksheetSet(subject, 1);
+            const prog = getWorksheetProgressForSubjectSet(subject, activeSet > 1 ? activeSet : 1);
+            const pct = prog.total ? Math.round((prog.mastered / prog.total) * 100) : 0;
+            const skipNote = prog.skipped ? (' · ' + prog.skipped + ' skipped') : '';
+            const qs = getQuestionsForSubjectSet(subject, activeSet > 1 ? activeSet : 1);
+            const set1Done = getWorksheetProgressForSubjectSet(subject, 1).complete;
+            const choreDone = isWorksheetChoreDone(subject);
+            const bonusAvail = set1Done && choreDone;
+            if (!qs.length) {
+                return '<article class="student-worksheet-card"><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4><p class="worksheet-empty">Preparing your worksheet — open again in a moment.</p></article>';
+            }
+            const btnLabel = !set1Done ? 'Work on worksheet' : (bonusAvail ? 'Bonus worksheet available' : (prog.complete ? 'Review worksheet' : 'Work on worksheet'));
+            return '<article class="student-worksheet-card' + (set1Done ? ' is-done' : '') + (bonusAvail ? ' has-bonus' : '') + '">' +
+                '<div class="worksheet-subject-head"><div><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4>' +
+                '<p class="worksheet-subject-meta">' + prog.mastered + ' of ' + prog.total + ' questions correct' + skipNote + '</p></div>' +
+                (bonusAvail ? '<span class="worksheet-bonus-badge">Bonus +$' + (getCfg().worksheetBonusAmount != null ? getCfg().worksheetBonusAmount : 2) + '</span>' :
+                    (set1Done ? '<span class="worksheet-chore-badge done">Ready ✓</span>' : '<span class="worksheet-chore-badge">Keep going</span>')) +
+                '</div><div class="student-worksheet-progress" aria-hidden="true"><div class="student-worksheet-progress-fill" style="width:' + pct + '%"></div></div>' +
+                '<div class="worksheet-actions"><button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(subject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">' +
+                btnLabel + '</button></div></article>';
+        }).join('');
+    }
+
+    function getNextUnmasteredQuestionIndex(subject, afterIndex) {
+        const qs = getQuestionsForSubject(subject);
+        const start = typeof afterIndex === 'number' ? afterIndex + 1 : 0;
+        for (let i = start; i < qs.length; i++) {
+            if (!isQuestionMastered(qs[i].id)) return i;
+        }
+        for (let i = 0; i < (typeof afterIndex === 'number' ? afterIndex : qs.length); i++) {
+            if (!isQuestionMastered(qs[i].id)) return i;
+        }
+        return -1;
+    }
+
+    function getWorksheetQuestionStatus(q, index) {
+        if (isQuestionMastered(q.id)) return 'mastered';
+        if (index === activeWorksheetQuestionIndex) return 'current';
+        if (isQuestionSkipped(q.id)) return 'skipped';
+        return 'pending';
+    }
+
+    function renderWorksheetPlayerNav() {
+        const nav = document.getElementById('worksheetPlayerNav');
+        if (!nav || !activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        nav.innerHTML = qs.map(function(q, i) {
+            const status = getWorksheetQuestionStatus(q, i);
+            const label = status === 'mastered' ? 'Q' + (i + 1) + ' done' : status === 'skipped' ? 'Q' + (i + 1) + ' skipped' : 'Question ' + (i + 1);
+            return '<button type="button" class="ws-nav-pill ' + status + '" aria-label="' + label + '" title="' + label + '" onclick="goToWorksheetQuestion(' + i + ')">' + (i + 1) + '</button>';
+        }).join('');
+    }
+
+    function renderWorksheetPlayer() {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const playerCard = document.querySelector('#worksheetPlayerView .worksheet-player-card');
+        const playerActions = document.querySelector('#worksheetPlayerView .worksheet-player-actions');
+        const playerAnswer = document.getElementById('worksheetPlayerAnswer');
+        const playerSubmit = document.getElementById('worksheetPlayerSubmitBtn');
+        const playerSkip = document.getElementById('worksheetPlayerSkipBtn');
+        const playerComplete = document.getElementById('worksheetPlayerCompleteBtn');
+        const playerHints = document.getElementById('worksheetPlayerHints');
+        const playerFeedback = document.getElementById('worksheetPlayerFeedback');
+        const playerTopic = document.getElementById('worksheetPlayerTopic');
+        const playerQuestion = document.getElementById('worksheetPlayerQuestion');
+
+        if (!qs.length) {
+            if (worksheetGenUi.active) {
+                document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
+                document.getElementById('worksheetPlayerStatsText').textContent = 'Generating questions…';
+                document.getElementById('worksheetPlayerSkippedText').textContent = '';
+                document.getElementById('worksheetPlayerProgressFill').style.width = '8%';
+                document.getElementById('worksheetPlayerNav').innerHTML = '';
+                if (playerTopic) { playerTopic.style.display = 'none'; playerTopic.textContent = ''; }
+                if (playerQuestion) {
+                    playerQuestion.style.display = 'block';
+                    playerQuestion.innerHTML = '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating worksheet questions — about 10 per subject, usually takes 60–90 seconds.</p>' +
+                        '<div class="student-worksheet-progress ws-gen-progress"><div class="student-worksheet-progress-fill ws-gen-progress-fill" style="width:8%"></div></div>' +
+                        '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">About 90s remaining…</p>';
+                }
+                if (playerHints) playerHints.style.display = 'none';
+                if (playerAnswer) playerAnswer.style.display = 'none';
+                if (playerSubmit) playerSubmit.style.display = 'none';
+                if (playerSkip) playerSkip.style.display = 'none';
+                if (playerComplete) playerComplete.style.display = 'none';
+                if (playerFeedback) playerFeedback.style.display = 'none';
+                document.getElementById('worksheetBonusOffer').hidden = true;
+                updateWorksheetGenProgressUi();
+                return;
+            }
+            return;
+        }
+
+        if (playerTopic) playerTopic.style.display = '';
+        if (playerQuestion) playerQuestion.style.display = '';
+        if (playerAnswer) playerAnswer.style.display = '';
+        if (playerSubmit) playerSubmit.style.display = '';
+        if (playerSkip) playerSkip.style.display = '';
+        if (playerQuestion && playerQuestion.innerHTML && playerQuestion.querySelector('.ws-gen-progress')) {
+            playerQuestion.textContent = '';
+        }
+
+        if (activeWorksheetQuestionIndex < 0 || activeWorksheetQuestionIndex >= qs.length) {
+            activeWorksheetQuestionIndex = getNextUnmasteredQuestionIndex(activeWorksheetSubject);
+            if (activeWorksheetQuestionIndex < 0) activeWorksheetQuestionIndex = 0;
+        }
+        const q = qs[activeWorksheetQuestionIndex];
+        const prog = getWorksheetProgressForSubject(activeWorksheetSubject);
+        const pct = prog.total ? Math.round((prog.mastered / prog.total) * 100) : 0;
+        const activeSet = getActiveWorksheetSet(activeWorksheetSubject);
+        const setLabel = activeSet > 1 ? ' (bonus round ' + activeSet + ')' : '';
+        document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet' + setLabel;
+        document.getElementById('worksheetPlayerStatsText').textContent =
+            prog.mastered + ' of ' + prog.total + ' correct · Question ' + (activeWorksheetQuestionIndex + 1) + ' of ' + qs.length;
+        const skippedEl = document.getElementById('worksheetPlayerSkippedText');
+        if (prog.skipped) {
+            skippedEl.textContent = prog.skipped + ' skipped — tap orange numbers to return';
+            skippedEl.style.display = '';
+        } else {
+            skippedEl.textContent = '';
+            skippedEl.style.display = 'none';
+        }
+        document.getElementById('worksheetPlayerProgressFill').style.width = pct + '%';
+        renderWorksheetPlayerNav();
+        document.getElementById('worksheetPlayerTopic').textContent = q.topic || '';
+        document.getElementById('worksheetPlayerQuestion').textContent = q.question_text || '';
+        const hintsEl = document.getElementById('worksheetPlayerHints');
+        const hints = Array.isArray(q.scaffolding_hints) ? q.scaffolding_hints : [];
+        if (hints.length) {
+            hintsEl.style.display = 'block';
+            hintsEl.innerHTML = '<strong>Hints:</strong> ' + hints.map(escapeHtml).join(' · ');
+        } else {
+            hintsEl.style.display = 'none';
+            hintsEl.innerHTML = '';
+        }
+        const fb = document.getElementById('worksheetPlayerFeedback');
+        fb.style.display = 'none';
+        fb.textContent = '';
+        fb.className = 'worksheet-work-feedback';
+        const ans = document.getElementById('worksheetPlayerAnswer');
+        ans.value = '';
+        const alreadyDone = isQuestionMastered(q.id);
+        ans.disabled = alreadyDone;
+        document.getElementById('worksheetPlayerSubmitBtn').style.display = alreadyDone ? 'none' : '';
+        const skipBtn = document.getElementById('worksheetPlayerSkipBtn');
+        skipBtn.style.display = alreadyDone ? 'none' : '';
+        skipBtn.disabled = alreadyDone;
+        if (alreadyDone) {
+            fb.style.display = 'block';
+            fb.className = 'worksheet-work-feedback ok';
+            fb.textContent = 'You already got this one correct.';
+        }
+        const completeBtn = document.getElementById('worksheetPlayerCompleteBtn');
+        const showChoreBtn = activeSet === 1 && prog.complete && !isWorksheetChoreDone(activeWorksheetSubject);
+        completeBtn.style.display = showChoreBtn ? 'block' : 'none';
+        updateWorksheetBonusOfferUI();
+    }
+
+    function showWorksheetPlayerView() {
+        const hub = document.getElementById('worksheetHubView');
+        const player = document.getElementById('worksheetPlayerView');
+        if (hub) hub.hidden = true;
+        if (player) player.hidden = false;
+    }
+
+    function showWorksheetHubView() {
+        const hub = document.getElementById('worksheetHubView');
+        const player = document.getElementById('worksheetPlayerView');
+        if (hub) hub.hidden = false;
+        if (player) player.hidden = true;
+    }
+
+    window.openWorksheetWork = async function(subject) {
+        activeWorksheetSubject = subject;
+        window.setAppMainTab('worksheets');
+        showWorksheetPlayerView();
+
+        if (!getQuestionsForSubjectSet(subject, 1).length) {
+            renderWorksheetPlayer();
+            await autoGenerateWorksheet(subject, 1, { silent: true });
+            await refreshWorksheetPanel();
+        }
+
+        if (isWorksheetSubjectMastered(subject) && isWorksheetChoreDone(subject)) {
+            let bonusSet = 2;
+            while (getQuestionsForSubjectSet(subject, bonusSet).length &&
+                getWorksheetProgressForSubjectSet(subject, bonusSet).complete) {
+                bonusSet++;
+            }
+            if (getQuestionsForSubjectSet(subject, bonusSet).length &&
+                !getWorksheetProgressForSubjectSet(subject, bonusSet).complete) {
+                setActiveWorksheetSet(subject, bonusSet);
+            } else {
+                setActiveWorksheetSet(subject, 1);
+            }
+        } else {
+            setActiveWorksheetSet(subject, 1);
+        }
+
+        let qs = getQuestionsForSubject(subject);
+        if (!qs.length && getActiveWorksheetSet(subject) === 1) {
+            renderWorksheetPlayer();
+            await autoGenerateWorksheet(subject, 1, { silent: true });
+            await refreshWorksheetPanel();
+            qs = getQuestionsForSubject(subject);
+        }
+        if (!qs.length) {
+            renderWorksheetPlayer();
+            showToast('Could not load worksheet questions. Check that the backend is running.', 'warning');
+            return;
+        }
+        const nextIdx = getNextUnmasteredQuestionIndex(subject);
+        activeWorksheetQuestionIndex = nextIdx >= 0 ? nextIdx : 0;
+        renderWorksheetPlayer();
+        setTimeout(function() {
+            const el = document.getElementById('worksheetPlayerAnswer');
+            if (el && !el.disabled) el.focus();
+        }, 120);
+    };
+
+    window.closeWorksheetPlayer = function() {
+        showWorksheetHubView();
+        activeWorksheetSubject = null;
+        renderStudentWorksheetPanel();
+    };
+
+    window.goToWorksheetQuestion = function(index) {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        if (index < 0 || index >= qs.length) return;
+        activeWorksheetQuestionIndex = index;
+        renderWorksheetPlayer();
+        const el = document.getElementById('worksheetPlayerAnswer');
+        if (el && !el.disabled) el.focus();
+    };
+
+    window.skipWorksheetQuestion = async function() {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs[activeWorksheetQuestionIndex];
+        if (!q || isQuestionMastered(q.id)) return;
+        markQuestionSkipped(q.id);
+        await saveAction({ skipRender: true });
+        const remaining = qs.filter(function(item) { return !isQuestionMastered(item.id); }).length;
+        if (remaining <= 1) {
+            showToast('This is the last question — give it your best try!', 'info');
+            renderWorksheetPlayer();
+            renderStudentWorksheetPanel();
+            return;
+        }
+        const nextIdx = getNextUnmasteredQuestionIndex(activeWorksheetSubject, activeWorksheetQuestionIndex);
+        if (nextIdx >= 0 && nextIdx !== activeWorksheetQuestionIndex) {
+            activeWorksheetQuestionIndex = nextIdx;
+            showToast('Skipped — you can come back using the orange number.', 'info');
+        }
+        renderWorksheetPlayer();
+        renderStudentWorksheetPanel();
+        const el = document.getElementById('worksheetPlayerAnswer');
+        if (el && !el.disabled) el.focus();
+    };
+
+    window.submitWorksheetAnswer = async function() {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs[activeWorksheetQuestionIndex];
+        if (!q) return;
+        const input = document.getElementById('worksheetPlayerAnswer');
+        const answer = (input.value || '').trim();
+        if (!answer) {
+            showToast('Type an answer first.', 'info');
+            return;
+        }
+        const correct = worksheetAnswersMatch(answer, q.expected_answer);
+        await logWorksheetAttempt(q, answer, correct);
+        const fb = document.getElementById('worksheetPlayerFeedback');
+        fb.style.display = 'block';
+        if (correct) {
+            if (!isQuestionMastered(q.id)) {
+                if (!state.worksheetMasteredToday) state.worksheetMasteredToday = [];
+                state.worksheetMasteredToday.push(String(q.id));
+                clearQuestionSkipped(q.id);
+                await saveAction({ skipRender: true });
+            }
+            fb.className = 'worksheet-work-feedback ok';
+            fb.textContent = 'Correct! Great job.';
+            showToast('Correct!', 'success');
+            const nextIdx = getNextUnmasteredQuestionIndex(activeWorksheetSubject);
+            if (nextIdx >= 0 && nextIdx !== activeWorksheetQuestionIndex) {
+                setTimeout(function() {
+                    activeWorksheetQuestionIndex = nextIdx;
+                    renderWorksheetPlayer();
+                    document.getElementById('worksheetPlayerAnswer').focus();
+                }, 700);
+            } else if (isWorksheetSubjectMastered(activeWorksheetSubject) && getActiveWorksheetSet(activeWorksheetSubject) === 1) {
+                renderWorksheetPlayer();
+                renderStudentWorksheetPanel();
+                renderUI();
+                showToast('All worksheet questions correct! Mark the chore done when ready.', 'level-up');
+            } else if (getWorksheetProgressForSubject(activeWorksheetSubject).complete) {
+                renderWorksheetPlayer();
+                renderStudentWorksheetPanel();
+                renderUI();
+                await handleWorksheetSetCompleted(activeWorksheetSubject);
+            } else {
+                renderWorksheetPlayer();
+            }
+        } else {
+            fb.className = 'worksheet-work-feedback retry';
+            fb.textContent = 'Not quite — try again. Read the hints and check your work.';
+            input.select();
+            showToast('Try again — you need every answer correct.', 'warning');
+        }
+        renderStudentWorksheetPanel();
+    };
+
+    window.finishWorksheetChore = function() {
+        if (!activeWorksheetSubject || !isWorksheetSubjectMastered(activeWorksheetSubject)) {
+            showToast('Finish every question correctly first.', 'warning');
+            return;
+        }
+        const taskId = getWorksheetTaskIdForSubject(activeWorksheetSubject);
+        closeWorksheetPlayer();
+        if (taskId) {
+            if (state.completedToday.includes(taskId)) {
+                showToast('This worksheet chore is already marked done.', 'info');
+                return;
+            }
+            openCompleteModal(taskId);
+        } else {
+            showToast('Worksheet complete! Chore not found — ask a parent to check Today\u2019s Chores.', 'info');
+        }
+    };
+
+    function groupWorksheetQuestionsBySubject(rows) {
+        const bySubject = {};
+        (rows || []).filter(function(row) { return getWorksheetSetNumber(row) === 1; }).forEach(function(row) {
+            const subject = row.subject || 'Other';
+            if (!bySubject[subject]) bySubject[subject] = { subject: subject, questions: [], topics: {} };
+            bySubject[subject].questions.push(row);
+            const topic = row.topic || 'general';
+            if (!bySubject[subject].topics[topic]) bySubject[subject].topics[topic] = [];
+            bySubject[subject].topics[topic].push(row);
+        });
+        return Object.values(bySubject).sort(function(a, b) { return a.subject.localeCompare(b.subject); });
+    }
+
+    function worksheetChoreName(subject) {
+        return 'Worksheet: ' + subject;
+    }
+
+    async function refreshWorksheetPanel() {
+        worksheetCatalogSubjects = await fetchWorksheetCatalogSubjects();
+        worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        const set1Any = worksheetQuestionsCache.some(function(q) { return getWorksheetSetNumber(q) === 1; });
+        if (!set1Any && !worksheetGenUi.active) {
+            await autoGenerateWorksheet(null, 1, { silent: true });
+            worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        }
+        const assigned = getAssignedWorksheetSubjects();
+        for (let i = 0; i < assigned.length; i++) {
+            if (!getQuestionsForSubjectSet(assigned[i], 1).length && !worksheetGenUi.active) {
+                await autoGenerateWorksheet(assigned[i], 1, { silent: true });
+            }
+        }
+        worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        renderStudentWorksheetPanel();
+    }
+
+    window.parentGenerateWorksheets = async function() {
+        const statusEl = document.getElementById('worksheetGenStatus');
+        if (statusEl) statusEl.textContent = 'Replacing today\u2019s questions…';
+        if (!confirm('Replace today\u2019s worksheet questions? This resets progress on the current sheet (bonus sheets are kept).')) {
+            if (statusEl) statusEl.textContent = '';
+            return;
+        }
+        worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        clearWorksheetProgressForSet(1);
+        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
+        Object.keys(state.worksheetActiveSet).forEach(function(subj) {
+            if (getActiveWorksheetSet(subj) === 1) state.worksheetActiveSet[subj] = 1;
+        });
+        beginWorksheetGenUi('Regenerating worksheets');
+        try {
+            const payload = await callWorksheetGenerate({
+                worksheetSet: 1,
+                replaceExisting: true,
+                forParentRegenerate: true
+            });
+            endWorksheetGenUi();
+            const replaced = payload.deleted_count || 0;
+            const inserted = payload.inserted_count || 0;
+            if (statusEl) statusEl.textContent = 'Replaced ' + replaced + ' old question(s) with ' + inserted + ' new.';
+            showToast('Worksheet refreshed — ' + inserted + ' questions ready. Future sheets will adapt from performance.', 'success');
+            await saveAction({ skipRender: true });
+            await refreshWorksheetPanel();
+        } catch (e) {
+            const msg = String(e.message || e);
+            endWorksheetGenUi(msg);
+            if (statusEl) statusEl.textContent = 'Failed: ' + msg;
+            if (/failed to fetch/i.test(msg)) {
+                showToast('Cannot reach the worksheet API at ' + WORKSHEET_API_URL + '. Is the backend running?', 'warning');
+            } else if (/503|unavailable|high demand/i.test(msg)) {
+                showToast('Gemini is busy — wait 30–60 seconds and try Regenerate again.', 'warning');
+            } else if (/quota|429|GEMINI_API_KEY|OPENAI_API_KEY/i.test(msg)) {
+                showToast(msg, 'warning');
+            } else {
+                showToast('Worksheet generation failed: ' + msg, 'warning');
+            }
+        }
+    };
+
     function restoreAppMainTab() {
         try {
             const saved = sessionStorage.getItem('rh_app_main_tab');
-            if (saved === 'goals' || saved === 'schedule' || saved === 'ledger') window.setAppMainTab(saved);
+            if (saved === 'goals' || saved === 'schedule' || saved === 'ledger' || saved === 'worksheets') window.setAppMainTab(saved);
         } catch (e) { /* ignore */ }
     }
 
     window.setAppMainTab = function(tabId) {
-        const valid = { status: true, goals: true, schedule: true, ledger: true };
+        const valid = { status: true, goals: true, schedule: true, ledger: true, worksheets: true };
         if (!valid[tabId]) tabId = 'status';
         try { sessionStorage.setItem('rh_app_main_tab', tabId); } catch (e) { /* ignore */ }
         document.querySelectorAll('.app-tab-btn[data-app-tab]').forEach(function(btn) {
@@ -4788,6 +6361,15 @@
                 try { renderCalendar(); } catch (e) { /* ignore */ }
                 try { renderDefaultScheduleCalendar(); } catch (e) { /* ignore */ }
             });
+        }
+        if (tabId === 'worksheets') {
+            requestAnimationFrame(function() {
+                try { refreshWorksheetPanel(); } catch (e) { /* ignore */ }
+                if (activeWorksheetSubject) showWorksheetPlayerView();
+                else showWorksheetHubView();
+            });
+        } else if (activeWorksheetSubject) {
+            showWorksheetHubView();
         }
     };
 

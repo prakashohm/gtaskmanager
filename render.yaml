@@ -1,0 +1,24 @@
+# Deploy the worksheet API on Render: https://dashboard.render.com → New → Blueprint
+services:
+  - type: web
+    name: gtaskmanager-worksheet-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: STUDENT_ID
+        value: guhan
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: CORS_ORIGINS
+        value: https://prakashohm.github.io,http://localhost:8000,http://127.0.0.1:8000

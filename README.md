@@ -194,7 +194,21 @@ Optional **`config.defaultSlots`** — per weekday (0–6) arrays of `{ start, e
 
 ### Deployment
 
+**Live site (GitHub Pages):** [https://prakashohm.github.io/gtaskmanager/](https://prakashohm.github.io/gtaskmanager/) — push to `main` to publish `index.html`, `sw.js`, and assets.
+
 Ship `index.html` and `guhan.png` (icons). The app header is styled in CSS (no banner image). No build step.
+
+### Worksheet API (production)
+
+The **Worksheets** tab calls a separate FastAPI backend (`backend/`). GitHub Pages only hosts static files, so deploy the API separately:
+
+1. **Render (recommended)** — connect this repo, use **New → Blueprint**, select `render.yaml`, then set secrets in the dashboard:
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`
+2. After deploy, the API URL is `https://gtaskmanager-worksheet-api.onrender.com` (must match `WORKSHEET_API_PROD_URL` in `index.html`).
+3. Run `backend/sql/001_worksheet_schema.sql` and `002_worksheet_set.sql` in Supabase if not already applied.
+4. Set `CORS_ORIGINS` to include `https://prakashohm.github.io`.
+
+Local API: `cd backend && pip install -r requirements.txt && uvicorn app.main:app --port 8001`
 
 ### PWA (install / offline shell)
 
