@@ -2853,7 +2853,7 @@
                                         <span class="worksheet-reward-banner-icon" aria-hidden="true">🚀</span>
                                         <div>
                                             <strong>Bonus = bigger pot</strong>
-                                            <p id="worksheetRewardBonusLine">After the main sheet, smash bonus rounds for extra Weekly Pot cash!</p>
+                                            <p id="worksheetRewardBonusLine">Finish the main sheet, then chase bonus rounds — every extra sheet drops another dollar into your Weekly Pot! 💵</p>
                                         </div>
                                     </div>
                                 </div>
@@ -5895,8 +5895,7 @@
     function updateWorksheetRewardBanner() {
         const bonusEl = document.getElementById('worksheetRewardBonusLine');
         if (!bonusEl) return;
-        const bonus = getCfg().worksheetBonusAmount != null ? getCfg().worksheetBonusAmount : 2;
-        bonusEl.textContent = 'After the main sheet, grab bonus rounds — each one stacks +$' + bonus.toFixed(2) + ' on your Weekly Pot!';
+        bonusEl.textContent = 'Finish the main sheet, then chase bonus rounds — every extra sheet drops another dollar into your Weekly Pot! 💵';
     }
 
     function renderStudentWorksheetPanel() {

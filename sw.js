@@ -1,5 +1,5 @@
 /* RewardHub — service worker for offline shell + same-origin cache */
-const CACHE_NAME = 'rewardhub-pwa-v19';
+const CACHE_NAME = 'rewardhub-pwa-v20';
 
 const PRECACHE_URLS = [
   './',
