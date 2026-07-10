@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-5"
 
+    # Optional automatic fallback — only used if Claude is rate-limited,
+    # overloaded, out of credits, or unreachable. Not a manual provider switch.
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+
     questions_per_topic: int = 5
     target_questions_per_subject: int = 10
     progress_lookback_days: int = 7

@@ -204,8 +204,9 @@ The **Worksheets** tab calls a separate FastAPI backend (`backend/`). GitHub Pag
 
 1. **Render (recommended)** — connect this repo, use **New → Blueprint**, select `render.yaml`, then set secrets in the dashboard:
    - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`
+   - Optional: `GEMINI_API_KEY` — automatic fallback used only if Claude is rate-limited, overloaded, out of credits, or unreachable. Leave unset to disable.
 2. After deploy, the API URL is `https://gtaskmanager-worksheet-api.onrender.com` (must match `WORKSHEET_API_PROD_URL` in `index.html`).
-3. Run `backend/sql/001_worksheet_schema.sql` and `002_worksheet_set.sql` in Supabase if not already applied.
+3. Run `backend/sql/001_worksheet_schema.sql`, `002_worksheet_set.sql`, and `003_difficulty_controls.sql` in Supabase if not already applied.
 4. Set `CORS_ORIGINS` to include `https://prakashohm.github.io`.
 
 Local API: `cd backend && pip install -r requirements.txt && uvicorn app.main:app --port 8001`

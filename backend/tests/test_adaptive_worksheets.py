@@ -9,6 +9,7 @@ from app.services.dedup import (
     question_text_hash,
     recent_question_hashes,
 )
+from app.services.llm import _is_claude_capacity_or_billing_issue
 from app.services.math_templates import generate_math_questions, supports_math_topic
 from app.services.progress import (
     apply_hysteresis,
@@ -188,6 +189,40 @@ def test_pin_overrides_recommendation():
     assert difficulty == "increased"
     assert changed is False
     assert rationale == "Pinned by parent."
+
+
+class _FakeAnthropicError(Exception):
+    def __init__(self, message, *, status_code=None, type=None):
+        super().__init__(message)
+        self.status_code = status_code
+        self.type = type
+
+
+def test_claude_capacity_and_billing_issues_trigger_gemini_fallback():
+    assert _is_claude_capacity_or_billing_issue(
+        _FakeAnthropicError("rate limited", status_code=429, type="rate_limit_error")
+    )
+    assert _is_claude_capacity_or_billing_issue(
+        _FakeAnthropicError("overloaded", status_code=529, type="overloaded_error")
+    )
+    assert _is_claude_capacity_or_billing_issue(
+        _FakeAnthropicError(
+            "Your credit balance is too low to access the Anthropic API.",
+            status_code=400,
+            type="invalid_request_error",
+        )
+    )
+
+
+def test_claude_config_and_content_issues_do_not_trigger_fallback():
+    # Bad key / bad request shape are code problems a fallback wouldn't fix —
+    # they should stay visible, not get silently masked by Gemini succeeding.
+    assert not _is_claude_capacity_or_billing_issue(
+        _FakeAnthropicError("invalid api key", status_code=401, type="authentication_error")
+    )
+    assert not _is_claude_capacity_or_billing_issue(
+        _FakeAnthropicError("bad request", status_code=400, type="invalid_request_error")
+    )
 
 
 def test_subjects_needing_generation():

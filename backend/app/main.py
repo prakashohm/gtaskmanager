@@ -40,13 +40,15 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict:
     s = get_settings()
-    llm_ready = bool(s.anthropic_api_key)
+    claude_ready = bool(s.anthropic_api_key)
+    gemini_fallback_ready = bool(s.gemini_api_key)
     supabase_ok, supabase_error = check_supabase_connection()
     return {
-        "status": "ok" if supabase_ok and llm_ready else "degraded",
+        "status": "ok" if supabase_ok and (claude_ready or gemini_fallback_ready) else "degraded",
         "llm_provider": "claude",
         "llm_model": s.anthropic_model,
-        "llm_ready": llm_ready,
+        "llm_ready": claude_ready,
+        "gemini_fallback_ready": gemini_fallback_ready,
         "supabase_host": supabase_host(s.supabase_url),
         "supabase_ok": supabase_ok,
         "supabase_error": supabase_error,
@@ -55,10 +57,11 @@ def health() -> dict:
 
 def _ensure_llm_configured() -> None:
     s = get_settings()
-    if not s.anthropic_api_key:
+    if not s.anthropic_api_key and not s.gemini_api_key:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY is not set. Add it to backend/.env from "
-            "https://console.anthropic.com/settings/keys then restart the backend."
+            "No LLM configured. Set ANTHROPIC_API_KEY (from "
+            "https://console.anthropic.com/settings/keys) — optionally also set "
+            "GEMINI_API_KEY as an automatic fallback if Claude is unavailable."
         )
 
 
