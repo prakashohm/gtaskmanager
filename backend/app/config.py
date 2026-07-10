@@ -21,8 +21,12 @@ class Settings(BaseSettings):
 
     questions_per_topic: int = 5
     target_questions_per_subject: int = 10
-    progress_lookback_days: int = 3
-    prompt_version: str = "iep-v1"
+    progress_lookback_days: int = 7
+    progress_ewma_decay: float = 0.7
+    dedup_lookback_days: int = 21
+    adaptive_question_counts: bool = True
+    llm_retry_on_duplicates: int = 1
+    prompt_version: str = "iep-v2-adaptive"
 
     api_host: str = "0.0.0.0"
     api_port: int = 8001

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Sequence
 
 from app.models import TopicProgress
 
@@ -47,6 +47,9 @@ def build_user_prompt(
     question_date: str,
     topic_progress: List[TopicProgress],
     topic_question_counts: Dict[str, int],
+    *,
+    avoid_questions: Optional[Sequence[str]] = None,
+    variety_seed: Optional[str] = None,
 ) -> str:
     lines = [
         f"Generate adaptive daily worksheet questions for student '{student_id}' on {question_date}.",
@@ -68,6 +71,22 @@ def build_user_prompt(
         lines.append(f"  Create exactly {count} question(s) for this topic.")
         lines.append("")
 
+    if variety_seed:
+        lines.append(f"Variety seed (use to pick fresh contexts/numbers): {variety_seed}")
+        lines.append("")
+
+    avoid = [t.strip() for t in (avoid_questions or []) if t and t.strip()]
+    if avoid:
+        lines.append(
+            "ANTI-REPEAT (mandatory): Do NOT repeat, closely paraphrase, or reuse the same "
+            "numbers/passage as any of these recent questions. Invent new contexts and values."
+        )
+        # Cap prompt size — keep the most recent / first N texts.
+        for text in avoid[:40]:
+            clipped = text if len(text) <= 220 else text[:217] + "..."
+            lines.append(f'- "{clipped}"')
+        lines.append("")
+
     lines.extend(
         [
             "Return JSON matching this schema:",
@@ -87,6 +106,7 @@ def build_user_prompt(
             "}",
             "",
             "Use the recommended difficulty per topic. expected_answer must be concise and literal.",
+            "Every question_text must be unique and different from the anti-repeat list.",
         ]
     )
     return "\n".join(lines)

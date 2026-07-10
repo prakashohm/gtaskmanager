@@ -48,6 +48,10 @@ class GenerateWorksheetRequest(BaseModel):
         False,
         description="When true, delete existing questions for this date/set/subjects before inserting",
     )
+    skip_if_exists: bool = Field(
+        True,
+        description="When true and replace_existing is false, skip subjects that already have questions for this date/set",
+    )
 
 
 class GenerateWorksheetResult(BaseModel):
@@ -55,5 +59,6 @@ class GenerateWorksheetResult(BaseModel):
     question_date: date
     deleted_count: int = 0
     inserted_count: int
+    skipped_existing: bool = False
     topic_progress: List[TopicProgress]
     questions: List[GeneratedQuestion]

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import time
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 from app.config import get_settings
 from app.models import DailyWorksheetResponse, TopicProgress
@@ -38,30 +39,57 @@ def _parse_llm_json(raw: str) -> DailyWorksheetResponse:
     return DailyWorksheetResponse.model_validate(payload)
 
 
+def _temperature_for_progress(topic_progress: List[TopicProgress]) -> float:
+    """Slightly higher temperature when any topic is in the increased band."""
+    if any(tp.recommended_difficulty == "increased" for tp in topic_progress):
+        return 0.55
+    return 0.4
+
+
+def _variety_seed(student_id: str, question_date: str, topics: Sequence[str]) -> str:
+    material = f"{student_id}|{question_date}|{'|'.join(sorted(topics))}"
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()[:12]
+
+
 def generate_worksheet_json(
     student_id: str,
     question_date: str,
     topic_progress: List[TopicProgress],
     topic_question_counts: Optional[Dict[str, int]] = None,
+    *,
+    avoid_questions: Optional[Sequence[str]] = None,
 ) -> DailyWorksheetResponse:
     from app.services.question_counts import compute_topic_question_counts
 
     settings = get_settings()
     if topic_question_counts is None:
         topic_question_counts = compute_topic_question_counts(
-            topic_progress, settings.target_questions_per_subject
+            topic_progress,
+            settings.target_questions_per_subject,
+            adaptive=settings.adaptive_question_counts,
         )
     system_prompt = build_system_prompt()
-    user_prompt = build_user_prompt(
-        student_id, question_date, topic_progress, topic_question_counts
+    variety_seed = _variety_seed(
+        student_id, question_date, [f"{p.subject}::{p.topic}" for p in topic_progress]
     )
+    user_prompt = build_user_prompt(
+        student_id,
+        question_date,
+        topic_progress,
+        topic_question_counts,
+        avoid_questions=avoid_questions,
+        variety_seed=variety_seed,
+    )
+    temperature = _temperature_for_progress(topic_progress)
 
     if settings.llm_provider == "openai":
-        return _generate_openai(system_prompt, user_prompt)
-    return _generate_gemini(system_prompt, user_prompt)
+        return _generate_openai(system_prompt, user_prompt, temperature=temperature)
+    return _generate_gemini(system_prompt, user_prompt, temperature=temperature)
 
 
-def _generate_openai(system_prompt: str, user_prompt: str) -> DailyWorksheetResponse:
+def _generate_openai(
+    system_prompt: str, user_prompt: str, *, temperature: float = 0.4
+) -> DailyWorksheetResponse:
     from openai import OpenAI
 
     settings = get_settings()
@@ -72,7 +100,7 @@ def _generate_openai(system_prompt: str, user_prompt: str) -> DailyWorksheetResp
         client = OpenAI(api_key=settings.openai_api_key)
         response = client.chat.completions.create(
             model=settings.openai_model,
-            temperature=0.4,
+            temperature=temperature,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -147,7 +175,9 @@ def _format_gemini_failure(errors: List[str]) -> str:
     return "Gemini request failed on all models. Details: " + detail
 
 
-def _generate_gemini(system_prompt: str, user_prompt: str) -> DailyWorksheetResponse:
+def _generate_gemini(
+    system_prompt: str, user_prompt: str, *, temperature: float = 0.4
+) -> DailyWorksheetResponse:
     from google import genai
     from google.genai import types
     from google.genai.errors import ClientError, ServerError
@@ -168,7 +198,7 @@ def _generate_gemini(system_prompt: str, user_prompt: str) -> DailyWorksheetResp
                     contents=user_prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
-                        temperature=0.4,
+                        temperature=temperature,
                         response_mime_type="application/json",
                     ),
                 )

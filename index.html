@@ -2582,6 +2582,64 @@
             font-size: 0.88rem;
             background: #fff;
         }
+        .parent-ws-progress {
+            margin-top: 1.1rem;
+            display: grid;
+            gap: 0.65rem;
+        }
+        .parent-ws-progress-title {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .parent-ws-progress-hint {
+            margin: 0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .parent-ws-topic-row {
+            display: grid;
+            gap: 0.25rem;
+            padding: 0.65rem 0.75rem;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .parent-ws-topic-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem 0.65rem;
+            justify-content: space-between;
+        }
+        .parent-ws-topic-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .parent-ws-topic-meta {
+            margin: 0;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .parent-ws-today-preview {
+            margin-top: 0.85rem;
+            display: grid;
+            gap: 0.55rem;
+        }
+        .parent-ws-today-subject {
+            font-size: 0.8rem;
+            font-weight: 800;
+            margin: 0.35rem 0 0;
+        }
+        .parent-ws-today-q {
+            font-size: 0.78rem;
+            color: var(--text);
+            margin: 0;
+            padding-left: 0.15rem;
+            line-height: 1.35;
+        }
     </style>
 </head>
 <body id="bodyTag">
@@ -2877,7 +2935,7 @@
                                 </div>
                             </div>
                             <div class="section-body">
-                                <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Replace today&rsquo;s worksheet questions (does not add extra). Pick a complexity for <strong>this generation only</strong> — future sheets adapt from how your child performs.</p>
+                                <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Replace today&rsquo;s worksheet questions (does not add extra). Pick a complexity for <strong>this generation only</strong> — future sheets adapt from how your child performs (recent success, weighted toward newer attempts).</p>
                                 <div class="parent-ws-controls">
                                     <label for="parentRegenerateDifficulty">
                                         Question complexity for this sheet
@@ -2891,6 +2949,14 @@
                                 </div>
                                 <button type="button" class="btn btn-primary" onclick="parentGenerateWorksheets()">Regenerate today&rsquo;s questions</button>
                                 <p id="worksheetGenStatus" class="rh-sync-hint" style="margin-top:0.65rem;"></p>
+                                <div class="parent-ws-progress">
+                                    <p class="parent-ws-progress-title">Adaptive progress</p>
+                                    <p class="parent-ws-progress-hint">Success rate over the last week (newer answers count more). This drives tomorrow&rsquo;s difficulty and question mix.</p>
+                                    <div id="parentWorksheetProgress" aria-live="polite">
+                                        <p class="worksheet-empty" style="margin:0;">Loading progress…</p>
+                                    </div>
+                                    <div id="parentWorksheetTodayPreview" class="parent-ws-today-preview" hidden></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -5511,8 +5577,8 @@
     async function fetchTodayWorksheetQuestions() {
         if (!supabaseClient) return [];
         const todayIso = getTodayISODateEST();
-        const fullSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, worksheet_set';
-        const baseSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore';
+        const fullSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, worksheet_set, task_id';
+        const baseSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, task_id';
         let data = null;
         let error = null;
         const fullResp = await supabaseClient
@@ -5867,7 +5933,7 @@
     async function logWorksheetAttempt(question, studentAnswer, isCorrect) {
         if (!supabaseClient || !question) return;
         try {
-            await supabaseClient.from('worksheet_entries').insert({
+            const row = {
                 student_id: WORKSHEET_STUDENT_ID,
                 subject: question.subject,
                 topic: question.topic,
@@ -5878,7 +5944,9 @@
                 is_correct: isCorrect,
                 score: isCorrect ? 100 : 0,
                 entry_date: getTodayISODateEST()
-            });
+            };
+            if (question.task_id) row.task_id = question.task_id;
+            await supabaseClient.from('worksheet_entries').insert(row);
         } catch (e) {
             console.warn('Worksheet entry log failed:', e);
         }
@@ -6269,17 +6337,104 @@
         return Object.values(bySubject).sort(function(a, b) { return a.subject.localeCompare(b.subject); });
     }
 
+    function difficultyPillHtml(level) {
+        const lvl = String(level || 'maintained').toLowerCase();
+        const label = lvl === 'simplified' ? 'Simplified' : (lvl === 'increased' ? 'Increased' : 'Maintained');
+        return '<span class="worksheet-difficulty-pill ' + escapeHtml(lvl) + '">' + label + '</span>';
+    }
+
+    function normalizeWorksheetQuestionKey(text) {
+        return String(text || '').toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    function dedupeWorksheetRows(rows) {
+        const seen = {};
+        const out = [];
+        (rows || []).forEach(function(row) {
+            const key = getWorksheetSetNumber(row) + '|' + (row.subject || '') + '|' + normalizeWorksheetQuestionKey(row.question_text);
+            if (seen[key]) return;
+            seen[key] = true;
+            out.push(row);
+        });
+        return out;
+    }
+
+    async function fetchWorksheetProgress() {
+        try {
+            const res = await fetch(WORKSHEET_API_URL + '/progress/' + encodeURIComponent(WORKSHEET_STUDENT_ID));
+            if (!res.ok) throw new Error(await res.text() || res.statusText);
+            return await res.json();
+        } catch (e) {
+            console.warn('Worksheet progress load failed:', e);
+            return null;
+        }
+    }
+
+    function renderParentWorksheetProgress(progressRows) {
+        const el = document.getElementById('parentWorksheetProgress');
+        if (!el) return;
+        if (!progressRows) {
+            el.innerHTML = '<p class="worksheet-empty" style="margin:0;">Progress unavailable — is the worksheet API running?</p>';
+            return;
+        }
+        if (!progressRows.length) {
+            el.innerHTML = '<p class="worksheet-empty" style="margin:0;">No active topics yet.</p>';
+            return;
+        }
+        el.innerHTML = progressRows.map(function(tp) {
+            const attempts = tp.attempts || 0;
+            const rate = attempts ? (tp.success_rate + '%') : 'New topic';
+            const meta = attempts
+                ? (tp.correct + ' correct of ' + attempts + ' recent attempts · weighted success ' + tp.success_rate + '%')
+                : 'No attempts yet — next sheet starts simplified';
+            return '<div class="parent-ws-topic-row">' +
+                '<div class="parent-ws-topic-head">' +
+                '<span class="parent-ws-topic-name">' + escapeHtml(tp.subject) + ' · ' + escapeHtml(tp.topic) + '</span>' +
+                difficultyPillHtml(tp.recommended_difficulty) +
+                '</div>' +
+                '<p class="parent-ws-topic-meta">' + escapeHtml(meta) + '</p>' +
+                '</div>';
+        }).join('');
+    }
+
+    function renderParentTodayPreview(rows) {
+        const el = document.getElementById('parentWorksheetTodayPreview');
+        if (!el) return;
+        const grouped = groupWorksheetQuestionsBySubject(rows);
+        if (!grouped.length) {
+            el.hidden = true;
+            el.innerHTML = '';
+            return;
+        }
+        el.hidden = false;
+        el.innerHTML = '<p class="parent-ws-progress-title">Today&rsquo;s set 1 questions</p>' + grouped.map(function(g) {
+            return '<p class="parent-ws-today-subject">' + escapeHtml(g.subject) + ' (' + g.questions.length + ')</p>' +
+                g.questions.slice(0, 8).map(function(q) {
+                    return '<p class="parent-ws-today-q">' + difficultyPillHtml(q.difficulty_level) + ' ' +
+                        escapeHtml((q.topic || '') + ': ' + (q.question_text || '')).slice(0, 160) +
+                        ((q.question_text || '').length > 160 ? '…' : '') + '</p>';
+                }).join('') +
+                (g.questions.length > 8 ? '<p class="parent-ws-topic-meta">+' + (g.questions.length - 8) + ' more</p>' : '');
+        }).join('');
+    }
+
+    async function refreshParentWorksheetInsights() {
+        const progress = await fetchWorksheetProgress();
+        renderParentWorksheetProgress(progress);
+        renderParentTodayPreview(worksheetQuestionsCache);
+    }
+
     function worksheetChoreName(subject) {
         return 'Worksheet: ' + subject;
     }
 
     async function refreshWorksheetPanel() {
         worksheetCatalogSubjects = await fetchWorksheetCatalogSubjects();
-        worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
         const set1Any = worksheetQuestionsCache.some(function(q) { return getWorksheetSetNumber(q) === 1; });
         if (!set1Any && !worksheetGenUi.active) {
             await autoGenerateWorksheet(null, 1, { silent: true });
-            worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+            worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
         }
         const assigned = getAssignedWorksheetSubjects();
         for (let i = 0; i < assigned.length; i++) {
@@ -6287,8 +6442,9 @@
                 await autoGenerateWorksheet(assigned[i], 1, { silent: true });
             }
         }
-        worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
+        worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
         renderStudentWorksheetPanel();
+        try { await refreshParentWorksheetInsights(); } catch (e) { /* ignore */ }
     }
 
     window.parentGenerateWorksheets = async function() {

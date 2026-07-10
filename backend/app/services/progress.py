@@ -16,6 +16,46 @@ def difficulty_from_success_rate(rate: float) -> DifficultyLevel:
     return "maintained"
 
 
+def _parse_entry_date(value) -> Optional[date]:
+    if value is None:
+        return None
+    if isinstance(value, date):
+        return value
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except ValueError:
+        return None
+
+
+def weighted_success_rate(
+    entries: List[dict],
+    *,
+    today: Optional[date] = None,
+    decay: float = 0.7,
+) -> tuple[float, float, float]:
+    """
+    EWMA-style success rate: each attempt is weighted by decay^days_ago.
+    Returns (rate_0_to_100, weighted_correct, weighted_attempts).
+    """
+    today = today or date.today()
+    weighted_correct = 0.0
+    weighted_attempts = 0.0
+    for row in entries:
+        entry_day = _parse_entry_date(row.get("entry_date")) or today
+        days_ago = max(0, (today - entry_day).days)
+        weight = decay**days_ago
+        weighted_attempts += weight
+        is_correct = row.get("is_correct") is True
+        if row.get("is_correct") is None and row.get("score") is not None:
+            is_correct = float(row["score"]) >= 60.0
+        if is_correct:
+            weighted_correct += weight
+    if weighted_attempts <= 0:
+        return 0.0, 0.0, 0.0
+    rate = (weighted_correct / weighted_attempts) * 100.0
+    return rate, weighted_correct, weighted_attempts
+
+
 def fetch_recent_topic_progress(
     student_id: Optional[str] = None,
     lookback_days: Optional[int] = None,
@@ -25,11 +65,12 @@ def fetch_recent_topic_progress(
     student_id = student_id or settings.student_id
     lookback_days = lookback_days or settings.progress_lookback_days
     since = date.today() - timedelta(days=lookback_days - 1)
+    decay = settings.progress_ewma_decay
 
     sb = get_supabase()
     entries_resp = (
         sb.table("worksheet_entries")
-        .select("task_id, subject, topic, is_correct, score")
+        .select("task_id, subject, topic, is_correct, score, entry_date")
         .eq("student_id", student_id)
         .gte("entry_date", since.isoformat())
         .execute()
@@ -54,6 +95,7 @@ def fetch_recent_topic_progress(
             "task_id": task["id"],
             "attempts": 0,
             "correct": 0,
+            "entries": [],
         }
 
     for row in entries:
@@ -65,8 +107,10 @@ def fetch_recent_topic_progress(
                 "task_id": row.get("task_id"),
                 "attempts": 0,
                 "correct": 0,
+                "entries": [],
             }
         stats[key]["attempts"] += 1
+        stats[key]["entries"].append(row)
         if row.get("is_correct") is True:
             stats[key]["correct"] += 1
         elif row.get("is_correct") is None and row.get("score") is not None:
@@ -77,9 +121,13 @@ def fetch_recent_topic_progress(
     for item in stats.values():
         attempts = item["attempts"]
         correct = item["correct"]
-        rate = (correct / attempts * 100.0) if attempts else 0.0
         if attempts == 0:
-            rate = 50.0
+            # New / unpracticed topics start simplified — not mid-band.
+            rate = 0.0
+            difficulty: DifficultyLevel = "simplified"
+        else:
+            rate, _, _ = weighted_success_rate(item["entries"], decay=decay)
+            difficulty = difficulty_from_success_rate(rate)
         progress.append(
             TopicProgress(
                 subject=item["subject"],
@@ -88,7 +136,7 @@ def fetch_recent_topic_progress(
                 attempts=attempts,
                 correct=correct,
                 success_rate=round(rate, 1),
-                recommended_difficulty=difficulty_from_success_rate(rate),
+                recommended_difficulty=difficulty,
             )
         )
     return sorted(progress, key=lambda p: (p.subject.lower(), p.topic.lower()))
