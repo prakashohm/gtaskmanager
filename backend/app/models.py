@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -32,6 +32,18 @@ class TopicProgress(BaseModel):
     correct: int = 0
     success_rate: float = Field(0.0, ge=0.0, le=100.0)
     recommended_difficulty: DifficultyLevel = "maintained"
+    difficulty_pin: Optional[DifficultyLevel] = Field(
+        None, description="Parent-set manual override; when set, this always wins."
+    )
+    trend: Optional[Literal["improving", "declining", "steady"]] = Field(
+        None, description="Recent-window rate vs. full-window rate; None if too little recent data."
+    )
+    trend_delta: Optional[float] = Field(
+        None, description="Percentage-point delta driving `trend` (recent minus full-window rate)."
+    )
+    rationale: str = Field(
+        "", description="Short human-readable explanation of why recommended_difficulty is what it is."
+    )
 
 
 class GenerateWorksheetRequest(BaseModel):
@@ -62,3 +74,21 @@ class GenerateWorksheetResult(BaseModel):
     skipped_existing: bool = False
     topic_progress: List[TopicProgress]
     questions: List[GeneratedQuestion]
+
+
+class SetDifficultyPinRequest(BaseModel):
+    student_id: str
+    difficulty_pin: Optional[DifficultyLevel] = Field(
+        None, description="Set to null/omit to clear the pin and return to fully adaptive."
+    )
+
+
+class WorksheetEntryRecord(BaseModel):
+    subject: str
+    topic: str
+    question_text: Optional[str] = None
+    student_answer: Optional[str] = None
+    expected_answer: Optional[str] = None
+    is_correct: Optional[bool] = None
+    entry_date: date
+    completed_at: Optional[datetime] = None

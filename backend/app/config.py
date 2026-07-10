@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import List, Literal
+from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,11 +13,8 @@ class Settings(BaseSettings):
     supabase_service_role_key: str
     student_id: str = "guhan"
 
-    llm_provider: Literal["openai", "gemini"] = "gemini"
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-5"
 
     questions_per_topic: int = 5
     target_questions_per_subject: int = 10
@@ -27,6 +24,14 @@ class Settings(BaseSettings):
     adaptive_question_counts: bool = True
     llm_retry_on_duplicates: int = 1
     prompt_version: str = "iep-v2-adaptive"
+
+    # Percentage points a success rate must clear a 60%/80% threshold by before
+    # the adaptive difficulty is allowed to change (avoids daily flip-flopping
+    # for topics hovering right at a boundary).
+    difficulty_hysteresis_margin: float = 5.0
+    # Size of the "recent" sub-window (in days) used to compute trend vs. the
+    # full progress_lookback_days window.
+    trend_window_days: int = 3
 
     api_host: str = "0.0.0.0"
     api_port: int = 8001

@@ -2,14 +2,24 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.db.supabase_client import check_supabase_connection, supabase_host
-from app.models import GenerateWorksheetRequest, GenerateWorksheetResult, TopicProgress
+from app.models import (
+    GenerateWorksheetRequest,
+    GenerateWorksheetResult,
+    SetDifficultyPinRequest,
+    TopicProgress,
+    WorksheetEntryRecord,
+)
 from app.services.generator import generate_and_store_daily_worksheet
-from app.services.progress import fetch_recent_topic_progress
+from app.services.progress import (
+    fetch_recent_topic_progress,
+    fetch_recent_worksheet_entries,
+    set_topic_difficulty_pin,
+)
 
 app = FastAPI(
     title="Guhan IEP Worksheet Generator",
@@ -30,14 +40,12 @@ app.add_middleware(
 @app.get("/health")
 def health() -> dict:
     s = get_settings()
-    llm_ready = bool(
-        (s.llm_provider == "gemini" and s.gemini_api_key)
-        or (s.llm_provider == "openai" and s.openai_api_key)
-    )
+    llm_ready = bool(s.anthropic_api_key)
     supabase_ok, supabase_error = check_supabase_connection()
     return {
         "status": "ok" if supabase_ok and llm_ready else "degraded",
-        "llm_provider": s.llm_provider,
+        "llm_provider": "claude",
+        "llm_model": s.anthropic_model,
         "llm_ready": llm_ready,
         "supabase_host": supabase_host(s.supabase_url),
         "supabase_ok": supabase_ok,
@@ -47,14 +55,10 @@ def health() -> dict:
 
 def _ensure_llm_configured() -> None:
     s = get_settings()
-    if s.llm_provider == "gemini" and not s.gemini_api_key:
+    if not s.anthropic_api_key:
         raise RuntimeError(
-            "GEMINI_API_KEY is not set. Add it to backend/.env from "
-            "https://aistudio.google.com/apikey then restart the backend."
-        )
-    if s.llm_provider == "openai" and not s.openai_api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY is not set. Add it to backend/.env or set LLM_PROVIDER=gemini."
+            "ANTHROPIC_API_KEY is not set. Add it to backend/.env from "
+            "https://console.anthropic.com/settings/keys then restart the backend."
         )
 
 
@@ -64,6 +68,41 @@ def get_progress(
 ) -> List[TopicProgress]:
     try:
         return fetch_recent_topic_progress(student_id=student_id, lookback_days=lookback_days)
+    except Exception as exc:
+        detail = str(exc)
+        if "PGRST125" in detail or "Invalid path" in detail:
+            detail = (
+                "Supabase URL is misconfigured on the server. "
+                "Set SUPABASE_URL to https://YOUR_PROJECT.supabase.co (no /rest/v1)."
+            )
+        raise HTTPException(status_code=500, detail=detail) from exc
+
+
+@app.post("/topics/{task_id}/difficulty-pin")
+def set_difficulty_pin(task_id: str, body: SetDifficultyPinRequest) -> dict:
+    try:
+        set_topic_difficulty_pin(task_id, body.difficulty_pin)
+        return {"task_id": task_id, "difficulty_pin": body.difficulty_pin}
+    except Exception as exc:
+        detail = str(exc)
+        if "difficulty_pin" in detail.lower():
+            detail = (
+                "Could not save the pin — is backend/sql/003_difficulty_controls.sql "
+                "applied in Supabase yet? Details: " + detail
+            )
+        raise HTTPException(status_code=500, detail=detail) from exc
+
+
+@app.get("/entries/{student_id}", response_model=List[WorksheetEntryRecord])
+def get_entries(
+    student_id: str,
+    subject: Optional[str] = None,
+    topic: Optional[str] = None,
+    limit: int = Query(20, ge=1, le=100),
+) -> List[WorksheetEntryRecord]:
+    try:
+        rows = fetch_recent_worksheet_entries(student_id, subject=subject, topic=topic, limit=limit)
+        return [WorksheetEntryRecord.model_validate(row) for row in rows]
     except Exception as exc:
         detail = str(exc)
         if "PGRST125" in detail or "Invalid path" in detail:

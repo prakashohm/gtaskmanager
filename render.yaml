@@ -14,11 +14,9 @@ services:
         sync: false
       - key: STUDENT_ID
         value: guhan
-      - key: LLM_PROVIDER
-        value: gemini
-      - key: GEMINI_API_KEY
+      - key: ANTHROPIC_API_KEY
         sync: false
-      - key: GEMINI_MODEL
-        value: gemini-2.5-flash
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-5
       - key: CORS_ORIGINS
         value: https://prakashohm.github.io,http://localhost:8000,http://127.0.0.1:8000

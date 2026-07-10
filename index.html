@@ -2640,6 +2640,106 @@
             padding-left: 0.15rem;
             line-height: 1.35;
         }
+
+        /* --- Worksheets redesign: subject iconography, player polish, parent insights --- */
+        .worksheet-subject-head-main {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .worksheet-subject-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 2.1rem;
+            height: 2.1rem;
+            border-radius: 11px;
+            font-size: 1.1rem;
+        }
+        .student-worksheet-card {
+            border-left: 4px solid var(--ws-subject-color, var(--primary));
+        }
+        .student-worksheet-card.is-done {
+            box-shadow: 0 8px 22px rgba(5, 150, 105, 0.12);
+        }
+        .worksheet-player-top {
+            padding: 0.6rem 0.75rem;
+            border-radius: 14px;
+            background: linear-gradient(120deg, rgba(13, 148, 136, 0.12), rgba(249, 115, 22, 0.07));
+        }
+        .worksheet-work-feedback.ok {
+            animation: wsFeedbackPop 0.35s ease;
+        }
+        @keyframes wsFeedbackPop {
+            from { transform: scale(0.95); opacity: 0.5; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Parent — adaptive insights (trend chip, pin control, rationale, audit) */
+        .parent-ws-topic-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+        }
+        .parent-ws-pin-select {
+            padding: 0.3rem 0.5rem;
+            border-radius: 8px;
+            border: 1px solid rgba(13, 148, 136, 0.25);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #fff;
+            color: var(--text);
+        }
+        .parent-ws-trend-chip {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.18rem 0.5rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .parent-ws-trend-chip.improving { background: rgba(5, 150, 105, 0.14); color: #065f46; }
+        .parent-ws-trend-chip.declining { background: rgba(239, 68, 68, 0.14); color: #991b1b; }
+        .parent-ws-trend-chip.steady { background: rgba(100, 116, 139, 0.14); color: var(--text-muted); }
+        .parent-ws-rationale {
+            margin: 0.2rem 0 0;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .ws-pin-badge { margin-left: 0.3rem; }
+        .parent-ws-audit {
+            margin-top: 0.55rem;
+        }
+        .parent-ws-audit summary {
+            cursor: pointer;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            list-style: none;
+        }
+        .parent-ws-audit summary::-webkit-details-marker { display: none; }
+        .parent-ws-audit summary::before { content: '▸ '; }
+        .parent-ws-audit[open] summary::before { content: '▾ '; }
+        .parent-ws-audit-list {
+            margin: 0.45rem 0 0;
+            display: grid;
+            gap: 0.4rem;
+        }
+        .parent-ws-audit-row {
+            padding: 0.5rem 0.6rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            font-size: 0.76rem;
+        }
+        .parent-ws-audit-row.correct { border-color: rgba(5, 150, 105, 0.28); }
+        .parent-ws-audit-row.incorrect { border-color: rgba(239, 68, 68, 0.28); }
+        .parent-ws-audit-q { margin: 0 0 0.2rem; color: var(--text); font-weight: 600; }
+        .parent-ws-audit-a { margin: 0; color: var(--text-muted); }
+        .parent-ws-section-gap { margin-top: 1rem; }
     </style>
 </head>
 <body id="bodyTag">
@@ -2931,11 +3031,11 @@
                                 </div>
                                 <div>
                                     <p class="section-kicker">Parent</p>
-                                    <h3 class="section-title" style="margin:0.12rem 0 0;">Generate worksheets</h3>
+                                    <h3 class="section-title" style="margin:0.12rem 0 0;">Generate &amp; override</h3>
                                 </div>
                             </div>
                             <div class="section-body">
-                                <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Replace today&rsquo;s worksheet questions (does not add extra). Pick a complexity for <strong>this generation only</strong> — future sheets adapt from how your child performs (recent success, weighted toward newer attempts).</p>
+                                <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Replace today&rsquo;s worksheet questions (does not add extra). Pick a complexity for <strong>this generation only</strong> — a one-time swap, separate from pinning a topic&rsquo;s difficulty in Adaptive insights below.</p>
                                 <div class="parent-ws-controls">
                                     <label for="parentRegenerateDifficulty">
                                         Question complexity for this sheet
@@ -2949,9 +3049,21 @@
                                 </div>
                                 <button type="button" class="btn btn-primary" onclick="parentGenerateWorksheets()">Regenerate today&rsquo;s questions</button>
                                 <p id="worksheetGenStatus" class="rh-sync-hint" style="margin-top:0.65rem;"></p>
+                            </div>
+                        </div>
+                        <div class="section section--has-head section--violet parent-ws-section-gap">
+                            <div class="section-head">
+                                <div class="section-head-icon" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+                                </div>
+                                <div>
+                                    <p class="section-kicker">Parent</p>
+                                    <h3 class="section-title" style="margin:0.12rem 0 0;">Adaptive insights</h3>
+                                </div>
+                            </div>
+                            <div class="section-body">
                                 <div class="parent-ws-progress">
-                                    <p class="parent-ws-progress-title">Adaptive progress</p>
-                                    <p class="parent-ws-progress-hint">Success rate over the last week (newer answers count more). This drives tomorrow&rsquo;s difficulty and question mix.</p>
+                                    <p class="parent-ws-progress-hint">Success rate over the last week (newer answers count more) drives difficulty — each topic holds steady near a threshold until the change is clear, so it won&rsquo;t flip day to day. Pin a topic to override the adaptive pick.</p>
                                     <div id="parentWorksheetProgress" aria-live="polite">
                                         <p class="worksheet-empty" style="margin:0;">Loading progress…</p>
                                     </div>
@@ -5966,6 +6078,32 @@
         bonusEl.textContent = 'Finish the main sheet, then chase bonus rounds — every extra sheet drops another dollar into your Weekly Pot! 💵';
     }
 
+    const WORKSHEET_SUBJECT_PALETTE = [
+        { emoji: '🔢', color: '#0d9488', soft: 'rgba(13,148,136,0.14)' },
+        { emoji: '📖', color: '#6366f1', soft: 'rgba(99,102,241,0.14)' },
+        { emoji: '🔬', color: '#f97316', soft: 'rgba(249,115,22,0.14)' },
+        { emoji: '✍️', color: '#0891b2', soft: 'rgba(8,145,178,0.14)' },
+        { emoji: '🌎', color: '#059669', soft: 'rgba(5,150,105,0.14)' }
+    ];
+
+    function worksheetSubjectVisual(subject) {
+        const key = String(subject || '').toLowerCase();
+        if (key.indexOf('math') !== -1) return WORKSHEET_SUBJECT_PALETTE[0];
+        if (key.indexOf('read') !== -1) return WORKSHEET_SUBJECT_PALETTE[1];
+        if (key.indexOf('scien') !== -1) return WORKSHEET_SUBJECT_PALETTE[2];
+        if (key.indexOf('writ') !== -1 || key.indexOf('spell') !== -1) return WORKSHEET_SUBJECT_PALETTE[3];
+        if (key.indexOf('social') !== -1 || key.indexOf('geog') !== -1 || key.indexOf('histor') !== -1) return WORKSHEET_SUBJECT_PALETTE[4];
+        // Unknown subject name: deterministic pick so it's stable across renders.
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+        return WORKSHEET_SUBJECT_PALETTE[hash % WORKSHEET_SUBJECT_PALETTE.length];
+    }
+
+    function worksheetSubjectIconHtml(subject) {
+        const v = worksheetSubjectVisual(subject);
+        return '<span class="worksheet-subject-icon" style="background:' + v.soft + ';color:' + v.color + ';" aria-hidden="true">' + v.emoji + '</span>';
+    }
+
     function renderStudentWorksheetPanel() {
         updateWorksheetRewardBanner();
         const list = document.getElementById('studentWorksheetList');
@@ -5998,13 +6136,16 @@
             const set1Done = getWorksheetProgressForSubjectSet(subject, 1).complete;
             const choreDone = isWorksheetChoreDone(subject);
             const bonusAvail = set1Done && choreDone;
+            const visual = worksheetSubjectVisual(subject);
             if (!qs.length) {
-                return '<article class="student-worksheet-card"><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4><p class="worksheet-empty">Preparing your worksheet — open again in a moment.</p></article>';
+                return '<article class="student-worksheet-card" style="--ws-subject-color:' + visual.color + ';">' +
+                    '<div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4></div>' +
+                    '<p class="worksheet-empty">Preparing your worksheet — open again in a moment.</p></article>';
             }
             const btnLabel = !set1Done ? 'Work on worksheet' : (bonusAvail ? 'Bonus worksheet available' : (prog.complete ? 'Review worksheet' : 'Work on worksheet'));
-            return '<article class="student-worksheet-card' + (set1Done ? ' is-done' : '') + (bonusAvail ? ' has-bonus' : '') + '">' +
-                '<div class="worksheet-subject-head"><div><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4>' +
-                '<p class="worksheet-subject-meta">' + prog.mastered + ' of ' + prog.total + ' questions correct' + skipNote + '</p></div>' +
+            return '<article class="student-worksheet-card' + (set1Done ? ' is-done' : '') + (bonusAvail ? ' has-bonus' : '') + '" style="--ws-subject-color:' + visual.color + ';">' +
+                '<div class="worksheet-subject-head"><div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<div><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4>' +
+                '<p class="worksheet-subject-meta">' + prog.mastered + ' of ' + prog.total + ' questions correct' + skipNote + '</p></div></div>' +
                 (bonusAvail ? '<span class="worksheet-bonus-badge">Bonus +$' + (getCfg().worksheetBonusAmount != null ? getCfg().worksheetBonusAmount : 2) + '</span>' :
                     (set1Done ? '<span class="worksheet-chore-badge done">Ready ✓</span>' : '<span class="worksheet-chore-badge">Keep going</span>')) +
                 '</div><div class="student-worksheet-progress" aria-hidden="true"><div class="student-worksheet-progress-fill" style="width:' + pct + '%"></div></div>' +
@@ -6288,6 +6429,7 @@
                 renderWorksheetPlayer();
                 renderStudentWorksheetPanel();
                 renderUI();
+                launchConfettiBurst();
                 showToast('All worksheet questions correct! Mark the chore done when ready.', 'level-up');
             } else if (getWorksheetProgressForSubject(activeWorksheetSubject).complete) {
                 renderWorksheetPlayer();
@@ -6337,10 +6479,20 @@
         return Object.values(bySubject).sort(function(a, b) { return a.subject.localeCompare(b.subject); });
     }
 
-    function difficultyPillHtml(level) {
+    function difficultyPillHtml(level, isPinned) {
         const lvl = String(level || 'maintained').toLowerCase();
         const label = lvl === 'simplified' ? 'Simplified' : (lvl === 'increased' ? 'Increased' : 'Maintained');
-        return '<span class="worksheet-difficulty-pill ' + escapeHtml(lvl) + '">' + label + '</span>';
+        return '<span class="worksheet-difficulty-pill ' + escapeHtml(lvl) + '">' + label +
+            (isPinned ? '<span class="ws-pin-badge" title="Pinned by parent">📌</span>' : '') + '</span>';
+    }
+
+    function renderTrendChipHtml(trend, delta) {
+        if (!trend) return '';
+        const arrow = trend === 'improving' ? '▲' : (trend === 'declining' ? '▼' : '—');
+        const deltaText = (typeof delta === 'number' && Math.abs(delta) >= 0.5)
+            ? (' ' + (delta > 0 ? '+' : '') + Math.round(delta) + 'pt')
+            : '';
+        return '<span class="parent-ws-trend-chip ' + escapeHtml(trend) + '">' + arrow + ' ' + escapeHtml(trend) + deltaText + '</span>';
     }
 
     function normalizeWorksheetQuestionKey(text) {
@@ -6370,6 +6522,75 @@
         }
     }
 
+    const worksheetAuditCache = {};
+
+    async function fetchWorksheetAuditEntries(subject, topic) {
+        const key = subject + '::' + topic;
+        if (worksheetAuditCache[key]) return worksheetAuditCache[key];
+        try {
+            const url = WORKSHEET_API_URL + '/entries/' + encodeURIComponent(WORKSHEET_STUDENT_ID) +
+                '?subject=' + encodeURIComponent(subject) + '&topic=' + encodeURIComponent(topic) + '&limit=8';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(await res.text() || res.statusText);
+            const rows = await res.json();
+            worksheetAuditCache[key] = rows;
+            return rows;
+        } catch (e) {
+            console.warn('Worksheet audit load failed:', e);
+            return null;
+        }
+    }
+
+    function renderWorksheetAuditRows(rows) {
+        if (!rows) return '<p class="worksheet-empty" style="margin:0;">Could not load recent answers.</p>';
+        if (!rows.length) return '<p class="worksheet-empty" style="margin:0;">No answered questions yet.</p>';
+        return rows.map(function(r) {
+            const status = r.is_correct === true ? 'correct' : (r.is_correct === false ? 'incorrect' : '');
+            const mark = r.is_correct === true ? '✓' : (r.is_correct === false ? '✗' : '?');
+            return '<div class="parent-ws-audit-row ' + status + '">' +
+                '<p class="parent-ws-audit-q">' + mark + ' ' + escapeHtml(r.question_text || '(question text unavailable)') + '</p>' +
+                '<p class="parent-ws-audit-a">Answered: ' + escapeHtml(r.student_answer || '—') +
+                (r.is_correct === false ? ' · Expected: ' + escapeHtml(r.expected_answer || '—') : '') + '</p>' +
+                '</div>';
+        }).join('');
+    }
+
+    window.onWorksheetAuditToggle = async function(detailsEl) {
+        if (!detailsEl.open) return;
+        const listEl = detailsEl.querySelector('.parent-ws-audit-list');
+        if (!listEl || listEl.dataset.loaded === '1') return;
+        listEl.innerHTML = '<p class="worksheet-empty" style="margin:0;">Loading…</p>';
+        const rows = await fetchWorksheetAuditEntries(detailsEl.dataset.subject, detailsEl.dataset.topic);
+        listEl.dataset.loaded = '1';
+        listEl.innerHTML = renderWorksheetAuditRows(rows);
+    };
+
+    window.setTopicDifficultyPin = async function(selectEl) {
+        const taskId = selectEl.dataset.taskId;
+        if (!taskId) {
+            showToast('Cannot pin this topic yet — no linked task.', 'warning');
+            return;
+        }
+        const value = selectEl.value || null;
+        const previousOption = Array.from(selectEl.options).find(function(o) { return o.defaultSelected; });
+        selectEl.disabled = true;
+        try {
+            const res = await fetch(WORKSHEET_API_URL + '/topics/' + encodeURIComponent(taskId) + '/difficulty-pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_id: WORKSHEET_STUDENT_ID, difficulty_pin: value })
+            });
+            if (!res.ok) throw new Error(await res.text() || res.statusText);
+            showToast(value ? ('Pinned to ' + value + '.') : 'Pin cleared — back to auto.', 'success');
+            await refreshParentWorksheetInsights();
+        } catch (e) {
+            console.warn('Set difficulty pin failed:', e);
+            showToast('Could not save the pin. ' + (e.message || ''), 'warning');
+            if (previousOption) selectEl.value = previousOption.value;
+            selectEl.disabled = false;
+        }
+    };
+
     function renderParentWorksheetProgress(progressRows) {
         const el = document.getElementById('parentWorksheetProgress');
         if (!el) return;
@@ -6383,16 +6604,33 @@
         }
         el.innerHTML = progressRows.map(function(tp) {
             const attempts = tp.attempts || 0;
-            const rate = attempts ? (tp.success_rate + '%') : 'New topic';
             const meta = attempts
                 ? (tp.correct + ' correct of ' + attempts + ' recent attempts · weighted success ' + tp.success_rate + '%')
                 : 'No attempts yet — next sheet starts simplified';
+            const subjectAttr = escapeHtml(tp.subject).replace(/"/g, '&quot;');
+            const topicAttr = escapeHtml(tp.topic).replace(/"/g, '&quot;');
+            const pinValue = tp.difficulty_pin || '';
+            const pinControl = tp.task_id
+                ? '<div class="parent-ws-topic-controls"><label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:700;color:var(--text-muted);">Pin difficulty' +
+                  '<select class="parent-ws-pin-select" data-task-id="' + escapeHtml(tp.task_id) + '" onchange="setTopicDifficultyPin(this)">' +
+                  '<option value=""' + (pinValue === '' ? ' selected' : '') + '>Auto</option>' +
+                  '<option value="simplified"' + (pinValue === 'simplified' ? ' selected' : '') + '>Simplified</option>' +
+                  '<option value="maintained"' + (pinValue === 'maintained' ? ' selected' : '') + '>Maintained</option>' +
+                  '<option value="increased"' + (pinValue === 'increased' ? ' selected' : '') + '>Increased</option>' +
+                  '</select></label></div>'
+                : '';
             return '<div class="parent-ws-topic-row">' +
                 '<div class="parent-ws-topic-head">' +
                 '<span class="parent-ws-topic-name">' + escapeHtml(tp.subject) + ' · ' + escapeHtml(tp.topic) + '</span>' +
-                difficultyPillHtml(tp.recommended_difficulty) +
+                '<span>' + difficultyPillHtml(tp.recommended_difficulty, !!tp.difficulty_pin) + ' ' + renderTrendChipHtml(tp.trend, tp.trend_delta) + '</span>' +
                 '</div>' +
                 '<p class="parent-ws-topic-meta">' + escapeHtml(meta) + '</p>' +
+                (tp.rationale ? '<p class="parent-ws-rationale">' + escapeHtml(tp.rationale) + '</p>' : '') +
+                pinControl +
+                '<details class="parent-ws-audit" data-subject="' + subjectAttr + '" data-topic="' + topicAttr + '" ontoggle="onWorksheetAuditToggle(this)">' +
+                '<summary>Recent answers</summary>' +
+                '<div class="parent-ws-audit-list"><p class="worksheet-empty" style="margin:0;">Tap to load…</p></div>' +
+                '</details>' +
                 '</div>';
         }).join('');
     }
@@ -6480,9 +6718,9 @@
             if (statusEl) statusEl.textContent = 'Failed: ' + msg;
             if (/failed to fetch/i.test(msg)) {
                 showToast('Cannot reach the worksheet API at ' + WORKSHEET_API_URL + '. Is the backend running?', 'warning');
-            } else if (/503|unavailable|high demand/i.test(msg)) {
-                showToast('Gemini is busy — wait 30–60 seconds and try Regenerate again.', 'warning');
-            } else if (/quota|429|GEMINI_API_KEY|OPENAI_API_KEY/i.test(msg)) {
+            } else if (/503|529|overloaded|unavailable|high demand/i.test(msg)) {
+                showToast('Claude is busy — wait 30–60 seconds and try Regenerate again.', 'warning');
+            } else if (/quota|429|rate limit|ANTHROPIC_API_KEY/i.test(msg)) {
                 showToast(msg, 'warning');
             } else {
                 showToast('Worksheet generation failed: ' + msg, 'warning');

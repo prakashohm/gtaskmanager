@@ -304,6 +304,10 @@ def generate_and_store_daily_worksheet(
         req = req.model_copy(update={"subjects": needing})
 
     if req.difficulty_override:
+        # One-shot, applies to every topic in this call only and is never persisted —
+        # independent of a topic's persisted `difficulty_pin` (set via
+        # POST /topics/{task_id}/difficulty-pin), which the caller already baked into
+        # `recommended_difficulty` above. This override simply wins for this one call.
         progress = [
             tp.model_copy(update={"recommended_difficulty": req.difficulty_override})
             for tp in progress

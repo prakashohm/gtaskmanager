@@ -10,7 +10,12 @@ from app.services.dedup import (
     recent_question_hashes,
 )
 from app.services.math_templates import generate_math_questions, supports_math_topic
-from app.services.progress import difficulty_from_success_rate, weighted_success_rate
+from app.services.progress import (
+    apply_hysteresis,
+    difficulty_from_success_rate,
+    resolve_topic_difficulty,
+    weighted_success_rate,
+)
 from app.services.question_counts import compute_topic_question_counts
 from app.services.generator import subjects_needing_generation
 
@@ -149,6 +154,40 @@ def test_math_templates_day_stable():
     )
     assert [q.question_text for q in a] == [q.question_text for q in b]
     assert [q.question_text for q in a] != [q.question_text for q in c]
+
+
+def test_hysteresis_holds_within_margin():
+    # 62% clears the raw 60% threshold but not the 65% hysteresis bar, so a
+    # topic currently at "simplified" should stay there rather than flip daily.
+    difficulty, changed, rationale = apply_hysteresis("maintained", "simplified", 62.0, margin=5.0)
+    assert difficulty == "simplified"
+    assert changed is False
+    assert "short" in rationale.lower()
+
+
+def test_hysteresis_releases_past_margin():
+    difficulty, changed, rationale = apply_hysteresis("maintained", "simplified", 66.0, margin=5.0)
+    assert difficulty == "maintained"
+    assert changed is True
+    assert "moved" in rationale.lower()
+
+
+def test_hysteresis_first_run_has_no_prior_state():
+    difficulty, changed, rationale = apply_hysteresis("increased", None, 90.0, margin=5.0)
+    assert difficulty == "increased"
+    assert changed is True
+    assert rationale == ""
+
+
+def test_pin_overrides_recommendation():
+    # A weak recent rate would normally hold/return "simplified", but a parent
+    # pin to "increased" must win outright and skip hysteresis entirely.
+    difficulty, changed, rationale = resolve_topic_difficulty(
+        "simplified", "increased", 40.0, pin="increased", margin=5.0
+    )
+    assert difficulty == "increased"
+    assert changed is False
+    assert rationale == "Pinned by parent."
 
 
 def test_subjects_needing_generation():
