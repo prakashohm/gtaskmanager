@@ -1607,6 +1607,29 @@
         #calendarBlockTimeWrap { margin-bottom: 0.75rem; }
         .modal-hint { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 0.75rem; line-height: 1.4; }
         .modal-time-muted { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .calendar-quick-picks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin: 0 0 0.55rem;
+        }
+        .calendar-quick-pick {
+            border: 1px solid rgba(13, 148, 136, 0.28);
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--text);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-quick-pick:hover,
+        .calendar-quick-pick.is-selected {
+            background: rgba(13, 148, 136, 0.14);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
         #pastChoresList.history-list { max-height: min(40vh, 280px); margin-bottom: 1rem; }
         
         .toggle-bar {
@@ -2679,9 +2702,43 @@
             display: flex;
             gap: 0.5rem;
             align-items: stretch;
+            margin-top: 0.65rem;
         }
         .worksheet-tutor-input-row .modal-input { flex: 1; margin: 0; }
         .worksheet-tutor-input-row .btn { flex-shrink: 0; }
+        .worksheet-answer-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+            margin-top: 0.85rem;
+        }
+        .worksheet-answer-row .modal-input { flex: 1; margin: 0; font-size: 1.05rem; font-weight: 700; }
+        .worksheet-answer-row .btn { flex-shrink: 0; }
+        .worksheet-help-toggle {
+            margin-top: 0.55rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            background: none;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .worksheet-reward-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.55rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(5, 150, 105, 0.12);
+            color: var(--success);
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .worksheet-tutor-panel[hidden] { display: none !important; }
         .ws-gen-card {
             border-color: rgba(13, 148, 136, 0.35);
             background: rgba(240, 253, 250, 0.65);
@@ -3117,7 +3174,7 @@
                     </div>
                 </div>
                 <div class="section-body">
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Hour-by-hour focus plan: check off each block when done. <strong>By time</strong> shows the grid; <strong>Activities</strong> is a list on phones.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Tap any time to change it — move the hours, rename the activity, or free the slot. Check ✓ when a block is done.</p>
                 <div class="calendar-wrap">
                     <div class="calendar-toolbar" id="calendarToolbar" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.65rem;flex-wrap:wrap;">
                         <div class="calendar-view-switch" role="tablist" aria-label="How to view the schedule">
@@ -3132,7 +3189,7 @@
                         <div class="calendar-hour-grid" id="calendarHourGrid"></div>
                         <div class="calendar-cards-list" id="calendarCardsList"></div>
                     </div>
-                    <p class="calendar-add-hint" id="calendarAddHint">Click an empty hour to add a block, or a filled block to edit.</p>
+                    <p class="calendar-add-hint" id="calendarAddHint">Tap any slot to change the time or activity.</p>
                 </div>
                 </div>
             </div>
@@ -3252,10 +3309,18 @@
                                 <div class="worksheet-player-card">
                                     <p id="worksheetPlayerTopic" class="worksheet-work-topic"></p>
                                     <p id="worksheetPlayerQuestion" class="worksheet-work-question"></p>
-                                    <div id="worksheetTutorThread" class="worksheet-tutor-thread" aria-live="polite"></div>
-                                    <div class="worksheet-tutor-input-row">
-                                        <input type="text" id="worksheetTutorInput" class="modal-input" aria-label="Your message to the tutor" placeholder="Type your answer, your work, or ask a question…" onkeydown="if(event.key==='Enter')sendTutorMessage()">
-                                        <button type="button" class="btn btn-primary" id="worksheetTutorSendBtn" onclick="sendTutorMessage()">Send</button>
+                                    <div id="worksheetRewardChip" class="worksheet-reward-chip" hidden>+$0.25 to Weekly Pot per correct answer</div>
+                                    <div class="worksheet-answer-row" id="worksheetAnswerRow">
+                                        <input type="text" id="worksheetAnswerInput" class="modal-input" inputmode="decimal" autocomplete="off" aria-label="Your answer" placeholder="Type your answer…" onkeydown="if(event.key==='Enter')checkWorksheetAnswer()">
+                                        <button type="button" class="btn btn-primary" id="worksheetAnswerCheckBtn" onclick="checkWorksheetAnswer()">Check</button>
+                                    </div>
+                                    <button type="button" class="worksheet-help-toggle" id="worksheetHelpToggle" onclick="toggleWorksheetTutorHelp()">Stuck? Ask the tutor</button>
+                                    <div id="worksheetTutorPanel" class="worksheet-tutor-panel" hidden>
+                                        <div id="worksheetTutorThread" class="worksheet-tutor-thread" aria-live="polite"></div>
+                                        <div class="worksheet-tutor-input-row">
+                                            <input type="text" id="worksheetTutorInput" class="modal-input" aria-label="Your message to the tutor" placeholder="Ask a question or show your work…" onkeydown="if(event.key==='Enter')sendTutorMessage()">
+                                            <button type="button" class="btn btn-primary" id="worksheetTutorSendBtn" onclick="sendTutorMessage()">Send</button>
+                                        </div>
                                     </div>
                                     <div class="worksheet-player-actions">
                                         <button type="button" class="btn btn-ws-skip" id="worksheetPlayerSkipBtn" onclick="skipWorksheetQuestion()">Skip for now</button>
@@ -3525,32 +3590,32 @@
 </div>
 
 <div id="calendarBlockModal" class="modal-overlay modal-calendar-block" onclick="if(event.target===this)closeCalendarBlockModal()">
-    <div class="modal modal--teal" onclick="event.stopPropagation()" style="max-width:380px">
+    <div class="modal modal--teal" onclick="event.stopPropagation()" style="max-width:400px">
         <div class="modal-head">
             <div class="modal-head-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/></svg>
             </div>
             <div>
-                <p class="modal-kicker">Schedule</p>
-                <h3 class="modal-title" id="calendarBlockModalTitle">Block time</h3>
+                <p class="modal-kicker">Your schedule</p>
+                <h3 class="modal-title" id="calendarBlockModalTitle">Change this time</h3>
             </div>
         </div>
         <div class="modal-body">
             <div id="calendarBlockTimeWrap">
-                <div id="calendarBlockTimeEdit" class="modal-time-muted" style="display:none;">From <span id="calendarBlockStartHour"></span> to <span id="calendarBlockEndHour"></span></div>
-                <div id="calendarBlockTimeAdd" style="display:none;">
+                <div id="calendarBlockTimeAdd">
                     <label class="modal-label" for="calendarBlockStartSelect">Start</label>
                     <select id="calendarBlockStartSelect" class="modal-select" onchange="updateCalendarBlockEndOptions()"></select>
                     <label class="modal-label" for="calendarBlockEndSelect">End</label>
                     <select id="calendarBlockEndSelect" class="modal-select"></select>
-                    <p class="modal-hint">Select end time to span multiple slots</p>
+                    <p class="modal-hint" id="calendarBlockTimeHint">Change the hours if you want this activity somewhere else.</p>
                 </div>
             </div>
             <label class="modal-label" for="calendarBlockText">What are you doing?</label>
-            <textarea id="calendarBlockText" class="modal-input" placeholder="e.g. Math class, Homework, Soccer practice..." rows="3"></textarea>
+            <div id="calendarQuickPicks" class="calendar-quick-picks" role="group" aria-label="Quick activity picks"></div>
+            <textarea id="calendarBlockText" class="modal-input" placeholder="e.g. Homework, Soccer, Free time…" rows="2"></textarea>
             <div class="calendar-modal-actions modal-actions">
-                <button type="button" class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save</button>
-                <button type="button" class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger);font-weight:700;border:1px solid rgba(239,68,68,0.25);" id="calendarBlockDeleteBtn">Delete</button>
+                <button type="button" class="btn btn-primary" onclick="saveCalendarBlock()" style="flex:1">Save change</button>
+                <button type="button" class="btn" onclick="deleteCalendarBlock()" style="background:var(--danger-soft);color:var(--danger);font-weight:700;border:1px solid rgba(239,68,68,0.25);" id="calendarBlockDeleteBtn">Clear slot</button>
                 <button type="button" class="btn btn-modal-cancel" onclick="closeCalendarBlockModal()">Cancel</button>
             </div>
         </div>
@@ -3636,7 +3701,8 @@
         dailyFailureAmount: 10,
         parentPassword: DEFAULT_PARENT_PASS,
         focusTemplateVersion: 0,
-        focusAlertsEnabled: false
+        focusAlertsEnabled: false,
+        worksheetSolveBonus: 0.25
     };
 
     /** Shared weekday focus timetable (school + hour-by-hour after school). */
@@ -3723,7 +3789,9 @@
         calendarBlocks: {},
         scheduleDone: {},
         worksheetMasteredToday: [],
-        worksheetSkippedToday: []
+        worksheetSkippedToday: [],
+        worksheetTutorHistory: {},
+        worksheetSession: null
     };
 
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
@@ -4396,7 +4464,7 @@
             actions += '<button type="button" class="btn btn-primary" onclick="toggleScheduleBlockDone(\'' + escapedDate + '\',\'' + escapedKey + '\')">' + (done ? 'Undo check-off' : 'Mark done') + '</button>';
             actions += '<button type="button" class="btn" onclick="setAppMainTab(\'schedule\'); setTimeout(scrollCalendarToNow, 80)">See timetable</button>';
             if ((current.preset || '') === 'homework' || /homework|worksheet/i.test(current.text || '')) {
-                actions += '<button type="button" class="btn" onclick="setAppMainTab(\'worksheets\')">Open worksheets</button>';
+                actions += '<button type="button" class="btn" onclick="continueWorksheetPractice()">Continue worksheet</button>';
             }
             if ((current.preset || '') === 'chore' || /chore/i.test(current.text || '')) {
                 actions += '<button type="button" class="btn" onclick="setAppMainTab(\'goals\')">Open chores</button>';
@@ -4454,9 +4522,13 @@
             scheduleDone: (loaded.scheduleDone && typeof loaded.scheduleDone === 'object') ? loaded.scheduleDone : {},
             weeklyLedger: Array.isArray(loaded.weeklyLedger) ? loaded.weeklyLedger : [],
             worksheetMasteredToday: Array.isArray(loaded.worksheetMasteredToday) ? loaded.worksheetMasteredToday : [],
-            worksheetSkippedToday: Array.isArray(loaded.worksheetSkippedToday) ? loaded.worksheetSkippedToday : []
+            worksheetSkippedToday: Array.isArray(loaded.worksheetSkippedToday) ? loaded.worksheetSkippedToday : [],
+            worksheetTutorHistory: (loaded.worksheetTutorHistory && typeof loaded.worksheetTutorHistory === 'object')
+                ? loaded.worksheetTutorHistory : {},
+            worksheetSession: loaded.worksheetSession || null
         };
         ensureFocusTimetableTemplate();
+        worksheetTutorHistory = state.worksheetTutorHistory || {};
         return true;
     }
 
@@ -4677,6 +4749,10 @@
             state.waivedToday = [];
             state.worksheetMasteredToday = [];
             state.worksheetSkippedToday = [];
+            state.worksheetTutorHistory = {};
+            state.worksheetSession = null;
+            worksheetTutorHistory = {};
+            worksheetTutorHelpOpen = false;
 
             const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
             let fridaySettledInLoop = false;
@@ -5130,8 +5206,11 @@
             calendarBlocks: {},
             scheduleDone: {},
             worksheetMasteredToday: [],
-            worksheetSkippedToday: []
+            worksheetSkippedToday: [],
+            worksheetTutorHistory: {},
+            worksheetSession: null
         };
+        worksheetTutorHistory = {};
         document.getElementById('resetDataModal').classList.remove('open');
         document.getElementById('completeModal').classList.remove('open');
         await saveAction();
@@ -5454,7 +5533,7 @@
                 html += '<button type="button" class="calendar-activity-card-main" style="border:0;background:transparent;padding:0;cursor:pointer;font:inherit;color:inherit" ' + onClick + '>';
                 html += '<div class="calendar-activity-meta">' + nowBadge + timeR + badge + '</div>';
                 html += '<div class="calendar-activity-title">' + text + '</div>';
-                html += '<span class="calendar-activity-tap-hint">Tap to edit or replace</span></button>';
+                html += '<span class="calendar-activity-tap-hint">Tap to change time or activity</span></button>';
                 html += doneBtn;
                 html += '</div></div>';
             }
@@ -5524,9 +5603,11 @@
         if (isReadonly) {
             hint.textContent = 'This day is in the past—view only.';
         } else if (mobileUI) {
-            hint.textContent = listMode ? 'Check off blocks when finished. Tap a card to edit. + Add activity uses the current time.' : 'Orange NOW row is the current half-hour. Check ✓ when a block is done; tap the row to edit.';
+            hint.textContent = listMode
+                ? 'Tap a card to change it. Check ✓ when done. + Add activity starts at the current time.'
+                : 'Tap any row to change the hours or activity. Orange NOW is the current half-hour.';
         } else {
-            hint.textContent = 'Orange NOW row is the current half-hour. Check ✓ when done; click a block to edit.';
+            hint.textContent = 'Tap any slot to change the hours or activity. Orange NOW is the current half-hour.';
         }
 
         const grid = document.getElementById('calendarHourGrid');
@@ -5580,6 +5661,102 @@
         renderCalendar();
     };
 
+    const CALENDAR_QUICK_PICKS = [
+        { label: 'Homework', text: 'Homework / worksheets', preset: 'homework' },
+        { label: 'Chores', text: 'Chores', preset: 'chore' },
+        { label: 'Screen', text: 'Screen time', preset: 'screen' },
+        { label: 'Free', text: 'Free time', preset: 'break' },
+        { label: 'Snack', text: 'Snack & decompress', preset: 'break' },
+        { label: 'Outside', text: 'Free / outdoor', preset: 'break' },
+        { label: 'Reading', text: 'Quiet focus or reading', preset: 'focus' },
+        { label: 'Dinner', text: 'Dinner / family', preset: 'break' }
+    ];
+
+    function leftoverRanges(origStart, origEnd, newStart, newEnd) {
+        if (newEnd <= origStart || newStart >= origEnd) {
+            return [{ start: origStart, end: origEnd }];
+        }
+        const left = [];
+        if (newStart > origStart) left.push({ start: origStart, end: newStart });
+        if (newEnd < origEnd) left.push({ start: newEnd, end: origEnd });
+        return left;
+    }
+
+    function fillCalendarTimeSelects(start, end) {
+        const startSelect = document.getElementById('calendarBlockStartSelect');
+        const endSelect = document.getElementById('calendarBlockEndSelect');
+        if (!startSelect || !endSelect) return;
+        const slots = getAllSlots();
+        startSelect.innerHTML = slots.map(s =>
+            `<option value="${s}" ${s === start ? 'selected' : ''}>${hourToLabel(s)}</option>`
+        ).join('');
+        const allEndSlots = slots.filter(s => s > start);
+        if (!allEndSlots.length || allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) {
+            allEndSlots.push(CALENDAR_HOUR_END);
+        }
+        const endVal = allEndSlots.includes(end) ? end : (allEndSlots[0] || CALENDAR_HOUR_END);
+        endSelect.innerHTML = allEndSlots.map(s =>
+            `<option value="${s}" ${s === endVal ? 'selected' : ''}>${hourToLabel(s)}</option>`
+        ).join('');
+    }
+
+    function renderCalendarQuickPicks(selectedText) {
+        const wrap = document.getElementById('calendarQuickPicks');
+        if (!wrap) return;
+        const selected = String(selectedText || '').trim().toLowerCase();
+        wrap.innerHTML = CALENDAR_QUICK_PICKS.map(function(pick, idx) {
+            const isSel = selected === pick.text.toLowerCase() || selected === pick.label.toLowerCase();
+            return '<button type="button" class="calendar-quick-pick' + (isSel ? ' is-selected' : '') +
+                '" onclick="pickCalendarQuickActivity(' + idx + ')">' + escapeHtml(pick.label) + '</button>';
+        }).join('');
+    }
+
+    window.pickCalendarQuickActivity = function(idx) {
+        const pick = CALENDAR_QUICK_PICKS[idx];
+        if (!pick) return;
+        const textEl = document.getElementById('calendarBlockText');
+        if (textEl) textEl.value = pick.text;
+        if (calendarEditingBlock) calendarEditingBlock.preset = pick.preset;
+        renderCalendarQuickPicks(pick.text);
+    };
+
+    function openCalendarBlockEditor(opts) {
+        opts = opts || {};
+        const dateKey = opts.dateKey;
+        const start = opts.start;
+        const end = opts.end != null ? opts.end : Math.min(start + 0.5, CALENDAR_HOUR_END);
+        const text = opts.text || '';
+        const block = opts.block || null;
+        const replacingPreset = opts.replacingPreset || null;
+        calendarEditingBlock = {
+            dateKey: dateKey,
+            block: block,
+            replacingPreset: replacingPreset,
+            preset: opts.preset || (block && block.preset) || 'custom',
+            newStart: start
+        };
+        document.getElementById('calendarBlockModalTitle').textContent = opts.title || 'Change this time';
+        const hint = document.getElementById('calendarBlockTimeHint');
+        if (hint) {
+            hint.textContent = replacingPreset
+                ? 'This replaces the default plan for today. Change the hours or activity anytime.'
+                : 'Change the hours if you want this activity somewhere else.';
+        }
+        fillCalendarTimeSelects(start, end);
+        document.getElementById('calendarBlockText').value = text;
+        renderCalendarQuickPicks(text);
+        const delBtn = document.getElementById('calendarBlockDeleteBtn');
+        if (delBtn) {
+            delBtn.style.display = (block || replacingPreset) ? 'block' : 'none';
+            delBtn.textContent = replacingPreset ? 'Make free' : 'Clear slot';
+        }
+        document.getElementById('calendarBlockModal').classList.add('open');
+        setTimeout(function() {
+            const el = document.getElementById('calendarBlockText');
+            if (el) el.focus();
+        }, 80);
+    }
+
     window.clickCalendarSlot = function(dateKey, hour, blockId) {
         const todayKey = getTodayEST();
         if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
@@ -5601,19 +5778,15 @@
             const start = parseFloat(parts[0]);
             const end = parseFloat(parts[1]);
             const presetBlock = mergedBlocks.find(b => b.isPreset && b.start === start && b.end === end);
-            calendarEditingBlock = { dateKey, block: null, newStart: start };
-            document.getElementById('calendarBlockModalTitle').textContent = 'Edit this time (replace default)';
-            document.getElementById('calendarBlockTimeEdit').style.display = 'none';
-            document.getElementById('calendarBlockTimeAdd').style.display = 'block';
-            const startSelect = document.getElementById('calendarBlockStartSelect');
-            const endSelect = document.getElementById('calendarBlockEndSelect');
-            startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === start ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
-            const allEndSlots = getAllSlots().filter(s => s > start);
-            if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
-            endSelect.innerHTML = allEndSlots.map(s => `<option value="${s}" ${s === end ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
-            document.getElementById('calendarBlockText').value = presetBlock ? (presetBlock.text || '') : '';
-            document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
-            document.getElementById('calendarBlockModal').classList.add('open');
+            openCalendarBlockEditor({
+                dateKey: dateKey,
+                start: start,
+                end: end,
+                text: presetBlock ? (presetBlock.text || '') : '',
+                preset: presetBlock ? presetBlock.preset : 'custom',
+                replacingPreset: { start: start, end: end },
+                title: 'Change this time'
+            });
             return;
         }
 
@@ -5621,31 +5794,28 @@
             const blocks = state.calendarBlocks[dateKey] || [];
             const block = blocks.find(b => b.id == blockId);
             if (block) {
-                calendarEditingBlock = { dateKey, block };
-                document.getElementById('calendarBlockModalTitle').textContent = 'Edit Block';
-                document.getElementById('calendarBlockTimeEdit').style.display = 'block';
-                document.getElementById('calendarBlockTimeAdd').style.display = 'none';
-                document.getElementById('calendarBlockStartHour').textContent = hourToLabel(block.start);
-                document.getElementById('calendarBlockEndHour').textContent = hourToLabel(block.end);
-                document.getElementById('calendarBlockText').value = block.text || '';
-                document.getElementById('calendarBlockDeleteBtn').style.display = 'block';
-                document.getElementById('calendarBlockModal').classList.add('open');
+                openCalendarBlockEditor({
+                    dateKey: dateKey,
+                    start: block.start,
+                    end: block.end,
+                    text: block.text || '',
+                    preset: block.preset || 'custom',
+                    block: block,
+                    title: 'Change this time'
+                });
                 return;
             }
             showToast('Could not find that activity.', 'warning');
             return;
         }
 
-        calendarEditingBlock = { dateKey, block: null, newStart: hour };
-        document.getElementById('calendarBlockModalTitle').textContent = 'Add Block';
-        document.getElementById('calendarBlockTimeEdit').style.display = 'none';
-        document.getElementById('calendarBlockTimeAdd').style.display = 'block';
-        const startSelect = document.getElementById('calendarBlockStartSelect');
-        startSelect.innerHTML = getAllSlots().map(s => `<option value="${s}" ${s === hour ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
-        updateCalendarBlockEndOptions();
-        document.getElementById('calendarBlockText').value = '';
-        document.getElementById('calendarBlockDeleteBtn').style.display = 'none';
-        document.getElementById('calendarBlockModal').classList.add('open');
+        openCalendarBlockEditor({
+            dateKey: dateKey,
+            start: hour,
+            end: Math.min(hour + 0.5, CALENDAR_HOUR_END),
+            text: '',
+            title: 'Add to your schedule'
+        });
     };
 
     window.closeCalendarBlockModal = function() {
@@ -5654,49 +5824,126 @@
     };
 
     window.updateCalendarBlockEndOptions = function() {
-        if (!calendarEditingBlock || calendarEditingBlock.block) return;
+        if (!calendarEditingBlock) return;
         const startVal = parseFloat(document.getElementById('calendarBlockStartSelect').value);
         const endSelect = document.getElementById('calendarBlockEndSelect');
+        const prevEnd = parseFloat(endSelect.value);
         const allEndSlots = getAllSlots().filter(s => s > startVal);
-        if (allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) allEndSlots.push(CALENDAR_HOUR_END);
-        const defaultEnd = allEndSlots[0] || CALENDAR_HOUR_END;
-        endSelect.innerHTML = allEndSlots.map(s => `<option value="${s}" ${s === defaultEnd ? 'selected' : ''}>${hourToLabel(s)}</option>`).join('');
+        if (!allEndSlots.length || allEndSlots[allEndSlots.length - 1] < CALENDAR_HOUR_END) {
+            allEndSlots.push(CALENDAR_HOUR_END);
+        }
+        const defaultEnd = allEndSlots.includes(prevEnd) ? prevEnd : (allEndSlots[0] || CALENDAR_HOUR_END);
+        endSelect.innerHTML = allEndSlots.map(s =>
+            `<option value="${s}" ${s === defaultEnd ? 'selected' : ''}>${hourToLabel(s)}</option>`
+        ).join('');
     };
+
+    function calendarBlocksOverlap(aStart, aEnd, bStart, bEnd) {
+        return !(aEnd <= bStart || aStart >= bEnd);
+    }
 
     window.saveCalendarBlock = async function() {
         if (!calendarEditingBlock) return;
-        const text = document.getElementById('calendarBlockText').value.trim();
-        const { dateKey, block } = calendarEditingBlock;
+        const text = document.getElementById('calendarBlockText').value.trim() || 'Free time';
+        const preset = calendarEditingBlock.preset || 'custom';
+        const { dateKey, block, replacingPreset } = calendarEditingBlock;
+        const start = parseFloat(document.getElementById('calendarBlockStartSelect').value);
+        const end = parseFloat(document.getElementById('calendarBlockEndSelect').value);
+        if (!(end > start)) {
+            showToast('End time needs to be after the start.', 'warning');
+            return;
+        }
 
+        if (!state.calendarBlocks[dateKey]) state.calendarBlocks[dateKey] = [];
+        const excludeId = block ? block.id : null;
+        const overlaps = (state.calendarBlocks[dateKey] || []).some(function(b) {
+            if (excludeId != null && b.id === excludeId) return false;
+            return calendarBlocksOverlap(start, end, b.start, b.end);
+        });
+        if (overlaps) {
+            showToast('That time overlaps another activity. Clear or move the other one first.', 'warning');
+            return;
+        }
+
+        if (block) {
+            block.start = start;
+            block.end = end;
+            block.text = text;
+            if (preset) block.preset = preset;
+        } else if (replacingPreset) {
+            // Clear leftover pieces of the default slot so it doesn't stick around.
+            leftoverRanges(replacingPreset.start, replacingPreset.end, start, end).forEach(function(range, i) {
+                if (range.end <= range.start) return;
+                const freeOverlap = (state.calendarBlocks[dateKey] || []).some(function(b) {
+                    return calendarBlocksOverlap(range.start, range.end, b.start, b.end);
+                });
+                if (freeOverlap) return;
+                state.calendarBlocks[dateKey].push({
+                    id: Date.now() + i + 1,
+                    start: range.start,
+                    end: range.end,
+                    text: 'Free time',
+                    preset: 'break'
+                });
+            });
+            state.calendarBlocks[dateKey].push({
+                id: Date.now(),
+                start: start,
+                end: end,
+                text: text,
+                preset: preset
+            });
+        } else {
+            state.calendarBlocks[dateKey].push({
+                id: Date.now(),
+                start: start,
+                end: end,
+                text: text,
+                preset: preset
+            });
+        }
+
+        state.calendarBlocks[dateKey].sort(function(a, b) { return a.start - b.start; });
+        closeCalendarBlockModal();
+        renderCalendar();
+        try { renderFocusNowCard(); } catch (e) { /* ignore */ }
+        await saveAction();
+        showToast('Schedule updated.', 'success');
+    };
+
+    window.deleteCalendarBlock = async function() {
+        if (!calendarEditingBlock) return;
+        const { dateKey, block, replacingPreset } = calendarEditingBlock;
         if (!state.calendarBlocks[dateKey]) state.calendarBlocks[dateKey] = [];
 
         if (block) {
-            block.text = text || 'Blocked';
-        } else {
-            const start = parseFloat(document.getElementById('calendarBlockStartSelect').value);
-            const end = parseFloat(document.getElementById('calendarBlockEndSelect').value);
-            if (end <= start) return;
-            const userBlocks = state.calendarBlocks[dateKey] || [];
-            const overlaps = userBlocks.some(b => !(end <= b.start || start >= b.end));
+            state.calendarBlocks[dateKey] = state.calendarBlocks[dateKey].filter(b => b.id !== block.id);
+        } else if (replacingPreset) {
+            const overlaps = (state.calendarBlocks[dateKey] || []).some(function(b) {
+                return calendarBlocksOverlap(replacingPreset.start, replacingPreset.end, b.start, b.end);
+            });
             if (overlaps) {
-                showToast('That time overlaps another activity. Tap that block to edit it, or pick a different time.', 'warning');
+                showToast('That time overlaps another activity. Edit the other block first.', 'warning');
                 return;
             }
-            state.calendarBlocks[dateKey].push({ id: Date.now(), start, end, text: text || 'Blocked' });
+            // Cover the default slot with free time for today only.
+            state.calendarBlocks[dateKey].push({
+                id: Date.now(),
+                start: replacingPreset.start,
+                end: replacingPreset.end,
+                text: 'Free time',
+                preset: 'break'
+            });
+            state.calendarBlocks[dateKey].sort(function(a, b) { return a.start - b.start; });
+        } else {
+            return;
         }
 
         closeCalendarBlockModal();
         renderCalendar();
+        try { renderFocusNowCard(); } catch (e) { /* ignore */ }
         await saveAction();
-    };
-
-    window.deleteCalendarBlock = async function() {
-        if (!calendarEditingBlock || !calendarEditingBlock.block) return;
-        const { dateKey, block } = calendarEditingBlock;
-        state.calendarBlocks[dateKey] = (state.calendarBlocks[dateKey] || []).filter(b => b.id !== block.id);
-        closeCalendarBlockModal();
-        renderCalendar();
-        await saveAction();
+        showToast(block ? 'Slot cleared.' : 'Marked free for today.', 'success');
     };
 
     async function saveAction(opts) {
@@ -5924,7 +6171,7 @@
             let choreControls = '';
             if (wsSubject && !isDone && !isWaived) {
                 choreControls = '<span class="worksheet-chore-badge' + (wsMastered ? ' done' : '') + '">' + wsProg.mastered + '/' + wsProg.total + ' correct</span>' +
-                    '<button type="button" class="btn btn-primary" style="font-size:0.75rem;padding:0.35rem 0.65rem;" data-ws-subject="' + escapeHtml(wsSubject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">' + (wsMastered ? 'Review' : 'Work on it') + '</button>';
+                    '<button type="button" class="btn btn-primary" style="font-size:0.75rem;padding:0.35rem 0.65rem;" data-ws-subject="' + escapeHtml(wsSubject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject,{resume:true})">' + (wsMastered ? 'Review' : 'Continue') + '</button>';
             }
             list.innerHTML += `
                 <div class="task-item${wsSubject ? ' worksheet-chore' : ''}">
@@ -6009,7 +6256,7 @@
                     const typeShort = e.type || '';
                     const typeLabel = (typeShort === 'BANK_ADD' || typeShort === 'BANK_DEDUCT')
                         ? typeShort + ' · Bank'
-                        : typeShort;
+                        : (typeShort === 'WS_SOLVE' ? 'WS_SOLVE · Worksheet' : typeShort);
                     const dateTail = typeShort === 'WEEK_START'
                         ? ''
                         : (' · <span style="color:var(--text-muted)">' + escapeHtml(String(e.dateKey || '')) + '</span>');
@@ -6028,7 +6275,8 @@
     let activeWorksheetQuestionIndex = 0;
     let worksheetGenerateInFlight = {};
     let worksheetGenUi = { active: false, label: '', startedAt: 0, timerId: null, error: null };
-    const WORKSHEET_GEN_ESTIMATE_MS = 90000;
+    const WORKSHEET_GEN_ESTIMATE_MS = 20000;
+    let worksheetTutorHelpOpen = false;
 
     function getParentRegenerateDifficulty() {
         const sel = document.getElementById('parentRegenerateDifficulty');
@@ -6356,13 +6604,13 @@
                     '<div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4></div>' +
                     '<p class="worksheet-empty">Preparing your worksheet — open again in a moment.</p></article>';
             }
-            const btnLabel = done ? 'Review worksheet' : 'Work on worksheet';
+            const btnLabel = done ? 'Review worksheet' : 'Continue worksheet';
             return '<article class="student-worksheet-card' + (done ? ' is-done' : '') + '" style="--ws-subject-color:' + visual.color + ';">' +
                 '<div class="worksheet-subject-head"><div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<div><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4>' +
                 '<p class="worksheet-subject-meta">' + prog.mastered + ' of ' + prog.total + ' questions correct' + skipNote + '</p></div></div>' +
                 (done ? '<span class="worksheet-chore-badge done">Ready ✓</span>' : '<span class="worksheet-chore-badge">Keep going</span>') +
                 '</div><div class="student-worksheet-progress" aria-hidden="true"><div class="student-worksheet-progress-fill" style="width:' + pct + '%"></div></div>' +
-                '<div class="worksheet-actions"><button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(subject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">' +
+                '<div class="worksheet-actions"><button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(subject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject,{resume:true})">' +
                 btnLabel + '</button></div></article>';
         }).join('');
     }
@@ -6399,6 +6647,20 @@
 
     let worksheetTutorHistory = {};
 
+    function persistWorksheetSession() {
+        if (!state.worksheetTutorHistory || typeof state.worksheetTutorHistory !== 'object') {
+            state.worksheetTutorHistory = {};
+        }
+        state.worksheetTutorHistory = worksheetTutorHistory;
+        if (activeWorksheetSubject) {
+            state.worksheetSession = {
+                subject: activeWorksheetSubject,
+                questionIndex: activeWorksheetQuestionIndex,
+                helpOpen: !!worksheetTutorHelpOpen
+            };
+        }
+    }
+
     function currentTutorQuestionId() {
         if (!activeWorksheetSubject) return null;
         const qs = getQuestionsForSubject(activeWorksheetSubject);
@@ -6410,11 +6672,8 @@
         const el = document.getElementById('worksheetTutorThread');
         if (!el) return;
         opts = opts || {};
-        const qs = getQuestionsForSubject(activeWorksheetSubject);
-        const q = qs.find(function(item) { return String(item.id) === qid; });
         const turns = worksheetTutorHistory[qid] || [];
-        const opener = (q && Array.isArray(q.scaffolding_hints) && q.scaffolding_hints[0]) ||
-            "Let's work through this together — what's the first step you'd try?";
+        const opener = "Let's work through this together — what's the first step you'd try?";
         let html = '<div class="ws-tutor-bubble tutor">' + escapeHtml(opener) + '</div>';
         turns.forEach(function(turn) {
             const cls = turn.role === 'student' ? 'student' : 'tutor';
@@ -6427,33 +6686,125 @@
         el.scrollTop = el.scrollHeight;
     }
 
+    window.toggleWorksheetTutorHelp = function() {
+        worksheetTutorHelpOpen = !worksheetTutorHelpOpen;
+        const panel = document.getElementById('worksheetTutorPanel');
+        const toggle = document.getElementById('worksheetHelpToggle');
+        if (panel) panel.hidden = !worksheetTutorHelpOpen;
+        if (toggle) toggle.textContent = worksheetTutorHelpOpen ? 'Hide tutor help' : 'Stuck? Ask the tutor';
+        if (worksheetTutorHelpOpen) {
+            const qid = currentTutorQuestionId();
+            if (qid) renderTutorThread(qid);
+            const el = document.getElementById('worksheetTutorInput');
+            if (el && !el.disabled) setTimeout(function() { el.focus(); }, 40);
+        }
+        persistWorksheetSession();
+        saveAction({ skipRender: true });
+    };
+
+    function awardWorksheetSolveBonus(questionId) {
+        const bonus = Number(getCfg().worksheetSolveBonus);
+        if (!bonus || bonus <= 0) return 0;
+        const todayKey = getTodayEST();
+        const id = 'ws_solve_' + String(questionId) + '_' + lidDateKey(todayKey);
+        if (!postLedgerUnique(id, 'WS_SOLVE', todayKey, bonus, 'Worksheet problem solved')) return 0;
+        return bonus;
+    }
+
     async function handleQuestionSolved(q) {
-        if (!isQuestionMastered(q.id)) {
+        const wasNew = !isQuestionMastered(q.id);
+        let bonus = 0;
+        if (wasNew) {
             if (!state.worksheetMasteredToday) state.worksheetMasteredToday = [];
             state.worksheetMasteredToday.push(String(q.id));
             clearQuestionSkipped(q.id);
+            bonus = awardWorksheetSolveBonus(q.id);
+            persistWorksheetSession();
             await saveAction({ skipRender: true });
         }
-        showToast('Correct! Great job.', 'success');
+        if (bonus > 0) {
+            showToast('Correct! +$' + bonus.toFixed(2) + ' Weekly Pot', 'success');
+        } else {
+            showToast('Correct! Great job.', 'success');
+        }
         const nextIdx = getNextUnmasteredQuestionIndex(activeWorksheetSubject);
         if (nextIdx >= 0 && nextIdx !== activeWorksheetQuestionIndex) {
             setTimeout(function() {
                 activeWorksheetQuestionIndex = nextIdx;
+                worksheetTutorHelpOpen = false;
+                persistWorksheetSession();
                 renderWorksheetPlayer();
-                const el = document.getElementById('worksheetTutorInput');
+                const el = document.getElementById('worksheetAnswerInput');
                 if (el && !el.disabled) el.focus();
             }, 900);
         } else if (isWorksheetSubjectMastered(activeWorksheetSubject)) {
+            persistWorksheetSession();
             renderWorksheetPlayer();
             renderStudentWorksheetPanel();
             renderUI();
             launchConfettiBurst();
             showToast('All worksheet questions correct! Mark the chore done when ready.', 'level-up');
         } else {
+            persistWorksheetSession();
             renderWorksheetPlayer();
         }
         renderStudentWorksheetPanel();
     }
+
+    window.checkWorksheetAnswer = async function() {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs[activeWorksheetQuestionIndex];
+        if (!q || isQuestionMastered(q.id)) return;
+        const input = document.getElementById('worksheetAnswerInput');
+        const answer = (input && input.value || '').trim();
+        if (!answer) {
+            showToast('Type your answer first.', 'info');
+            return;
+        }
+        const qid = String(q.id);
+        const checkBtn = document.getElementById('worksheetAnswerCheckBtn');
+        if (input) input.disabled = true;
+        if (checkBtn) checkBtn.disabled = true;
+        try {
+            const res = await fetch(WORKSHEET_API_URL + '/tutor/check-answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student_id: WORKSHEET_STUDENT_ID,
+                    question_id: qid,
+                    answer: answer
+                })
+            });
+            const raw = await res.text();
+            let payload = {};
+            try { payload = raw ? JSON.parse(raw) : {}; } catch (parseErr) { /* ignore */ }
+            if (!res.ok) {
+                const detail = payload.detail;
+                throw new Error(typeof detail === 'string' ? detail : (raw || res.statusText));
+            }
+            if (payload.solved || payload.correct) {
+                if (input) input.value = '';
+                await handleQuestionSolved(q);
+            } else {
+                showToast(payload.reply || 'Not quite — try again or ask the tutor.', 'warning');
+                if (!worksheetTutorHelpOpen) {
+                    // Soft prompt to open help after a miss
+                    const toggle = document.getElementById('worksheetHelpToggle');
+                    if (toggle) toggle.textContent = 'Need a hint? Ask the tutor';
+                }
+            }
+        } catch (e) {
+            console.warn('Check answer failed:', e);
+            showToast("Couldn't check that answer — is the worksheet API running?", 'warning');
+        } finally {
+            if (currentTutorQuestionId() === qid) {
+                if (input) input.disabled = false;
+                if (checkBtn) checkBtn.disabled = false;
+                if (input) input.focus();
+            }
+        }
+    };
 
     window.sendTutorMessage = async function() {
         if (!activeWorksheetSubject) return;
@@ -6499,6 +6850,8 @@
             }
 
             worksheetTutorHistory[qid].push({ role: 'tutor', content: payload.reply || '' });
+            persistWorksheetSession();
+            await saveAction({ skipRender: true });
             if (currentTutorQuestionId() === qid) renderTutorThread(qid);
 
             if (payload.solved) {
@@ -6510,6 +6863,7 @@
                 role: 'tutor',
                 content: "Sorry, I couldn't connect just now — try sending that again?"
             });
+            persistWorksheetSession();
             if (currentTutorQuestionId() === qid) renderTutorThread(qid);
         } finally {
             if (currentTutorQuestionId() === qid) {
@@ -6520,6 +6874,21 @@
         }
     };
 
+    function setWorksheetPlayerChromeVisible(visible) {
+        const answerRow = document.getElementById('worksheetAnswerRow');
+        const helpToggle = document.getElementById('worksheetHelpToggle');
+        const tutorPanel = document.getElementById('worksheetTutorPanel');
+        const rewardChip = document.getElementById('worksheetRewardChip');
+        const playerSkip = document.getElementById('worksheetPlayerSkipBtn');
+        const playerComplete = document.getElementById('worksheetPlayerCompleteBtn');
+        if (answerRow) answerRow.style.display = visible ? '' : 'none';
+        if (helpToggle) helpToggle.style.display = visible ? '' : 'none';
+        if (tutorPanel && !visible) tutorPanel.hidden = true;
+        if (rewardChip && !visible) rewardChip.hidden = true;
+        if (playerSkip) playerSkip.style.display = visible ? '' : 'none';
+        if (playerComplete && !visible) playerComplete.style.display = 'none';
+    }
+
     function renderWorksheetPlayer() {
         if (!activeWorksheetSubject) return;
         const qs = getQuestionsForSubject(activeWorksheetSubject);
@@ -6527,11 +6896,16 @@
         const playerSend = document.getElementById('worksheetTutorSendBtn');
         const playerSkip = document.getElementById('worksheetPlayerSkipBtn');
         const playerComplete = document.getElementById('worksheetPlayerCompleteBtn');
-        const playerThread = document.getElementById('worksheetTutorThread');
         const playerTopic = document.getElementById('worksheetPlayerTopic');
         const playerQuestion = document.getElementById('worksheetPlayerQuestion');
+        const answerInput = document.getElementById('worksheetAnswerInput');
+        const answerBtn = document.getElementById('worksheetAnswerCheckBtn');
+        const helpToggle = document.getElementById('worksheetHelpToggle');
+        const tutorPanel = document.getElementById('worksheetTutorPanel');
+        const rewardChip = document.getElementById('worksheetRewardChip');
 
         if (!qs.length) {
+            setWorksheetPlayerChromeVisible(false);
             if (worksheetGenUi.active) {
                 document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
                 document.getElementById('worksheetPlayerStatsText').textContent = 'Generating questions…';
@@ -6541,20 +6915,13 @@
                 if (playerTopic) { playerTopic.style.display = 'none'; playerTopic.textContent = ''; }
                 if (playerQuestion) {
                     playerQuestion.style.display = 'block';
-                    playerQuestion.innerHTML = '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating today’s math worksheet — usually takes 60–90 seconds.</p>' +
+                    playerQuestion.innerHTML = '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating today’s math worksheet — usually a few seconds.</p>' +
                         '<div class="student-worksheet-progress ws-gen-progress"><div class="student-worksheet-progress-fill ws-gen-progress-fill" style="width:8%"></div></div>' +
-                        '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">About 90s remaining…</p>';
+                        '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">Almost ready…</p>';
                 }
-                if (playerThread) playerThread.style.display = 'none';
-                if (playerInput) playerInput.style.display = 'none';
-                if (playerSend) playerSend.style.display = 'none';
-                if (playerSkip) playerSkip.style.display = 'none';
-                if (playerComplete) playerComplete.style.display = 'none';
                 updateWorksheetGenProgressUi();
                 return;
             }
-            // Generation finished (or was never started) and still no questions —
-            // show why instead of leaving the "Creating…" message frozen on screen.
             document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
             document.getElementById('worksheetPlayerStatsText').textContent = '';
             document.getElementById('worksheetPlayerSkippedText').textContent = '';
@@ -6569,19 +6936,12 @@
                 playerQuestion.innerHTML = '<p class="worksheet-empty" style="color:var(--danger);margin-bottom:0.75rem;">' + msg + '</p>' +
                     '<button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(activeWorksheetSubject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">Try again</button>';
             }
-            if (playerThread) playerThread.style.display = 'none';
-            if (playerInput) playerInput.style.display = 'none';
-            if (playerSend) playerSend.style.display = 'none';
-            if (playerSkip) playerSkip.style.display = 'none';
-            if (playerComplete) playerComplete.style.display = 'none';
             return;
         }
 
+        setWorksheetPlayerChromeVisible(true);
         if (playerTopic) playerTopic.style.display = '';
         if (playerQuestion) playerQuestion.style.display = '';
-        if (playerThread) playerThread.style.display = '';
-        if (playerInput) playerInput.style.display = '';
-        if (playerSend) playerSend.style.display = '';
         if (playerSkip) playerSkip.style.display = '';
         if (playerQuestion && playerQuestion.innerHTML && playerQuestion.querySelector('.ws-gen-progress')) {
             playerQuestion.textContent = '';
@@ -6593,10 +6953,11 @@
         }
         const q = qs[activeWorksheetQuestionIndex];
         const prog = getWorksheetProgressForSubject(activeWorksheetSubject);
+        const left = Math.max(0, prog.total - prog.mastered);
         const pct = prog.total ? Math.round((prog.mastered / prog.total) * 100) : 0;
         document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
         document.getElementById('worksheetPlayerStatsText').textContent =
-            prog.mastered + ' of ' + prog.total + ' correct · Question ' + (activeWorksheetQuestionIndex + 1) + ' of ' + qs.length;
+            prog.mastered + ' of ' + prog.total + ' correct · ' + left + ' left · Q' + (activeWorksheetQuestionIndex + 1);
         const skippedEl = document.getElementById('worksheetPlayerSkippedText');
         if (prog.skipped) {
             skippedEl.textContent = prog.skipped + ' skipped — tap orange numbers to return';
@@ -6611,13 +6972,35 @@
         document.getElementById('worksheetPlayerQuestion').textContent = q.question_text || '';
         const qid = String(q.id);
         const alreadyDone = isQuestionMastered(q.id);
-        renderTutorThread(qid);
+        const bonus = Number(getCfg().worksheetSolveBonus) || 0;
+        if (rewardChip) {
+            if (bonus > 0 && !alreadyDone) {
+                rewardChip.hidden = false;
+                rewardChip.textContent = '+$' + bonus.toFixed(2) + ' Weekly Pot when you get this right';
+            } else if (bonus > 0 && alreadyDone) {
+                rewardChip.hidden = false;
+                rewardChip.textContent = 'Solved — pot bonus earned';
+            } else {
+                rewardChip.hidden = true;
+            }
+        }
+        if (tutorPanel) tutorPanel.hidden = !worksheetTutorHelpOpen || alreadyDone;
+        if (helpToggle) {
+            helpToggle.style.display = alreadyDone ? 'none' : '';
+            helpToggle.textContent = worksheetTutorHelpOpen ? 'Hide tutor help' : 'Stuck? Ask the tutor';
+        }
+        if (worksheetTutorHelpOpen && !alreadyDone) renderTutorThread(qid);
+        if (answerInput) {
+            answerInput.value = '';
+            answerInput.disabled = alreadyDone;
+            answerInput.placeholder = alreadyDone ? 'Already solved — nice work!' : 'Type your answer…';
+        }
+        if (answerBtn) answerBtn.style.display = alreadyDone ? 'none' : '';
         if (playerInput) {
-            playerInput.value = '';
             playerInput.disabled = alreadyDone;
             playerInput.placeholder = alreadyDone
                 ? 'Already solved — nice work!'
-                : 'Type your answer, your work, or ask a question…';
+                : 'Ask a question or show your work…';
         }
         if (playerSend) playerSend.style.display = alreadyDone ? 'none' : '';
         const skipBtn = document.getElementById('worksheetPlayerSkipBtn');
@@ -6626,6 +7009,7 @@
         const completeBtn = document.getElementById('worksheetPlayerCompleteBtn');
         const showChoreBtn = prog.complete && !isWorksheetChoreDone(activeWorksheetSubject);
         completeBtn.style.display = showChoreBtn ? 'block' : 'none';
+        persistWorksheetSession();
     }
 
     function showWorksheetPlayerView() {
@@ -6642,10 +7026,12 @@
         if (player) player.hidden = true;
     }
 
-    window.openWorksheetWork = async function(subject) {
+    window.openWorksheetWork = async function(subject, opts) {
+        opts = opts || {};
         activeWorksheetSubject = subject;
         window.setAppMainTab('worksheets');
         showWorksheetPlayerView();
+        worksheetTutorHistory = state.worksheetTutorHistory || worksheetTutorHistory || {};
 
         let qs = getQuestionsForSubject(subject);
         if (!qs.length) {
@@ -6659,16 +7045,35 @@
             showToast('Could not load worksheet questions. Check that the backend is running.', 'warning');
             return;
         }
+        const session = state.worksheetSession;
+        let resumeIdx = -1;
+        if (opts.resume && session && session.subject === subject && typeof session.questionIndex === 'number') {
+            resumeIdx = session.questionIndex;
+            worksheetTutorHelpOpen = !!session.helpOpen;
+        }
         const nextIdx = getNextUnmasteredQuestionIndex(subject);
-        activeWorksheetQuestionIndex = nextIdx >= 0 ? nextIdx : 0;
+        if (resumeIdx >= 0 && resumeIdx < qs.length && !isQuestionMastered(qs[resumeIdx].id)) {
+            activeWorksheetQuestionIndex = resumeIdx;
+        } else {
+            activeWorksheetQuestionIndex = nextIdx >= 0 ? nextIdx : 0;
+            worksheetTutorHelpOpen = false;
+        }
+        persistWorksheetSession();
         renderWorksheetPlayer();
         setTimeout(function() {
-            const el = document.getElementById('worksheetTutorInput');
+            const el = document.getElementById('worksheetAnswerInput');
             if (el && !el.disabled) el.focus();
         }, 120);
     };
 
+    window.continueWorksheetPractice = function() {
+        const subject = (state.worksheetSession && state.worksheetSession.subject) || 'Math';
+        openWorksheetWork(subject, { resume: true });
+    };
+
     window.closeWorksheetPlayer = function() {
+        persistWorksheetSession();
+        saveAction({ skipRender: true });
         showWorksheetHubView();
         activeWorksheetSubject = null;
         renderStudentWorksheetPanel();
@@ -6679,8 +7084,9 @@
         const qs = getQuestionsForSubject(activeWorksheetSubject);
         if (index < 0 || index >= qs.length) return;
         activeWorksheetQuestionIndex = index;
+        persistWorksheetSession();
         renderWorksheetPlayer();
-        const el = document.getElementById('worksheetTutorInput');
+        const el = document.getElementById('worksheetAnswerInput');
         if (el && !el.disabled) el.focus();
     };
 

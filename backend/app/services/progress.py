@@ -217,7 +217,10 @@ def fetch_recent_worksheet_entries(
     sb = get_supabase()
     query = (
         sb.table("worksheet_entries")
-        .select("subject, topic, question_text, student_answer, expected_answer, is_correct, entry_date, completed_at")
+        .select(
+            "subject, topic, question_text, student_answer, expected_answer, "
+            "is_correct, hint_count, entry_date, completed_at"
+        )
         .eq("student_id", student_id)
     )
     if subject:

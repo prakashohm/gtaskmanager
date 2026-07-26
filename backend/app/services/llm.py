@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import re
 import time
 from typing import Dict, List, Optional, Sequence
 
@@ -32,9 +34,7 @@ class ClaudeUnavailableError(RuntimeError):
     should stay visible rather than being silently masked."""
 
 
-def _strip_json_fences(text: str) -> str:
-    import re
-
+def strip_json_fences(text: str) -> str:
     cleaned = text.strip()
     if cleaned.startswith("```"):
         cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
@@ -43,9 +43,7 @@ def _strip_json_fences(text: str) -> str:
 
 
 def _parse_llm_json(raw: str) -> DailyWorksheetResponse:
-    import json
-
-    payload = json.loads(_strip_json_fences(raw))
+    payload = json.loads(strip_json_fences(raw))
     return DailyWorksheetResponse.model_validate(payload)
 
 
@@ -126,7 +124,7 @@ def generate_worksheet_json(
     if topic_question_counts is None:
         topic_question_counts = compute_topic_question_counts(
             topic_progress,
-            settings.target_questions_per_subject,
+            settings.topics_per_day * settings.questions_per_topic_cluster,
             adaptive=settings.adaptive_question_counts,
         )
     system_prompt = build_system_prompt()
@@ -143,15 +141,20 @@ def generate_worksheet_json(
     )
     effort = _effort_for_progress(topic_progress)
 
+    messages = [{"role": "user", "content": user_prompt}]
     try:
-        return _generate_claude(system_prompt, user_prompt, effort=effort)
+        raw = call_claude_structured(
+            system_prompt, messages, schema=_worksheet_json_schema(), effort=effort
+        )
+        return _parse_llm_json(raw)
     except ClaudeUnavailableError as claude_exc:
         if not settings.gemini_api_key:
             raise
         print(f"[worksheet-llm] Claude unavailable, falling back to Gemini: {claude_exc}")
         temperature = _temperature_for_progress(topic_progress)
         try:
-            return _generate_gemini(system_prompt, user_prompt, temperature=temperature)
+            raw = call_gemini_structured(system_prompt, messages, temperature=temperature)
+            return _parse_llm_json(raw)
         except Exception as gemini_exc:
             raise RuntimeError(
                 f"Claude is unavailable ({claude_exc}) and the Gemini fallback also "
@@ -194,9 +197,21 @@ def _is_claude_capacity_or_billing_issue(exc: Exception) -> bool:
     return "credit balance" in str(exc).lower()
 
 
-def _generate_claude(
-    system_prompt: str, user_prompt: str, *, effort: str = "medium"
-) -> DailyWorksheetResponse:
+def call_claude_structured(
+    system_prompt: str,
+    messages: List[dict],
+    *,
+    schema: dict,
+    effort: str = "medium",
+    max_tokens: int = MAX_OUTPUT_TOKENS,
+) -> str:
+    """Call Claude with structured-output JSON enforcement and return the raw
+    text content. `messages` is a list of {"role": "user"|"assistant",
+    "content": str} turns (single-turn generation passes a one-item list;
+    the tutor chat passes the full conversation so far). Shared by worksheet
+    generation and the tutor chat so both get the same auth handling, refusal
+    handling, and Gemini-fallback classification (ClaudeUnavailableError vs.
+    a plain RuntimeError)."""
     import anthropic
 
     settings = get_settings()
@@ -207,17 +222,17 @@ def _generate_claude(
     try:
         response = client.messages.create(
             model=settings.anthropic_model,
-            max_tokens=MAX_OUTPUT_TOKENS,
+            max_tokens=max_tokens,
             system=system_prompt,
-            # Claude Sonnet 5 runs adaptive thinking by default; this task is plain
-            # structured content generation and runs many times a day (cron + parent
-            # "Regenerate" button), so thinking is switched off for speed/cost.
+            # Sonnet 5 runs adaptive thinking by default; these are short,
+            # plain structured-JSON tasks that run frequently, so thinking is
+            # switched off for speed/cost.
             thinking={"type": "disabled"},
             output_config={
                 "effort": effort,
-                "format": {"type": "json_schema", "schema": _worksheet_json_schema()},
+                "format": {"type": "json_schema", "schema": schema},
             },
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=messages,
         )
     except anthropic.APIConnectionError as exc:
         raise ClaudeUnavailableError(f"Claude request failed: network error ({exc})") from exc
@@ -231,14 +246,12 @@ def _generate_claude(
         detail = ""
         if response.stop_details is not None:
             detail = f" ({response.stop_details.category})"
-        raise RuntimeError(
-            f"Claude declined to generate this worksheet{detail}. Try again or adjust the prompt."
-        )
+        raise RuntimeError(f"Claude declined to respond{detail}. Try again or adjust the prompt.")
 
     text = next((block.text for block in response.content if block.type == "text"), None)
     if not text:
-        raise RuntimeError("Claude returned no text content for the worksheet")
-    return _parse_llm_json(text)
+        raise RuntimeError("Claude returned no text content")
+    return text
 
 
 # --- Gemini: fallback provider only (not selectable as primary) ---
@@ -294,17 +307,30 @@ def _format_gemini_failure(errors: List[str]) -> str:
         )
     detail = "; ".join(errors[:4])
     if any("503" in e or "UNAVAILABLE" in e for e in errors):
-        return (
-            "Gemini fallback is busy right now (high demand). Details: " + detail
-        )
+        return "Gemini fallback is busy right now (high demand). Details: " + detail
     if any("429" in e for e in errors):
         return "Gemini fallback rate limit reached. Details: " + detail
     return "Gemini fallback request failed on all models. Details: " + detail
 
 
-def _generate_gemini(
-    system_prompt: str, user_prompt: str, *, temperature: float = 0.4
-) -> DailyWorksheetResponse:
+def _flatten_messages_for_gemini(messages: List[dict]) -> str:
+    """Gemini fallback has no need for native multi-turn nuance here — it's an
+    emergency path, not the primary experience — so render the conversation
+    as a plain transcript instead of a message array."""
+    if len(messages) == 1 and messages[0].get("role") == "user":
+        return messages[0]["content"]
+    lines = []
+    for turn in messages:
+        speaker = "Assistant" if turn.get("role") == "assistant" else "User"
+        lines.append(f"{speaker}: {turn.get('content', '')}")
+    return "\n".join(lines)
+
+
+def call_gemini_structured(
+    system_prompt: str, messages: List[dict], *, temperature: float = 0.4
+) -> str:
+    """Call Gemini (fallback only) with JSON-mode output and return the raw
+    text content, trying each model in GEMINI_MODEL_FALLBACKS with retries."""
     from google import genai
     from google.genai import types
     from google.genai.errors import ClientError, ServerError
@@ -316,21 +342,21 @@ def _generate_gemini(
     client = genai.Client(api_key=settings.gemini_api_key)
     model_errors: List[str] = []
     last_error: Optional[Exception] = None
+    contents = _flatten_messages_for_gemini(messages)
 
     for model in _gemini_models_to_try(settings.gemini_model):
         for attempt in range(GEMINI_RETRIES_PER_MODEL):
             try:
                 response = client.models.generate_content(
                     model=model,
-                    contents=user_prompt,
+                    contents=contents,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
                         temperature=temperature,
                         response_mime_type="application/json",
                     ),
                 )
-                raw = response.text or "{}"
-                return _parse_llm_json(raw)
+                return response.text or "{}"
             except (ClientError, ServerError) as exc:
                 last_error = exc
                 if _should_skip_to_next_model(exc):

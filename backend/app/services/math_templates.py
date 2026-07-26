@@ -4,10 +4,14 @@ import hashlib
 import random
 from dataclasses import dataclass
 from datetime import date
-from typing import List, Optional, Sequence, Set
+from fractions import Fraction
+from typing import Callable, List, Optional, Sequence, Set
 
 from app.models import DifficultyLevel, GeneratedQuestion
 from app.services.dedup import param_signature_hash
+
+# Generic first nudge — never includes the arithmetic that gives the answer away.
+_GENERIC_START = "What's the first step you'd try?"
 
 
 @dataclass(frozen=True)
@@ -27,113 +31,16 @@ def _rng(student_id: str, question_date: str, topic: str, index: int) -> random.
     return random.Random(seed)
 
 
-def _area_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
-    if difficulty == "simplified":
-        length = rng.randint(2, 8)
-        width = rng.randint(2, 6)
-        answer = length * width
-        return MathSpec(
-            subject="Math",
-            topic="calculating area",
-            difficulty_level=difficulty,
-            question_text=(
-                f"A rectangle is {length} feet long and {width} feet wide. "
-                f"What is the area in square feet?"
-            ),
-            scaffolding_hints=[
-                "Area of a rectangle = length × width.",
-                f"Multiply {length} × {width}.",
-            ],
-            expected_answer=str(answer),
-            signature=f"rect:{length}x{width}",
-        )
+def _money(n: float) -> str:
+    text = f"{n:.2f}".rstrip("0").rstrip(".")
+    return text
 
-    if difficulty == "increased":
-        shape = rng.choice(["rectangle", "triangle"])
-        if shape == "rectangle":
-            length = rng.randint(8, 18)
-            width = rng.randint(5, 12)
-            # One extra step: find area after adding a border strip conceptually
-            border = rng.randint(1, 2)
-            outer_l = length + border
-            outer_w = width + border
-            answer = outer_l * outer_w
-            return MathSpec(
-                subject="Math",
-                topic="calculating area",
-                difficulty_level=difficulty,
-                question_text=(
-                    f"A garden is {length} meters long and {width} meters wide. "
-                    f"A path {border} meter(s) wide is added around all sides. "
-                    f"What is the area of the larger rectangle in square meters?"
-                ),
-                scaffolding_hints=[
-                    "New length = old length + border on both ends.",
-                    f"New length = {length} + {border} + {border} = {outer_l}.",
-                    f"New width = {width} + {border} + {border} = {outer_w}.",
-                    "Area = new length × new width.",
-                ],
-                expected_answer=str(answer),
-                signature=f"border-rect:{length}x{width}+{border}",
-            )
-        base = rng.choice([6, 8, 10, 12, 14])
-        height = rng.choice([3, 4, 5, 6, 7, 8])
-        answer = (base * height) // 2
-        return MathSpec(
-            subject="Math",
-            topic="calculating area",
-            difficulty_level=difficulty,
-            question_text=(
-                f"A triangle has a base of {base} centimeters and a height of {height} centimeters. "
-                f"What is the area in square centimeters?"
-            ),
-            scaffolding_hints=[
-                "Area of a triangle = (base × height) ÷ 2.",
-                f"First multiply {base} × {height}, then divide by 2.",
-            ],
-            expected_answer=str(answer),
-            signature=f"tri:{base}x{height}",
-        )
 
-    # maintained
-    shape = rng.choice(["rectangle", "triangle"])
-    if shape == "rectangle":
-        length = rng.randint(4, 14)
-        width = rng.randint(3, 10)
-        answer = length * width
-        return MathSpec(
-            subject="Math",
-            topic="calculating area",
-            difficulty_level=difficulty,
-            question_text=(
-                f"A classroom rug is {length} feet long and {width} feet wide. "
-                f"What is the area of the rug in square feet?"
-            ),
-            scaffolding_hints=[
-                "Area of a rectangle = length × width.",
-                f"Multiply {length} × {width}.",
-            ],
-            expected_answer=str(answer),
-            signature=f"rect:{length}x{width}",
-        )
-    base = rng.choice([4, 6, 8, 10, 12])
-    height = rng.choice([2, 3, 4, 5, 6])
-    answer = (base * height) // 2
-    return MathSpec(
-        subject="Math",
-        topic="calculating area",
-        difficulty_level=difficulty,
-        question_text=(
-            f"A triangular flag has a base of {base} inches and a height of {height} inches. "
-            f"What is the area in square inches?"
-        ),
-        scaffolding_hints=[
-            "Area of a triangle = (base × height) ÷ 2.",
-            f"Compute ({base} × {height}) ÷ 2.",
-        ],
-        expected_answer=str(answer),
-        signature=f"tri:{base}x{height}",
-    )
+def _frac_str(num: int, den: int) -> str:
+    f = Fraction(num, den)
+    if f.denominator == 1:
+        return str(f.numerator)
+    return f"{f.numerator}/{f.denominator}"
 
 
 def _unit_price_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
@@ -149,10 +56,7 @@ def _unit_price_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSp
                 f"A pack of {pack} pencils costs ${total}. "
                 f"What is the cost of one pencil in dollars?"
             ),
-            scaffolding_hints=[
-                "Unit price = total cost ÷ number of items.",
-                f"Divide {total} by {pack}.",
-            ],
+            scaffolding_hints=[_GENERIC_START, "Unit price means total cost divided by how many items."],
             expected_answer=str(unit),
             signature=f"pack:{pack}@{total}",
         )
@@ -163,9 +67,8 @@ def _unit_price_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSp
         total_cents = pack * unit_cents
         total_dollars = total_cents / 100.0
         unit_dollars = unit_cents / 100.0
-        # Prefer clean dollar strings
-        total_str = f"{total_dollars:.2f}".rstrip("0").rstrip(".")
-        unit_str = f"{unit_dollars:.2f}".rstrip("0").rstrip(".")
+        total_str = _money(total_dollars)
+        unit_str = _money(unit_dollars)
         return MathSpec(
             subject="Math",
             topic="unit price",
@@ -175,8 +78,8 @@ def _unit_price_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSp
                 f"What is the unit price for one marker in dollars?"
             ),
             scaffolding_hints=[
-                "Unit price = total cost ÷ number of items.",
-                f"Divide {total_str} by {pack}.",
+                _GENERIC_START,
+                "Unit price means total cost divided by how many items.",
                 "Write the answer as a dollar amount (for example 1.25).",
             ],
             expected_answer=unit_str,
@@ -195,18 +98,312 @@ def _unit_price_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSp
             f"A bag of {pack} {item} costs ${total}. "
             f"What is the cost of one item in dollars?"
         ),
-        scaffolding_hints=[
-            "Unit price = total cost ÷ number of items.",
-            f"Divide {total} by {pack}.",
-        ],
+        scaffolding_hints=[_GENERIC_START, "Unit price means total cost divided by how many items."],
         expected_answer=str(unit),
         signature=f"pack:{pack}@{total}:{item}",
     )
 
 
-_TOPIC_BUILDERS = {
-    "calculating area": _area_specs,
+def _arithmetic_word_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
+    name = rng.choice(["Maya", "Jordan", "Sam", "Alex", "Riley"])
+    if difficulty == "simplified":
+        a = rng.randint(12, 40)
+        b = rng.randint(3, 15)
+        op = rng.choice(["+", "-"])
+        if op == "+":
+            ans = a + b
+            text = f"{name} has {a} stickers and gets {b} more. How many stickers does {name} have now?"
+            sig = f"add:{a}+{b}"
+        else:
+            if b > a:
+                a, b = b, a
+            ans = a - b
+            text = f"{name} has {a} points and loses {b}. How many points are left?"
+            sig = f"sub:{a}-{b}"
+        return MathSpec(
+            subject="Math",
+            topic="arithmetic word problems",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Decide whether you need to add or subtract."],
+            expected_answer=str(ans),
+            signature=sig,
+        )
+
+    if difficulty == "increased":
+        a = rng.randint(8, 24)
+        b = rng.randint(3, 9)
+        c = rng.randint(2, 6)
+        ans = a * b - c
+        text = (
+            f"{name} packs {a} boxes with {b} books each, then gives away {c} books. "
+            f"How many books does {name} have left?"
+        )
+        return MathSpec(
+            subject="Math",
+            topic="arithmetic word problems",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[
+                _GENERIC_START,
+                "Do the multiplication first, then subtract what was given away.",
+            ],
+            expected_answer=str(ans),
+            signature=f"mulsub:{a}*{b}-{c}",
+        )
+
+    a = rng.randint(4, 12)
+    b = rng.randint(3, 9)
+    ans = a * b
+    item = rng.choice(["muffins", "cards", "marbles", "pens"])
+    text = f"{name} buys {a} packs of {item}. Each pack has {b}. How many {item} in all?"
+    return MathSpec(
+        subject="Math",
+        topic="arithmetic word problems",
+        difficulty_level=difficulty,
+        question_text=text,
+        scaffolding_hints=[_GENERIC_START, "Think about equal groups — multiply."],
+        expected_answer=str(ans),
+        signature=f"mul:{a}*{b}:{item}",
+    )
+
+
+def _fractions_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
+    if difficulty == "simplified":
+        den = rng.choice([2, 3, 4, 5, 6, 8])
+        a = rng.randint(1, den - 1)
+        b = rng.randint(1, den - a) if den - a >= 1 else 1
+        if a + b >= den:
+            b = max(1, den - a - 1) if den - a > 1 else 1
+        ans = _frac_str(a + b, den)
+        text = (
+            f"You eat {a}/{den} of a pizza and a friend eats {b}/{den} of the same pizza. "
+            f"What fraction of the pizza did you eat together? (Simplify if you can.)"
+        )
+        return MathSpec(
+            subject="Math",
+            topic="fractions",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Same denominator — add the numerators."],
+            expected_answer=ans,
+            signature=f"fadd:{a}/{den}+{b}/{den}",
+        )
+
+    if difficulty == "increased":
+        a, b = rng.choice([(1, 2), (1, 3), (2, 3), (3, 4), (2, 5)])
+        c, d = rng.choice([(1, 4), (1, 3), (1, 5), (2, 5), (1, 6)])
+        # Prefer multiplication of fractions for a clean skill
+        result = Fraction(a, b) * Fraction(c, d)
+        ans = _frac_str(result.numerator, result.denominator)
+        text = (
+            f"A recipe needs {a}/{b} cup of sugar. You make {c}/{d} of the recipe. "
+            f"How much sugar do you need? Answer as a simplified fraction."
+        )
+        return MathSpec(
+            subject="Math",
+            topic="fractions",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[
+                _GENERIC_START,
+                "Multiply the fractions: numerators together, denominators together, then simplify.",
+            ],
+            expected_answer=ans,
+            signature=f"fmul:{a}/{b}*{c}/{d}",
+        )
+
+    den = rng.choice([4, 5, 6, 8, 10])
+    a = rng.randint(1, den - 1)
+    whole = rng.randint(2, 5)
+    result = Fraction(a, den) * whole
+    ans = _frac_str(result.numerator, result.denominator)
+    text = (
+        f"Each bottle holds {a}/{den} liter. You have {whole} bottles. "
+        f"How many liters in total? Answer as a simplified fraction or whole number."
+    )
+    return MathSpec(
+        subject="Math",
+        topic="fractions",
+        difficulty_level=difficulty,
+        question_text=text,
+        scaffolding_hints=[_GENERIC_START, "Multiply the fraction by the whole number."],
+        expected_answer=ans,
+        signature=f"fscale:{a}/{den}*{whole}",
+    )
+
+
+def _percentages_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
+    if difficulty == "simplified":
+        pct = rng.choice([10, 20, 25, 50])
+        base = rng.choice([40, 60, 80, 100, 120, 200])
+        ans = int(base * pct / 100)
+        text = f"What is {pct}% of {base}?"
+        return MathSpec(
+            subject="Math",
+            topic="percentages",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Percent means 'out of 100' — try 10% first if it helps."],
+            expected_answer=str(ans),
+            signature=f"pct:{pct}%*{base}",
+        )
+
+    if difficulty == "increased":
+        pct = rng.choice([15, 20, 25, 30])
+        price = rng.choice([40, 60, 80, 120, 160])
+        discount = price * pct / 100
+        ans = _money(price - discount)
+        text = (
+            f"A hoodie costs ${price}. It is {pct}% off. "
+            f"What is the sale price in dollars?"
+        )
+        return MathSpec(
+            subject="Math",
+            topic="percentages",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[
+                _GENERIC_START,
+                "Find the discount amount first, then subtract it from the original price.",
+            ],
+            expected_answer=ans,
+            signature=f"sale:{price}-{pct}%",
+        )
+
+    pct = rng.choice([10, 15, 20, 25])
+    bill = rng.choice([20, 40, 50, 80])
+    tip = bill * pct / 100
+    ans = _money(tip)
+    text = f"A meal costs ${bill}. You leave a {pct}% tip. How much is the tip in dollars?"
+    return MathSpec(
+        subject="Math",
+        topic="percentages",
+        difficulty_level=difficulty,
+        question_text=text,
+        scaffolding_hints=[_GENERIC_START, "Tip = percent of the bill."],
+        expected_answer=ans,
+        signature=f"tip:{bill}@{pct}%",
+    )
+
+
+def _order_of_operations_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
+    if difficulty == "simplified":
+        a = rng.randint(2, 9)
+        b = rng.randint(2, 6)
+        c = rng.randint(1, 8)
+        ans = a + b * c
+        text = (
+            f"Evaluate: {a} + {b} × {c}. "
+            f"(Remember multiplication before addition.)"
+        )
+        return MathSpec(
+            subject="Math",
+            topic="order of operations",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Do multiplication before addition (PEMDAS)."],
+            expected_answer=str(ans),
+            signature=f"pemdas:{a}+{b}*{c}",
+        )
+
+    if difficulty == "increased":
+        a = rng.randint(2, 6)
+        b = rng.randint(2, 5)
+        c = rng.randint(2, 4)
+        d = rng.randint(1, 5)
+        ans = (a + b) * c - d
+        text = f"Evaluate: ({a} + {b}) × {c} − {d}."
+        return MathSpec(
+            subject="Math",
+            topic="order of operations",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Parentheses first, then multiply, then subtract."],
+            expected_answer=str(ans),
+            signature=f"pemdas:({a}+{b})*{c}-{d}",
+        )
+
+    a = rng.randint(3, 9)
+    b = rng.randint(2, 5)
+    c = rng.randint(2, 6)
+    ans = a * b + c
+    text = (
+        f"A game gives {a} points per level for {b} levels, then a bonus of {c}. "
+        f"What is the total score? (Think: {a} × {b} + {c}.)"
+    )
+    return MathSpec(
+        subject="Math",
+        topic="order of operations",
+        difficulty_level=difficulty,
+        question_text=text,
+        scaffolding_hints=[_GENERIC_START, "Multiply the points from levels, then add the bonus."],
+        expected_answer=str(ans),
+        signature=f"pemdas:{a}*{b}+{c}",
+    )
+
+
+def _one_step_equations_specs(rng: random.Random, difficulty: DifficultyLevel) -> MathSpec:
+    if difficulty == "simplified":
+        x = rng.randint(3, 12)
+        a = rng.randint(2, 9)
+        # x + a = b
+        b = x + a
+        text = f"Solve for n: n + {a} = {b}. What is n?"
+        return MathSpec(
+            subject="Math",
+            topic="one-step equations",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Undo the addition — subtract the same number from both sides."],
+            expected_answer=str(x),
+            signature=f"eq+:n+{a}={b}",
+        )
+
+    if difficulty == "increased":
+        x = rng.randint(2, 15)
+        a = rng.choice([2, 3, 4, 5, 6])
+        b = a * x
+        text = (
+            f"Tickets cost ${a} each. You spend ${b} in all. "
+            f"How many tickets did you buy? (Solve: {a}n = {b}.)"
+        )
+        return MathSpec(
+            subject="Math",
+            topic="one-step equations",
+            difficulty_level=difficulty,
+            question_text=text,
+            scaffolding_hints=[_GENERIC_START, "Divide both sides by the ticket price."],
+            expected_answer=str(x),
+            signature=f"eq*:{a}n={b}",
+        )
+
+    x = rng.randint(4, 20)
+    a = rng.randint(3, 12)
+    b = x + a
+    name = rng.choice(["Leo", "Nina", "Chris", "Pat"])
+    text = (
+        f"{name} had some cards, bought {a} more, and then had {b}. "
+        f"How many cards did {name} start with?"
+    )
+    return MathSpec(
+        subject="Math",
+        topic="one-step equations",
+        difficulty_level=difficulty,
+        question_text=text,
+        scaffolding_hints=[_GENERIC_START, "Work backwards from the ending amount."],
+        expected_answer=str(x),
+        signature=f"eqstory:{b}-{a}",
+    )
+
+
+_TOPIC_BUILDERS: dict[str, Callable[[random.Random, DifficultyLevel], MathSpec]] = {
     "unit price": _unit_price_specs,
+    "arithmetic word problems": _arithmetic_word_specs,
+    "fractions": _fractions_specs,
+    "percentages": _percentages_specs,
+    "order of operations": _order_of_operations_specs,
+    "one-step equations": _one_step_equations_specs,
 }
 
 
@@ -232,8 +429,7 @@ def generate_math_questions(
     used = set(used_signatures or set())
     questions: List[GeneratedQuestion] = []
 
-    # Try more slots than needed so we can skip recently used signatures.
-    for index in range(count * 8):
+    for index in range(count * 10):
         if len(questions) >= count:
             break
         spec = builder(_rng(student_id, date_str, topic, index), difficulty)
@@ -241,13 +437,15 @@ def generate_math_questions(
         if sig_hash in used:
             continue
         used.add(sig_hash)
+        # Keep at most one soft hint after the generic opener for the UI.
+        hints = list(spec.scaffolding_hints[:2])
         questions.append(
             GeneratedQuestion(
                 subject=spec.subject,
                 topic=topic,
                 difficulty_level=spec.difficulty_level,
                 question_text=spec.question_text,
-                scaffolding_hints=spec.scaffolding_hints,
+                scaffolding_hints=hints,
                 expected_answer=spec.expected_answer,
             )
         )
@@ -258,10 +456,6 @@ def collect_used_math_signatures(
     recent_texts: Sequence[str],
     topics: Sequence[str],
 ) -> Set[str]:
-    """
-    Best-effort: hash recent question texts as signatures so parametric
-    regeneration avoids identical wording even across template versions.
-    """
     used: Set[str] = set()
     for topic in topics:
         for text in recent_texts:

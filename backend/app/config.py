@@ -21,8 +21,12 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
 
-    questions_per_topic: int = 5
-    target_questions_per_subject: int = 10
+    # Sizing for the daily worksheet: feature `topics_per_day` topics (chosen by
+    # rotation + struggle weight), `questions_per_topic_cluster` problems each,
+    # repeating the same pattern to build fluency. Default 2x3=6 problems,
+    # sized for ~30 minutes with an interactive hint-based tutor per problem.
+    topics_per_day: int = 2
+    questions_per_topic_cluster: int = 3
     progress_lookback_days: int = 7
     progress_ewma_decay: float = 0.7
     dedup_lookback_days: int = 21

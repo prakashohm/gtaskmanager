@@ -5,7 +5,7 @@ from typing import Dict, List
 from app.models import DifficultyLevel, TopicProgress
 
 # Struggling topics get more practice; strong topics get fewer, harder items.
-_DIFFICULTY_WEIGHT: Dict[DifficultyLevel, float] = {
+DIFFICULTY_WEIGHT: Dict[DifficultyLevel, float] = {
     "simplified": 1.4,
     "maintained": 1.0,
     "increased": 0.75,
@@ -41,7 +41,7 @@ def compute_topic_question_counts(
                 counts[key] = base + (1 if i < extra else 0)
             continue
 
-        weights = [_DIFFICULTY_WEIGHT.get(tp.recommended_difficulty, 1.0) for tp in topics]
+        weights = [DIFFICULTY_WEIGHT.get(tp.recommended_difficulty, 1.0) for tp in topics]
         total_weight = sum(weights) or float(n)
         raw = [(w / total_weight) * target_per_subject for w in weights]
         # Guarantee at least 1 question per topic, then distribute remainder by largest remainder.

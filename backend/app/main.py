@@ -8,10 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.db.supabase_client import check_supabase_connection, supabase_host
 from app.models import (
+    CheckAnswerRequest,
+    CheckAnswerResponse,
     GenerateWorksheetRequest,
     GenerateWorksheetResult,
     SetDifficultyPinRequest,
     TopicProgress,
+    TutorMessageRequest,
+    TutorMessageResponse,
     WorksheetEntryRecord,
 )
 from app.services.generator import generate_and_store_daily_worksheet
@@ -19,6 +23,15 @@ from app.services.progress import (
     fetch_recent_topic_progress,
     fetch_recent_worksheet_entries,
     set_topic_difficulty_pin,
+)
+from app.services.tutor import (
+    answers_match,
+    check_direct_answer,
+    fetch_question_for_tutor,
+    generate_tutor_reply,
+    log_tutor_attempt_entry,
+    log_tutor_solved_entry,
+    message_looks_like_answer,
 )
 
 app = FastAPI(
@@ -116,12 +129,82 @@ def get_entries(
         raise HTTPException(status_code=500, detail=detail) from exc
 
 
+@app.post("/tutor/check-answer", response_model=CheckAnswerResponse)
+def tutor_check_answer(body: CheckAnswerRequest) -> CheckAnswerResponse:
+    """Fast path: grade a typed answer without opening a tutor chat turn."""
+    try:
+        question_row = fetch_question_for_tutor(body.question_id)
+        if not question_row:
+            raise HTTPException(status_code=404, detail="Question not found.")
+        expected = question_row.get("expected_answer") or ""
+        response = check_direct_answer(expected_answer=expected, student_answer=body.answer)
+        log_tutor_attempt_entry(
+            student_id=body.student_id,
+            question_row=question_row,
+            student_message=body.answer,
+            is_correct=response.correct,
+            hint_count=0,
+        )
+        return response
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@app.post("/tutor/message", response_model=TutorMessageResponse)
+def tutor_message(body: TutorMessageRequest) -> TutorMessageResponse:
+    try:
+        question_row = fetch_question_for_tutor(body.question_id)
+        if not question_row:
+            raise HTTPException(status_code=404, detail="Question not found.")
+        expected = question_row.get("expected_answer") or ""
+        # Deterministic correct answers skip the LLM entirely.
+        if answers_match(body.message, expected):
+            response = TutorMessageResponse(
+                reply="Yes! That's exactly right — nice work.", solved=True
+            )
+        else:
+            _ensure_llm_configured()
+            response = generate_tutor_reply(
+                question_text=question_row["question_text"],
+                topic=question_row["topic"],
+                difficulty=question_row.get("difficulty_level") or "maintained",
+                expected_answer=expected,
+                history=body.history,
+                student_message=body.message,
+            )
+        hint_count = sum(1 for turn in body.history if turn.role == "tutor")
+        if response.solved:
+            log_tutor_solved_entry(
+                student_id=body.student_id,
+                question_row=question_row,
+                student_message=body.message,
+                hint_count=hint_count,
+            )
+        elif message_looks_like_answer(body.message):
+            log_tutor_attempt_entry(
+                student_id=body.student_id,
+                question_row=question_row,
+                student_message=body.message,
+                is_correct=False,
+                hint_count=hint_count,
+            )
+        return response
+    except HTTPException:
+        raise
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
 @app.post("/generate", response_model=GenerateWorksheetResult)
 def generate_worksheet(
     body: Optional[GenerateWorksheetRequest] = None,
 ) -> GenerateWorksheetResult:
     try:
-        _ensure_llm_configured()
+        # Template-backed topics no longer require an LLM key.
         return generate_and_store_daily_worksheet(body)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from app.config import get_settings
 from app.models import GenerateWorksheetRequest, GenerateWorksheetResult, GeneratedQuestion, TopicProgress
@@ -18,13 +18,12 @@ from app.services.math_templates import (
     supports_math_topic,
 )
 from app.services.progress import fetch_recent_topic_progress
-from app.services.question_counts import compute_topic_question_counts
+from app.services.question_counts import DIFFICULTY_WEIGHT, compute_topic_question_counts
 
 
 def delete_existing_questions(
     student_id: str,
     question_date,
-    worksheet_set: int,
     subjects: Optional[List[str]] = None,
 ) -> int:
     sb = get_supabase()
@@ -34,33 +33,15 @@ def delete_existing_questions(
         .eq("student_id", student_id)
         .eq("question_date", question_date.isoformat())
     )
-    try:
-        query = query.eq("worksheet_set", worksheet_set)
-        if subjects:
-            query = query.in_("subject", subjects)
-        resp = query.execute()
-        return len(resp.data or [])
-    except Exception as exc:
-        if "worksheet_set" not in str(exc).lower():
-            raise
-        query = (
-            sb.table("daily_generated_questions")
-            .delete()
-            .eq("student_id", student_id)
-            .eq("question_date", question_date.isoformat())
-        )
-        if subjects:
-            query = query.in_("subject", subjects)
-        if worksheet_set != 1:
-            return 0
-        resp = query.execute()
-        return len(resp.data or [])
+    if subjects:
+        query = query.in_("subject", subjects)
+    resp = query.execute()
+    return len(resp.data or [])
 
 
 def fetch_existing_questions(
     student_id: str,
     question_date: date,
-    worksheet_set: int,
     subjects: Optional[List[str]] = None,
 ) -> List[dict]:
     sb = get_supabase()
@@ -68,35 +49,15 @@ def fetch_existing_questions(
         sb.table("daily_generated_questions")
         .select(
             "id, subject, topic, difficulty_level, question_text, scaffolding_hints, "
-            "expected_answer, worksheet_set, task_id"
+            "expected_answer, task_id"
         )
         .eq("student_id", student_id)
         .eq("question_date", question_date.isoformat())
     )
-    try:
-        query = query.eq("worksheet_set", worksheet_set)
-        if subjects:
-            query = query.in_("subject", subjects)
-        resp = query.execute()
-        return resp.data or []
-    except Exception as exc:
-        if "worksheet_set" not in str(exc).lower():
-            raise
-        if worksheet_set != 1:
-            return []
-        query = (
-            sb.table("daily_generated_questions")
-            .select(
-                "id, subject, topic, difficulty_level, question_text, scaffolding_hints, "
-                "expected_answer, task_id"
-            )
-            .eq("student_id", student_id)
-            .eq("question_date", question_date.isoformat())
-        )
-        if subjects:
-            query = query.in_("subject", subjects)
-        resp = query.execute()
-        return resp.data or []
+    if subjects:
+        query = query.in_("subject", subjects)
+    resp = query.execute()
+    return resp.data or []
 
 
 def subjects_needing_generation(
@@ -104,7 +65,7 @@ def subjects_needing_generation(
     progress: List[TopicProgress],
     requested_subjects: Optional[List[str]],
 ) -> List[str]:
-    """Return subjects that still need questions for this date/set."""
+    """Return subjects that still need questions for this date."""
     existing_subjects = {str(r.get("subject") or "") for r in existing_rows}
     candidates = requested_subjects or sorted({p.subject for p in progress})
     return [s for s in candidates if s not in existing_subjects]
@@ -121,12 +82,62 @@ def _filter_progress(progress, subjects: Optional[List[str]], topics: Optional[L
     return filtered
 
 
+def _topic_last_seen(student_id: str) -> Dict[str, date]:
+    """Most recent question_date each topic was featured on, from history."""
+    try:
+        sb = get_supabase()
+        resp = (
+            sb.table("daily_generated_questions")
+            .select("topic, question_date")
+            .eq("student_id", student_id)
+            .order("question_date", desc=True)
+            .limit(500)
+            .execute()
+        )
+    except Exception:
+        return {}
+    last_seen: Dict[str, date] = {}
+    for row in resp.data or []:
+        topic = row.get("topic")
+        raw_date = row.get("question_date")
+        if not topic or not raw_date or topic in last_seen:
+            continue
+        try:
+            last_seen[topic] = date.fromisoformat(str(raw_date))
+        except ValueError:
+            continue
+    return last_seen
+
+
+def _select_todays_topics(
+    progress: List[TopicProgress],
+    topics_per_day: int,
+    last_seen: Dict[str, date],
+) -> List[TopicProgress]:
+    """
+    Pick a rotating subset of topics for today so the worksheet stays short
+    (~30 min) while still repeating each chosen topic's pattern enough times
+    to reinforce it. Prefers topics not recently featured, tie-broken by
+    struggle weight (same weighting used to split question counts). Pure
+    function — `last_seen` is looked up by the caller via `_topic_last_seen`.
+    """
+    if topics_per_day <= 0 or len(progress) <= topics_per_day:
+        return progress
+
+    def sort_key(tp: TopicProgress):
+        seen = last_seen.get(tp.topic)
+        # Never-seen topics sort first (date.min); struggle weight breaks ties.
+        weight = DIFFICULTY_WEIGHT.get(tp.recommended_difficulty, 1.0)
+        return (seen or date.min, -weight)
+
+    return sorted(progress, key=sort_key)[:topics_per_day]
+
+
 def insert_generated_questions(
     student_id: str,
     question_date,
     questions: List[GeneratedQuestion],
     task_id_by_topic: dict,
-    worksheet_set: int = 1,
 ) -> int:
     settings = get_settings()
     sb = get_supabase()
@@ -145,20 +156,12 @@ def insert_generated_questions(
                 "expected_answer": q.expected_answer,
                 "task_id": task_id_by_topic.get(key),
                 "source_prompt_version": settings.prompt_version,
-                "is_assigned_as_chore": worksheet_set == 1,
-                "worksheet_set": worksheet_set,
+                "is_assigned_as_chore": True,
             }
         )
     if not rows:
         return 0
-    try:
-        sb.table("daily_generated_questions").insert(rows).execute()
-    except Exception as exc:
-        if "worksheet_set" not in str(exc).lower():
-            raise
-        for row in rows:
-            row.pop("worksheet_set", None)
-        sb.table("daily_generated_questions").insert(rows).execute()
+    sb.table("daily_generated_questions").insert(rows).execute()
     return len(rows)
 
 
@@ -267,14 +270,12 @@ def generate_and_store_daily_worksheet(
         deleted_count = delete_existing_questions(
             student_id=student_id,
             question_date=question_date,
-            worksheet_set=req.worksheet_set,
             subjects=req.subjects,
         )
     elif req.skip_if_exists:
         existing = fetch_existing_questions(
             student_id=student_id,
             question_date=question_date,
-            worksheet_set=req.worksheet_set,
             subjects=req.subjects,
         )
         needing = subjects_needing_generation(existing, progress, req.subjects)
@@ -313,9 +314,15 @@ def generate_and_store_daily_worksheet(
             for tp in progress
         ]
 
+    # Rotate to a small subset of topics per day so the sheet stays ~30 minutes
+    # while each chosen topic gets enough repeated-pattern problems to reinforce it.
+    progress = _select_todays_topics(
+        progress, settings.topics_per_day, _topic_last_seen(student_id)
+    )
+
     topic_question_counts = compute_topic_question_counts(
         progress,
-        settings.target_questions_per_subject,
+        settings.topics_per_day * settings.questions_per_topic_cluster,
         adaptive=settings.adaptive_question_counts,
     )
 
@@ -333,7 +340,6 @@ def generate_and_store_daily_worksheet(
         question_date=question_date,
         questions=questions,
         task_id_by_topic=task_id_by_topic,
-        worksheet_set=req.worksheet_set,
     )
 
     return GenerateWorksheetResult(

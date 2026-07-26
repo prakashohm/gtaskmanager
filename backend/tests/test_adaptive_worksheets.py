@@ -18,7 +18,8 @@ from app.services.progress import (
     weighted_success_rate,
 )
 from app.services.question_counts import compute_topic_question_counts
-from app.services.generator import subjects_needing_generation
+from app.services.generator import _select_todays_topics, subjects_needing_generation
+from app.services.tutor import answers_match, check_direct_answer, _reply_leaks_answer
 
 
 def test_normalize_and_hash_stable():
@@ -33,21 +34,21 @@ def test_filter_novel_questions_drops_duplicates():
     qs = [
         GeneratedQuestion(
             subject="Math",
-            topic="calculating area",
+            topic="fractions",
             difficulty_level="maintained",
             question_text="Find the area of a 3 by 4 rectangle.",
             expected_answer="12",
         ),
         GeneratedQuestion(
             subject="Math",
-            topic="calculating area",
+            topic="fractions",
             difficulty_level="maintained",
             question_text="A rug is 6 feet by 2 feet. What is the area?",
             expected_answer="12",
         ),
         GeneratedQuestion(
             subject="Math",
-            topic="calculating area",
+            topic="fractions",
             difficulty_level="maintained",
             question_text="A rug is 6 feet by 2 feet. What is the area?",
             expected_answer="12",
@@ -83,7 +84,7 @@ def test_adaptive_question_counts_favor_struggling_topics():
     progress = [
         TopicProgress(
             subject="Math",
-            topic="calculating area",
+            topic="fractions",
             attempts=10,
             correct=3,
             success_rate=30,
@@ -99,7 +100,7 @@ def test_adaptive_question_counts_favor_struggling_topics():
         ),
     ]
     counts = compute_topic_question_counts(progress, 10, adaptive=True)
-    assert counts["Math::calculating area"] > counts["Math::unit price"]
+    assert counts["Math::fractions"] > counts["Math::unit price"]
     assert sum(counts.values()) == 10
     assert all(v >= 1 for v in counts.values())
 
@@ -115,11 +116,17 @@ def test_even_split_when_adaptive_disabled():
 
 
 def test_math_templates_produce_unique_signatures():
-    assert supports_math_topic("calculating area")
+    assert supports_math_topic("unit price")
+    assert supports_math_topic("fractions")
+    assert supports_math_topic("percentages")
+    assert supports_math_topic("order of operations")
+    assert supports_math_topic("one-step equations")
+    assert supports_math_topic("arithmetic word problems")
+    assert not supports_math_topic("calculating area")  # retired with the geometry topic
     qs = generate_math_questions(
         student_id="guhan",
         question_date="2026-07-10",
-        topic="calculating area",
+        topic="unit price",
         difficulty="maintained",
         count=5,
     )
@@ -129,6 +136,42 @@ def test_math_templates_produce_unique_signatures():
     for q in qs:
         assert q.expected_answer
         assert q.scaffolding_hints
+        assert "Divide" not in q.scaffolding_hints[0]
+
+
+def test_all_seeded_topics_generate():
+    topics = [
+        "arithmetic word problems",
+        "fractions",
+        "percentages",
+        "order of operations",
+        "one-step equations",
+        "unit price",
+    ]
+    for topic in topics:
+        for difficulty in ("simplified", "maintained", "increased"):
+            qs = generate_math_questions(
+                student_id="guhan",
+                question_date="2026-07-10",
+                topic=topic,
+                difficulty=difficulty,
+                count=2,
+            )
+            assert len(qs) == 2, f"{topic}/{difficulty}"
+            for q in qs:
+                assert q.expected_answer
+                assert answers_match(q.expected_answer, q.expected_answer)
+
+
+def test_answers_match_equivalents():
+    assert answers_match("1.25", "1.25")
+    assert answers_match("$1.25", "1.25")
+    assert answers_match("I think 12", "12")
+    assert answers_match("3/4", "6/8")
+    assert answers_match("50%", "50")
+    assert not answers_match("11", "12")
+    assert check_direct_answer(expected_answer="12", student_answer="12").solved
+    assert not check_direct_answer(expected_answer="12", student_answer="11").correct
 
 
 def test_math_templates_day_stable():
@@ -227,10 +270,57 @@ def test_claude_config_and_content_issues_do_not_trigger_fallback():
 
 def test_subjects_needing_generation():
     progress = [
-        TopicProgress(subject="Math", topic="calculating area"),
+        TopicProgress(subject="Math", topic="fractions"),
         TopicProgress(subject="Reading", topic="identifying theme"),
     ]
     existing = [{"subject": "Math", "question_text": "x"}]
     needing = subjects_needing_generation(existing, progress, None)
     assert needing == ["Reading"]
     assert subjects_needing_generation(existing, progress, ["Math"]) == []
+
+
+def test_select_todays_topics_prefers_never_seen():
+    progress = [
+        TopicProgress(subject="Math", topic="fractions", recommended_difficulty="maintained"),
+        TopicProgress(subject="Math", topic="percentages", recommended_difficulty="maintained"),
+        TopicProgress(subject="Math", topic="unit price", recommended_difficulty="maintained"),
+    ]
+    last_seen = {
+        "fractions": date(2026, 7, 9),
+        "percentages": date(2026, 7, 8),
+        # "unit price" never seen — should be picked first.
+    }
+    picked = _select_todays_topics(progress, 2, last_seen)
+    picked_topics = {tp.topic for tp in picked}
+    assert "unit price" in picked_topics
+    assert "percentages" in picked_topics  # older last_seen than fractions
+    assert "fractions" not in picked_topics
+
+
+def test_select_todays_topics_breaks_ties_with_struggle_weight():
+    progress = [
+        TopicProgress(subject="Math", topic="fractions", recommended_difficulty="simplified"),
+        TopicProgress(subject="Math", topic="percentages", recommended_difficulty="increased"),
+    ]
+    # Neither seen before (both date.min) — struggling topic should win the tie.
+    picked = _select_todays_topics(progress, 1, {})
+    assert picked[0].topic == "fractions"
+
+
+def test_select_todays_topics_noop_when_already_small():
+    progress = [TopicProgress(subject="Math", topic="fractions")]
+    assert _select_todays_topics(progress, 2, {}) == progress
+
+
+def test_reply_leaks_answer_detects_exact_match():
+    assert _reply_leaks_answer("Great job, the answer is 42!", "42")
+    assert _reply_leaks_answer("That comes out to $1.25 exactly.", "1.25")
+
+
+def test_reply_leaks_answer_ignores_unrelated_numbers():
+    assert not _reply_leaks_answer("Try step 2 again — what's 6 times 7?", "42")
+
+
+def test_reply_leaks_answer_respects_word_boundary():
+    # "4" must not match inside "42" or "24".
+    assert not _reply_leaks_answer("You're close, keep going — check your 42 there.", "4")

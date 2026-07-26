@@ -10,11 +10,16 @@ DifficultyLevel = Literal["simplified", "maintained", "increased"]
 
 
 class GeneratedQuestion(BaseModel):
-    subject: str = Field(..., description="e.g. Math, Reading")
-    topic: str = Field(..., description="e.g. calculating area, unit price, identifying theme")
+    subject: str = Field(..., description="Always 'Math' today")
+    topic: str = Field(
+        ..., description="e.g. fractions, percentages, unit price, one-step equations"
+    )
     difficulty_level: DifficultyLevel
     question_text: str
-    scaffolding_hints: List[str] = Field(default_factory=list)
+    scaffolding_hints: List[str] = Field(
+        default_factory=list,
+        description="At most one 'getting started' nudge — never a worked solution.",
+    )
     expected_answer: str
 
 
@@ -51,18 +56,17 @@ class GenerateWorksheetRequest(BaseModel):
     question_date: Optional[date] = None
     subjects: Optional[List[str]] = None
     topics: Optional[List[str]] = None
-    worksheet_set: int = Field(1, ge=1, description="Worksheet round for the day (1=required chore, 2+=bonus)")
     difficulty_override: Optional[DifficultyLevel] = Field(
         None,
         description="One-time parent override for this generation only; omit for fully adaptive",
     )
     replace_existing: bool = Field(
         False,
-        description="When true, delete existing questions for this date/set/subjects before inserting",
+        description="When true, delete existing questions for this date/subjects before inserting",
     )
     skip_if_exists: bool = Field(
         True,
-        description="When true and replace_existing is false, skip subjects that already have questions for this date/set",
+        description="When true and replace_existing is false, skip subjects that already have questions for this date",
     )
 
 
@@ -90,5 +94,35 @@ class WorksheetEntryRecord(BaseModel):
     student_answer: Optional[str] = None
     expected_answer: Optional[str] = None
     is_correct: Optional[bool] = None
+    hint_count: int = Field(0, description="Tutor back-and-forth turns it took to solve.")
     entry_date: date
     completed_at: Optional[datetime] = None
+
+
+class ChatTurn(BaseModel):
+    role: Literal["student", "tutor"]
+    content: str
+
+
+class TutorMessageRequest(BaseModel):
+    student_id: str
+    question_id: str
+    message: str
+    history: List[ChatTurn] = Field(default_factory=list)
+
+
+class TutorMessageResponse(BaseModel):
+    reply: str
+    solved: bool
+
+
+class CheckAnswerRequest(BaseModel):
+    student_id: str
+    question_id: str
+    answer: str
+
+
+class CheckAnswerResponse(BaseModel):
+    correct: bool
+    solved: bool
+    reply: str
