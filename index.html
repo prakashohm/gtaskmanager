@@ -1984,9 +1984,133 @@
         .calendar-hour-slot.preset-morning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.12)); border-left-color: #d97706; }
         .calendar-hour-slot.preset-school { background: linear-gradient(135deg, rgba(13, 148, 136, 0.2), rgba(13, 148, 136, 0.1)); border-left-color: var(--primary); }
         .calendar-hour-slot.preset-bed { background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(129, 140, 248, 0.12)); border-left-color: #4f46e5; }
+        .calendar-hour-slot.preset-homework { background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.1)); border-left-color: #0284c7; }
+        .calendar-hour-slot.preset-chore { background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(251, 191, 36, 0.1)); border-left-color: #d97706; }
+        .calendar-hour-slot.preset-screen { background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(52, 211, 153, 0.1)); border-left-color: #059669; }
+        .calendar-hour-slot.preset-break { background: linear-gradient(135deg, rgba(100, 116, 139, 0.14), rgba(148, 163, 184, 0.08)); border-left-color: #64748b; }
+        .calendar-hour-slot.preset-focus { background: linear-gradient(135deg, rgba(13, 148, 136, 0.22), rgba(20, 184, 166, 0.1)); border-left-color: var(--primary-dark); }
         .calendar-hour-slot.readonly { cursor: default; pointer-events: none; }
         .calendar-hour-slot.blocked.readonly { cursor: default; }
-        .calendar-block-text { font-size: 0.85rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .calendar-hour-slot.is-done { opacity: 0.55; }
+        .calendar-hour-slot.is-done .calendar-block-text { text-decoration: line-through; color: var(--text-muted); }
+        .calendar-block-text { font-size: 0.85rem; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+        .calendar-hour-row.is-now {
+            background: rgba(249, 115, 22, 0.08);
+            box-shadow: inset 3px 0 0 var(--accent);
+        }
+        .calendar-hour-row.is-now .calendar-hour-label { color: var(--accent); font-weight: 800; }
+        .calendar-now-badge {
+            flex-shrink: 0;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #fff;
+            background: var(--accent);
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin-right: 8px;
+        }
+        .calendar-done-btn {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 2px solid rgba(13, 148, 136, 0.35);
+            background: rgba(255,255,255,0.85);
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 800;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .calendar-done-btn[aria-pressed="true"] {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+        .calendar-done-btn:hover { border-color: var(--primary); }
+        .calendar-activity-card.preset-homework { border-left-color: #0284c7; }
+        .calendar-activity-card.preset-chore { border-left-color: #d97706; }
+        .calendar-activity-card.preset-screen { border-left-color: #059669; }
+        .calendar-activity-card.preset-break { border-left-color: #64748b; }
+        .calendar-activity-card.preset-focus { border-left-color: var(--primary-dark); }
+        .calendar-activity-card.is-done { opacity: 0.65; }
+        .calendar-activity-card.is-done .calendar-activity-title { text-decoration: line-through; color: var(--text-muted); }
+        .calendar-activity-card-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; }
+        .calendar-activity-card-main { flex: 1; min-width: 0; text-align: left; }
+        .focus-now-card {
+            margin: 0.85rem 1.25rem 0;
+            border-radius: 18px;
+            background: linear-gradient(145deg, rgba(13, 148, 136, 0.12), rgba(249, 115, 22, 0.08));
+            border: 1px solid rgba(13, 148, 136, 0.22);
+            box-shadow: 0 10px 28px -18px rgba(15, 23, 42, 0.35);
+            overflow: hidden;
+        }
+        .focus-now-inner { padding: 1rem 1.15rem 1.1rem; }
+        .focus-now-kicker {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--primary-dark);
+            margin: 0 0 0.35rem;
+        }
+        .focus-now-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0 0 0.25rem;
+            line-height: 1.25;
+        }
+        .focus-now-title.is-done { text-decoration: line-through; color: var(--text-muted); }
+        .focus-now-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0 0 0.85rem;
+            line-height: 1.4;
+        }
+        .focus-now-meta strong { color: var(--text); font-weight: 700; }
+        .focus-now-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+        .focus-now-actions .btn { font-size: 0.82rem; padding: 0.45rem 0.85rem; }
+        .focus-now-next {
+            margin-top: 0.85rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(13, 148, 136, 0.15);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .focus-now-next strong { color: var(--text); }
+        .focus-now-progress {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .focus-now-progress-bar {
+            flex: 1;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(13, 148, 136, 0.12);
+            overflow: hidden;
+        }
+        .focus-now-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+        @media (max-width: 680px) {
+            .focus-now-card { margin: 0.65rem 0.75rem 0; border-radius: 16px; }
+            .focus-now-title { font-size: 1.2rem; }
+        }
         .calendar-add-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
         .calendar-occupancy { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.85rem; flex-wrap: wrap; }
         .calendar-occupancy-bar { flex: 1; min-width: 120px; height: 8px; background: rgba(13, 148, 136, 0.12); border-radius: 999px; overflow: hidden; }
@@ -2345,9 +2469,6 @@
             font-size: 1.05rem;
             background: rgba(13, 148, 136, 0.1);
         }
-        .worksheet-reward-banner-card.is-bonus .worksheet-reward-banner-icon {
-            background: rgba(245, 158, 11, 0.18);
-        }
         .student-worksheet-list { display: grid; gap: 0.75rem; }
         .student-worksheet-card {
             border: 1px solid rgba(13, 148, 136, 0.25);
@@ -2520,37 +2641,47 @@
             font-weight: 700;
         }
         .btn-ws-skip:hover { background: rgba(249, 115, 22, 0.18); }
-        .worksheet-bonus-offer {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 14px;
-            border: 1px solid rgba(5, 150, 105, 0.35);
-            background: linear-gradient(168deg, rgba(236, 253, 245, 0.95), rgba(240, 253, 250, 0.85));
-        }
-        .worksheet-bonus-offer p {
-            margin: 0 0 0.75rem;
-            font-size: 0.9rem;
-            line-height: 1.45;
-            color: var(--text);
-        }
-        .worksheet-bonus-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .worksheet-bonus-actions .btn { flex: 1; min-width: 9rem; }
         .settings-field-tile--wide { grid-column: 1 / -1; }
-        .student-worksheet-card.has-bonus {
-            border-color: rgba(5, 150, 105, 0.35);
+        .worksheet-tutor-thread {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            max-height: 260px;
+            overflow-y: auto;
+            margin: 0.75rem 0;
+            padding: 0.25rem 0.1rem;
         }
-        .worksheet-bonus-badge {
-            font-size: 0.68rem;
-            font-weight: 700;
-            padding: 0.15rem 0.5rem;
-            border-radius: 999px;
-            background: rgba(5, 150, 105, 0.15);
-            color: #065f46;
+        .ws-tutor-bubble {
+            max-width: 85%;
+            padding: 0.6rem 0.85rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            white-space: pre-wrap;
         }
+        .ws-tutor-bubble.tutor {
+            align-self: flex-start;
+            background: var(--primary-soft, rgba(13,148,136,0.14));
+            color: var(--text);
+            border-bottom-left-radius: 4px;
+        }
+        .ws-tutor-bubble.student {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--primary), var(--primary-bright, #2dd4bf));
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .ws-tutor-bubble.thinking {
+            font-style: italic;
+            opacity: 0.7;
+        }
+        .worksheet-tutor-input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+        .worksheet-tutor-input-row .modal-input { flex: 1; margin: 0; }
+        .worksheet-tutor-input-row .btn { flex-shrink: 0; }
         .ws-gen-card {
             border-color: rgba(13, 148, 136, 0.35);
             background: rgba(240, 253, 250, 0.65);
@@ -2782,6 +2913,19 @@
             </div>
 
             <div id="tab-panel-status" class="app-tab-panel active" role="tabpanel" aria-labelledby="appTabStatus">
+        <div class="focus-now-card" id="focusNowCard" aria-live="polite">
+            <div class="focus-now-inner" id="focusNowInner">
+                <p class="focus-now-kicker">Right now</p>
+                <h3 class="focus-now-title" id="focusNowTitle">Loading…</h3>
+                <p class="focus-now-meta" id="focusNowMeta"></p>
+                <div class="focus-now-actions" id="focusNowActions"></div>
+                <div class="focus-now-next" id="focusNowNext"></div>
+                <div class="focus-now-progress" id="focusNowProgress" hidden>
+                    <span id="focusNowProgressLabel">Today</span>
+                    <div class="focus-now-progress-bar" aria-hidden="true"><div class="focus-now-progress-fill" id="focusNowProgressFill" style="width:0%"></div></div>
+                </div>
+            </div>
+        </div>
         <div class="pot-hero">
             <div class="pot-overview-card pot-center">
                 <div class="section-head">
@@ -2928,7 +3072,11 @@
                     </div>
                 </div>
                 <div class="section-body">
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Preset blocks shown on the calendar per day. User blocks override these.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Preset blocks shown on the calendar per day. User blocks override these. Use the focus timetable for hour-by-hour after-school structure.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin:0 0 10px;">
+                    <button type="button" class="btn btn-primary" onclick="applyFocusTimetableTemplate()">Apply focus timetable</button>
+                    <button type="button" class="btn" id="focusAlertsToggleBtn" onclick="toggleFocusAlerts()">Focus alerts: off</button>
+                </div>
                 <div class="calendar-wrap default-schedule-calendar">
                     <div class="calendar-day-tabs" id="defaultScheduleDayTabs"></div>
                     <div class="calendar-hour-grid" id="defaultScheduleHourGrid"></div>
@@ -2938,7 +3086,17 @@
                             <select id="dsStart" onchange="updateDsEndOptsForCalendar()"></select>
                             <select id="dsEnd"></select>
                             <input type="text" id="dsLabel" placeholder="Label" />
-                            <select id="dsPreset"><option value="custom">Other</option><option value="morning">Get ready</option><option value="school">School</option><option value="bed">Bed</option></select>
+                            <select id="dsPreset">
+                                <option value="custom">Other</option>
+                                <option value="morning">Get ready</option>
+                                <option value="school">School</option>
+                                <option value="break">Break / snack</option>
+                                <option value="homework">Homework</option>
+                                <option value="chore">Chores</option>
+                                <option value="screen">Screen time</option>
+                                <option value="focus">Focus block</option>
+                                <option value="bed">Bed</option>
+                            </select>
                             <button type="button" class="btn btn-primary" onclick="addDefaultSlotFromCalendar()">+ Add</button>
                         </div>
                     </div>
@@ -2959,14 +3117,14 @@
                     </div>
                 </div>
                 <div class="section-body">
-                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Plan your day: scroll days, then use <strong>By time</strong> (grid) or <strong>Activities</strong> (list) on your phone—tap to add or edit.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 8px 0;">Hour-by-hour focus plan: check off each block when done. <strong>By time</strong> shows the grid; <strong>Activities</strong> is a list on phones.</p>
                 <div class="calendar-wrap">
-                    <div class="calendar-toolbar" id="calendarToolbar" aria-hidden="true">
+                    <div class="calendar-toolbar" id="calendarToolbar" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.65rem;flex-wrap:wrap;">
                         <div class="calendar-view-switch" role="tablist" aria-label="How to view the schedule">
                             <button type="button" role="tab" class="calendar-view-btn active" id="calendarViewTimelineBtn" aria-selected="true" onclick="setCalendarMobileView('timeline')">By time</button>
                             <button type="button" role="tab" class="calendar-view-btn" id="calendarViewListBtn" aria-selected="false" onclick="setCalendarMobileView('list')">Activities</button>
                         </div>
-                        <button type="button" class="calendar-jump-now" id="calendarJumpNowBtn" onclick="scrollCalendarToNow()" style="display:none">Now</button>
+                        <button type="button" class="calendar-jump-now" id="calendarJumpNowBtn" onclick="scrollCalendarToNow()" style="display:none">Jump to now</button>
                     </div>
                     <div class="calendar-day-tabs" id="calendarDayTabs"></div>
                     <div class="calendar-occupancy" id="calendarOccupancy"><span id="calendarOccupancyText">—</span><div class="calendar-occupancy-bar"><div id="calendarOccupancyFill" class="calendar-occupancy-fill" style="width:0%"></div></div></div>
@@ -2992,31 +3150,31 @@
                             </div>
                             <div>
                                 <p class="section-kicker">Your work</p>
-                                <h3 class="section-title" style="margin:0.12rem 0 0;">My worksheet chores</h3>
+                                <h3 class="section-title" style="margin:0.12rem 0 0;">My math worksheet</h3>
                             </div>
                         </div>
                         <div class="section-body">
-                            <div class="worksheet-reward-banner" id="worksheetRewardBanner" role="note" aria-label="How worksheet rewards work">
-                                <p class="worksheet-reward-banner-kicker">Reward rules</p>
-                                <h4 class="worksheet-reward-banner-title">Crack the sheet. Cash the reward. Then go for bonus gold! 🏆</h4>
+                            <div class="worksheet-reward-banner" id="worksheetRewardBanner" role="note" aria-label="How the worksheet works">
+                                <p class="worksheet-reward-banner-kicker">How it works</p>
+                                <h4 class="worksheet-reward-banner-title">Chat with your math tutor to work through each problem 🧮</h4>
                                 <div class="worksheet-reward-banner-grid">
+                                    <div class="worksheet-reward-banner-card">
+                                        <span class="worksheet-reward-banner-icon" aria-hidden="true">💬</span>
+                                        <div>
+                                            <strong>Talk it through</strong>
+                                            <p>Type your answer, your work, or a question — the tutor gives hints and never just tells you the answer.</p>
+                                        </div>
+                                    </div>
                                     <div class="worksheet-reward-banner-card">
                                         <span class="worksheet-reward-banner-icon" aria-hidden="true">🎯</span>
                                         <div>
                                             <strong>Finish to earn</strong>
-                                            <p>Get every answer right, mark your worksheet chore done, and today&rsquo;s reward unlocks toward your Weekly Pot.</p>
-                                        </div>
-                                    </div>
-                                    <div class="worksheet-reward-banner-card is-bonus">
-                                        <span class="worksheet-reward-banner-icon" aria-hidden="true">🚀</span>
-                                        <div>
-                                            <strong>Bonus = bigger pot</strong>
-                                            <p id="worksheetRewardBonusLine">Finish the main sheet, then chase bonus rounds — every extra sheet drops another dollar into your Weekly Pot! 💵</p>
+                                            <p>Solve every problem, mark your worksheet chore done, and today&rsquo;s reward unlocks toward your Weekly Pot.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Work through every question correctly to finish your worksheet chore. You can skip a hard one and come back later.</p>
+                            <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem 0;">Work through every problem with your tutor to finish. You can skip a hard one and come back later.</p>
                             <div id="studentWorksheetList" class="student-worksheet-list">
                                 <p class="worksheet-empty">Loading your worksheets…</p>
                             </div>
@@ -3094,22 +3252,15 @@
                                 <div class="worksheet-player-card">
                                     <p id="worksheetPlayerTopic" class="worksheet-work-topic"></p>
                                     <p id="worksheetPlayerQuestion" class="worksheet-work-question"></p>
-                                    <div id="worksheetPlayerHints" class="worksheet-hints" style="display:none;"></div>
-                                    <label class="modal-label" for="worksheetPlayerAnswer">Your answer</label>
-                                    <input type="text" id="worksheetPlayerAnswer" class="modal-input" placeholder="Type your answer here…" onkeydown="if(event.key==='Enter')submitWorksheetAnswer()">
-                                    <p id="worksheetPlayerFeedback" class="worksheet-work-feedback" style="display:none;"></p>
+                                    <div id="worksheetTutorThread" class="worksheet-tutor-thread" aria-live="polite"></div>
+                                    <div class="worksheet-tutor-input-row">
+                                        <input type="text" id="worksheetTutorInput" class="modal-input" aria-label="Your message to the tutor" placeholder="Type your answer, your work, or ask a question…" onkeydown="if(event.key==='Enter')sendTutorMessage()">
+                                        <button type="button" class="btn btn-primary" id="worksheetTutorSendBtn" onclick="sendTutorMessage()">Send</button>
+                                    </div>
                                     <div class="worksheet-player-actions">
-                                        <button type="button" class="btn btn-primary" id="worksheetPlayerSubmitBtn" onclick="submitWorksheetAnswer()">Check answer</button>
                                         <button type="button" class="btn btn-ws-skip" id="worksheetPlayerSkipBtn" onclick="skipWorksheetQuestion()">Skip for now</button>
                                     </div>
                                     <button type="button" class="btn btn-primary" id="worksheetPlayerCompleteBtn" onclick="finishWorksheetChore()" style="display:none;width:100%;margin-top:0.85rem;background:linear-gradient(135deg,var(--success),#059669);">All correct — mark chore done ✓</button>
-                                    <div id="worksheetBonusOffer" class="worksheet-bonus-offer" hidden>
-                                        <p id="worksheetBonusOfferText">Great job finishing your worksheet! Want to try a bonus round for extra credit?</p>
-                                        <div class="worksheet-bonus-actions">
-                                            <button type="button" class="btn btn-primary" id="worksheetBonusAcceptBtn" onclick="acceptBonusWorksheet()">Yes — bonus worksheet</button>
-                                            <button type="button" class="btn btn-ws-skip" onclick="declineBonusWorksheet()">Not now</button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3163,10 +3314,6 @@
                         <label class="settings-field-tile">
                             <span class="settings-field-label">Miss penalty ($)</span>
                             <input type="number" class="settings-num-input" id="cfgPenaltyAmt" min="0" step="0.5">
-                        </label>
-                        <label class="settings-field-tile">
-                            <span class="settings-field-label">Bonus worksheet credit ($)</span>
-                            <input type="number" class="settings-num-input" id="cfgWorksheetBonus" min="0" step="0.5">
                         </label>
                     </div>
                     <div class="settings-actions settings-save-row">
@@ -3488,17 +3635,52 @@
         dailySuccessAmount: 5,
         dailyFailureAmount: 10,
         parentPassword: DEFAULT_PARENT_PASS,
-        worksheetBonusAmount: 2
+        focusTemplateVersion: 0,
+        focusAlertsEnabled: false
     };
 
-    const DEFAULT_SLOTS_WEEKDAY = {
-        1: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
-        2: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
-        3: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
-        4: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
-        5: [{ start: 6, end: 7, text: 'Get ready for School', preset: 'morning' }, { start: 7, end: 14.5, text: 'School time', preset: 'school' }, { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }],
-        0: [], 6: []
-    };
+    /** Shared weekday focus timetable (school + hour-by-hour after school). */
+    const WEEKDAY_FOCUS_SLOTS = [
+        { start: 6, end: 7, text: 'Get ready for school', preset: 'morning' },
+        { start: 7, end: 14.5, text: 'School time', preset: 'school' },
+        { start: 14.5, end: 15.5, text: 'Snack & decompress', preset: 'break' },
+        { start: 15.5, end: 16.5, text: 'Homework / worksheets', preset: 'homework' },
+        { start: 16.5, end: 17, text: 'Chores', preset: 'chore' },
+        { start: 17, end: 17.5, text: 'Screen time (earned)', preset: 'screen' },
+        { start: 17.5, end: 18.5, text: 'Dinner / family', preset: 'break' },
+        { start: 18.5, end: 19.5, text: 'Free / outdoor', preset: 'break' },
+        { start: 19.5, end: 20.5, text: 'Quiet focus or reading', preset: 'focus' },
+        { start: 20.5, end: 21.5, text: 'Wind down', preset: 'break' },
+        { start: 21.5, end: 22, text: 'Bed time', preset: 'bed' }
+    ];
+    const WEEKEND_FOCUS_SLOTS = [
+        { start: 8, end: 9, text: 'Morning routine', preset: 'morning' },
+        { start: 9, end: 11, text: 'Free / outdoor', preset: 'break' },
+        { start: 11, end: 12, text: 'Homework or reading', preset: 'homework' },
+        { start: 12, end: 13, text: 'Lunch', preset: 'break' },
+        { start: 13, end: 14, text: 'Chores', preset: 'chore' },
+        { start: 14, end: 15, text: 'Screen time (earned)', preset: 'screen' },
+        { start: 15, end: 17, text: 'Free play / outdoor', preset: 'break' },
+        { start: 17, end: 18, text: 'Dinner / family', preset: 'break' },
+        { start: 18, end: 19.5, text: 'Quiet focus or reading', preset: 'focus' },
+        { start: 19.5, end: 21, text: 'Wind down', preset: 'break' },
+        { start: 21, end: 22, text: 'Bed time', preset: 'bed' }
+    ];
+    function cloneSlotList(list) {
+        return (list || []).map(b => ({ start: b.start, end: b.end, text: b.text, preset: b.preset }));
+    }
+    function buildFocusTimetableSlots() {
+        return {
+            0: cloneSlotList(WEEKEND_FOCUS_SLOTS),
+            1: cloneSlotList(WEEKDAY_FOCUS_SLOTS),
+            2: cloneSlotList(WEEKDAY_FOCUS_SLOTS),
+            3: cloneSlotList(WEEKDAY_FOCUS_SLOTS),
+            4: cloneSlotList(WEEKDAY_FOCUS_SLOTS),
+            5: cloneSlotList(WEEKDAY_FOCUS_SLOTS),
+            6: cloneSlotList(WEEKEND_FOCUS_SLOTS)
+        };
+    }
+    const DEFAULT_SLOTS_WEEKDAY = buildFocusTimetableSlots();
     
     /** Prefer globalThis — some browsers don’t put UMD on window until after load. */
     function createSupabaseBrowserClient() {
@@ -3539,10 +3721,9 @@
         weeklyDeposits: {},
         reminderNotes: '',
         calendarBlocks: {},
+        scheduleDone: {},
         worksheetMasteredToday: [],
-        worksheetSkippedToday: [],
-        worksheetActiveSet: {},
-        worksheetBonusSetsPaid: {}
+        worksheetSkippedToday: []
     };
 
     function getParentPassword() { return state.config?.parentPassword || DEFAULT_PARENT_PASS; }
@@ -3990,6 +4171,263 @@
         return mergeBlocks(defaultBlocks, userBlocks);
     }
 
+    function looksLikeLegacyDefaultSlots(slotsByDay) {
+        if (!slotsByDay || typeof slotsByDay !== 'object') return true;
+        let sawWeekday = false;
+        for (let d = 1; d <= 5; d++) {
+            const s = slotsByDay[d];
+            if (!Array.isArray(s) || !s.length) continue;
+            sawWeekday = true;
+            const blob = s.map(x => ((x.preset || '') + ' ' + (x.text || '')).toLowerCase()).join('|');
+            if (/homework|chore|screen|snack|decompress|worksheet|quiet focus/.test(blob)) return false;
+            if (s.length <= 3 && s.some(x => x.preset === 'school' || /school/i.test(x.text || ''))) return true;
+        }
+        return !sawWeekday;
+    }
+
+    function ensureFocusTimetableTemplate() {
+        if (!state.config) state.config = { ...DEFAULT_CONFIG };
+        const ver = Number(state.config.focusTemplateVersion) || 0;
+        if (ver >= 1) return false;
+        if (!state.config.defaultSlots || looksLikeLegacyDefaultSlots(state.config.defaultSlots)) {
+            state.config.defaultSlots = buildFocusTimetableSlots();
+        }
+        state.config.focusTemplateVersion = 1;
+        return true;
+    }
+
+    function scheduleBlockKey(block) {
+        if (!block) return '';
+        if (!block.isPreset && block.id != null) return 'u:' + block.id;
+        return 'p:' + Number(block.start) + '-' + Number(block.end) + ':' + String(block.text || '');
+    }
+
+    function isScheduleBlockDone(dateKey, block) {
+        const key = scheduleBlockKey(block);
+        if (!key || !dateKey) return false;
+        const dayMap = state.scheduleDone && state.scheduleDone[dateKey];
+        return !!(dayMap && dayMap[key]);
+    }
+
+    function formatMinutesLeft(mins) {
+        if (mins == null || mins < 0) return '';
+        if (mins < 1) return 'less than a minute left';
+        if (mins < 60) return Math.round(mins) + ' min left';
+        const h = Math.floor(mins / 60);
+        const m = Math.round(mins % 60);
+        return m ? (h + 'h ' + m + 'm left') : (h + 'h left');
+    }
+
+    function getFocusNowContext(dateKey) {
+        const todayKey = dateKey || getTodayEST();
+        const blocks = getMergedBlocksForDateKey(todayKey);
+        const nowH = getNowFloatHourEST();
+        let current = null;
+        let next = null;
+        for (const b of blocks) {
+            if (nowH >= b.start && nowH < b.end) {
+                current = b;
+            } else if (b.start > nowH && !next) {
+                next = b;
+            }
+        }
+        const checkable = blocks.filter(b => {
+            const p = (b.preset || '').toLowerCase();
+            const t = (b.text || '').toLowerCase();
+            if (p === 'school' || t === 'school time') return false;
+            return true;
+        });
+        const doneCount = checkable.filter(b => isScheduleBlockDone(todayKey, b)).length;
+        let minutesLeft = null;
+        if (current) minutesLeft = (current.end - nowH) * 60;
+        return { todayKey, blocks, current, next, nowH, checkable, doneCount, minutesLeft };
+    }
+
+    function buildDoneToggleHtml(dateKey, block, opts) {
+        opts = opts || {};
+        if (!block || !dateKey) return '';
+        const todayKey = getTodayEST();
+        if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return '';
+        const key = scheduleBlockKey(block);
+        const done = isScheduleBlockDone(dateKey, block);
+        const escapedDate = String(dateKey).replace(/'/g, "\\'");
+        const escapedKey = String(key).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const label = done ? '✓' : '';
+        const title = done ? 'Mark not done' : 'Mark done';
+        const cls = opts.compact ? 'calendar-done-btn' : 'calendar-done-btn';
+        return '<button type="button" class="' + cls + '" aria-pressed="' + (done ? 'true' : 'false') + '" title="' + title + '" aria-label="' + title + '" onclick="event.stopPropagation(); toggleScheduleBlockDone(\'' + escapedDate + '\',\'' + escapedKey + '\')">' + label + '</button>';
+    }
+
+    window.toggleScheduleBlockDone = async function(dateKey, blockKey) {
+        if (!dateKey || !blockKey) return;
+        const todayKey = getTodayEST();
+        if (parseLocaleDateKey(dateKey) < parseLocaleDateKey(todayKey)) return;
+        if (!state.scheduleDone || typeof state.scheduleDone !== 'object') state.scheduleDone = {};
+        if (!state.scheduleDone[dateKey] || typeof state.scheduleDone[dateKey] !== 'object') state.scheduleDone[dateKey] = {};
+        const wasDone = !!state.scheduleDone[dateKey][blockKey];
+        if (wasDone) delete state.scheduleDone[dateKey][blockKey];
+        else state.scheduleDone[dateKey][blockKey] = true;
+        const block = getMergedBlocksForDateKey(dateKey).find(b => scheduleBlockKey(b) === blockKey);
+        const label = block ? (block.text || 'Block') : 'Block';
+        await saveAction();
+        if (!wasDone) showToast(label + ' — done. Nice focus!', 'success');
+    };
+
+    window.applyFocusTimetableTemplate = async function() {
+        if (!confirm('Replace the default weekly schedule with the hour-by-hour focus timetable? Per-day overrides you added on the calendar stay.')) return;
+        state.config.defaultSlots = buildFocusTimetableSlots();
+        state.config.focusTemplateVersion = 1;
+        await saveAction();
+        showToast('Focus timetable applied for the week.', 'success');
+    };
+
+    function focusAlertsEnabled() {
+        return !!(state.config && state.config.focusAlertsEnabled);
+    }
+
+    function syncFocusAlertsButton() {
+        const btn = document.getElementById('focusAlertsToggleBtn');
+        if (!btn) return;
+        const on = focusAlertsEnabled();
+        btn.textContent = on ? 'Focus alerts: on' : 'Focus alerts: off';
+        btn.classList.toggle('btn-primary', on);
+    }
+
+    window.toggleFocusAlerts = async function() {
+        const turningOn = !focusAlertsEnabled();
+        if (turningOn) {
+            if (!('Notification' in window)) {
+                showToast('This browser does not support notifications.', 'warning');
+                return;
+            }
+            let perm = Notification.permission;
+            if (perm === 'default') {
+                try { perm = await Notification.requestPermission(); } catch (e) { perm = 'denied'; }
+            }
+            if (perm !== 'granted') {
+                showToast('Allow notifications in the browser to get “block starting” alerts.', 'warning');
+                return;
+            }
+            state.config.focusAlertsEnabled = true;
+            await saveAction({ skipRender: true });
+            syncFocusAlertsButton();
+            showToast('Focus alerts on — keep this tab open or install the app.', 'success');
+            tickFocusBlockAlerts({ fromEnable: true });
+            return;
+        }
+        state.config.focusAlertsEnabled = false;
+        await saveAction({ skipRender: true });
+        syncFocusAlertsButton();
+        showToast('Focus alerts off.', 'success');
+    };
+
+    window.enableFocusAlertsFromCard = function() {
+        if (focusAlertsEnabled()) {
+            showToast('Focus alerts are already on.', 'success');
+            return;
+        }
+        toggleFocusAlerts();
+    };
+
+    function notifyFocusBlock(block) {
+        if (!block || !('Notification' in window) || Notification.permission !== 'granted') return;
+        const title = 'Time for: ' + (block.text || 'next block');
+        const body = hourToLabel(block.start) + ' – ' + hourToLabel(block.end);
+        try {
+            const n = new Notification(title, { body: body, icon: './guhan.png', tag: 'rh-focus-' + scheduleBlockKey(block) });
+            setTimeout(function() { try { n.close(); } catch (e) {} }, 12000);
+        } catch (e) {
+            console.warn('RewardHub focus notify:', e);
+        }
+    }
+
+    let lastFocusAlertKey = '';
+    try { lastFocusAlertKey = sessionStorage.getItem('rh_focus_last_alert') || ''; } catch (e) {}
+
+    function tickFocusBlockAlerts(opts) {
+        opts = opts || {};
+        if (!focusAlertsEnabled()) return;
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const ctx = getFocusNowContext();
+        if (!ctx.current) return;
+        const key = ctx.todayKey + '|' + scheduleBlockKey(ctx.current);
+        if (key === lastFocusAlertKey) return;
+        if (opts.fromEnable) {
+            const minsIn = (ctx.nowH - ctx.current.start) * 60;
+            if (minsIn > 3) {
+                lastFocusAlertKey = key;
+                try { sessionStorage.setItem('rh_focus_last_alert', key); } catch (e) {}
+                return;
+            }
+        }
+        notifyFocusBlock(ctx.current);
+        lastFocusAlertKey = key;
+        try { sessionStorage.setItem('rh_focus_last_alert', key); } catch (e) {}
+    }
+
+    function renderFocusNowCard() {
+        const titleEl = document.getElementById('focusNowTitle');
+        const metaEl = document.getElementById('focusNowMeta');
+        const actionsEl = document.getElementById('focusNowActions');
+        const nextEl = document.getElementById('focusNowNext');
+        const progWrap = document.getElementById('focusNowProgress');
+        const progLabel = document.getElementById('focusNowProgressLabel');
+        const progFill = document.getElementById('focusNowProgressFill');
+        if (!titleEl || !metaEl || !actionsEl || !nextEl) return;
+
+        const ctx = getFocusNowContext();
+        const current = ctx.current;
+        if (!current) {
+            titleEl.textContent = ctx.next ? 'Free time' : 'Day complete';
+            titleEl.classList.remove('is-done');
+            metaEl.innerHTML = ctx.next
+                ? ('Nothing scheduled right now. Next up at <strong>' + escapeHtml(hourToLabel(ctx.next.start)) + '</strong>.')
+                : 'No more blocks on today’s timetable.';
+            actionsEl.innerHTML = '<button type="button" class="btn btn-primary" onclick="setAppMainTab(\'schedule\'); setTimeout(scrollCalendarToNow, 80)">Open schedule</button>';
+        } else {
+            const done = isScheduleBlockDone(ctx.todayKey, current);
+            titleEl.textContent = current.text || 'Focus block';
+            titleEl.classList.toggle('is-done', done);
+            const timeRange = hourToLabel(current.start) + ' – ' + hourToLabel(current.end);
+            metaEl.innerHTML = '<strong>' + escapeHtml(timeRange) + '</strong> · ' + escapeHtml(formatMinutesLeft(ctx.minutesLeft));
+            const escapedDate = String(ctx.todayKey).replace(/'/g, "\\'");
+            const escapedKey = String(scheduleBlockKey(current)).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            let actions = '';
+            actions += '<button type="button" class="btn btn-primary" onclick="toggleScheduleBlockDone(\'' + escapedDate + '\',\'' + escapedKey + '\')">' + (done ? 'Undo check-off' : 'Mark done') + '</button>';
+            actions += '<button type="button" class="btn" onclick="setAppMainTab(\'schedule\'); setTimeout(scrollCalendarToNow, 80)">See timetable</button>';
+            if ((current.preset || '') === 'homework' || /homework|worksheet/i.test(current.text || '')) {
+                actions += '<button type="button" class="btn" onclick="setAppMainTab(\'worksheets\')">Open worksheets</button>';
+            }
+            if ((current.preset || '') === 'chore' || /chore/i.test(current.text || '')) {
+                actions += '<button type="button" class="btn" onclick="setAppMainTab(\'goals\')">Open chores</button>';
+            }
+            if (!focusAlertsEnabled() && 'Notification' in window) {
+                actions += '<button type="button" class="btn" onclick="enableFocusAlertsFromCard()">Enable alerts</button>';
+            }
+            actionsEl.innerHTML = actions;
+        }
+
+        if (ctx.next) {
+            nextEl.innerHTML = 'Up next: <strong>' + escapeHtml(ctx.next.text || 'Next block') + '</strong> at ' + escapeHtml(hourToLabel(ctx.next.start));
+        } else if (current) {
+            nextEl.textContent = 'This is the last block on today’s plan.';
+        } else {
+            nextEl.textContent = '';
+        }
+
+        if (progWrap && progLabel && progFill) {
+            if (ctx.checkable.length) {
+                progWrap.hidden = false;
+                const pct = Math.round((ctx.doneCount / ctx.checkable.length) * 100);
+                progLabel.textContent = ctx.doneCount + '/' + ctx.checkable.length + ' blocks done';
+                progFill.style.width = pct + '%';
+            } else {
+                progWrap.hidden = true;
+            }
+        }
+        syncFocusAlertsButton();
+    }
+
     function migrateFromV1(loaded) {
         if (loaded.pot != null && loaded.guhansBank == null) {
             loaded.guhansBank = loaded.pot;
@@ -4013,12 +4451,12 @@
             customChoresToday: loaded.customChoresToday || [],
             reminderNotes: loaded.reminderNotes || '',
             calendarBlocks: loaded.calendarBlocks || {},
+            scheduleDone: (loaded.scheduleDone && typeof loaded.scheduleDone === 'object') ? loaded.scheduleDone : {},
             weeklyLedger: Array.isArray(loaded.weeklyLedger) ? loaded.weeklyLedger : [],
             worksheetMasteredToday: Array.isArray(loaded.worksheetMasteredToday) ? loaded.worksheetMasteredToday : [],
-            worksheetSkippedToday: Array.isArray(loaded.worksheetSkippedToday) ? loaded.worksheetSkippedToday : [],
-            worksheetActiveSet: (loaded.worksheetActiveSet && typeof loaded.worksheetActiveSet === 'object') ? loaded.worksheetActiveSet : {},
-            worksheetBonusSetsPaid: (loaded.worksheetBonusSetsPaid && typeof loaded.worksheetBonusSetsPaid === 'object') ? loaded.worksheetBonusSetsPaid : {}
+            worksheetSkippedToday: Array.isArray(loaded.worksheetSkippedToday) ? loaded.worksheetSkippedToday : []
         };
+        ensureFocusTimetableTemplate();
         return true;
     }
 
@@ -4239,8 +4677,6 @@
             state.waivedToday = [];
             state.worksheetMasteredToday = [];
             state.worksheetSkippedToday = [];
-            state.worksheetActiveSet = {};
-            state.worksheetBonusSetsPaid = {};
 
             const daysToProcess = getAllDatesBetween(state.lastCheck, yesterdayKey);
             let fridaySettledInLoop = false;
@@ -4508,9 +4944,6 @@
         } else {
             showToast("Awesome job! You're a superstar! 🌟", "success");
         }
-        if (wsSubject && isWorksheetSubjectMastered(wsSubject)) {
-            maybeOfferBonusWorksheet(wsSubject);
-        }
         await saveAction({ skipRender: true });
     };
 
@@ -4694,7 +5127,10 @@
             weeklyDeposits: {},
             weeklyLedger: [],
             reminderNotes: state.reminderNotes || '',
-            calendarBlocks: {}
+            calendarBlocks: {},
+            scheduleDone: {},
+            worksheetMasteredToday: [],
+            worksheetSkippedToday: []
         };
         document.getElementById('resetDataModal').classList.remove('open');
         document.getElementById('completeModal').classList.remove('open');
@@ -4730,8 +5166,7 @@
             ...state.config,
             weeklyPotStart: n(document.getElementById('cfgWeeklyStart').value, cfg.weeklyPotStart),
             dailySuccessAmount: n(document.getElementById('cfgSuccessAmt').value, cfg.dailySuccessAmount),
-            dailyFailureAmount: n(document.getElementById('cfgPenaltyAmt').value, cfg.dailyFailureAmount),
-            worksheetBonusAmount: n(document.getElementById('cfgWorksheetBonus').value, cfg.worksheetBonusAmount)
+            dailyFailureAmount: n(document.getElementById('cfgPenaltyAmt').value, cfg.dailyFailureAmount)
         };
         saveAction();
     };
@@ -4763,7 +5198,8 @@
         const label = (document.getElementById('dsLabel').value || '').trim() || 'Blocked';
         const preset = document.getElementById('dsPreset').value || 'custom';
         if (end <= start) return;
-        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = [...(DEFAULT_SLOTS_WEEKDAY[day] || [])];
+        if (!state.config.defaultSlots) state.config.defaultSlots = {};
+        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = cloneSlotList(DEFAULT_SLOTS_WEEKDAY[day] || []);
         state.config.defaultSlots[day].push({ start, end, text: label, preset });
         state.config.defaultSlots[day].sort((a, b) => a.start - b.start);
         document.getElementById('dsLabel').value = '';
@@ -4776,7 +5212,8 @@
         const slots = getDefaultSlotsForDay(day);
         const block = slots[blockIndex];
         if (!block || !confirm(`Remove "${block.text}" (${hourToLabel(block.start)}–${hourToLabel(block.end)})?`)) return;
-        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = [...(getDefaultSlotsForDay(day) || [])];
+        if (!state.config.defaultSlots) state.config.defaultSlots = {};
+        if (!state.config.defaultSlots[day]) state.config.defaultSlots[day] = cloneSlotList(getDefaultSlotsForDay(day) || []);
         state.config.defaultSlots[day].splice(blockIndex, 1);
         renderDefaultScheduleCalendar();
         renderCalendar();
@@ -4825,8 +5262,7 @@
         if (sf('cfgWeeklyStart')) sf('cfgWeeklyStart').value = cfg.weeklyPotStart;
         if (sf('cfgSuccessAmt')) sf('cfgSuccessAmt').value = cfg.dailySuccessAmount;
         if (sf('cfgPenaltyAmt')) sf('cfgPenaltyAmt').value = cfg.dailyFailureAmount;
-        if (sf('cfgWorksheetBonus')) sf('cfgWorksheetBonus').value = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
-        if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = 'Weekly start: $' + cfg.weeklyPotStart + ' · Success: +$' + cfg.dailySuccessAmount + ' · Miss: −$' + cfg.dailyFailureAmount + ' · Bonus worksheet: +$' + (cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2);
+        if (sf('cfgCurrentSummary')) sf('cfgCurrentSummary').innerText = 'Weekly start: $' + cfg.weeklyPotStart + ' · Success: +$' + cfg.dailySuccessAmount + ' · Miss: −$' + cfg.dailyFailureAmount;
         updateRhSupabasePanel();
     }
 
@@ -4986,7 +5422,7 @@
         return blocks.find(b => hour >= b.start && hour < b.end);
     }
 
-    function buildCalendarCardsHtml(blocks, isReadonly, escapedDate) {
+    function buildCalendarCardsHtml(blocks, isReadonly, escapedDate, dateKey) {
         let html = '';
         if (!isReadonly) {
             html += '<button type="button" class="calendar-quick-add" onclick="openQuickAddCalendarBlock()"><span class="calendar-quick-add-icon">+</span> Add activity</button>';
@@ -4995,22 +5431,32 @@
             html += '<p class="calendar-cards-empty">Nothing scheduled for this day. Add an activity above or switch to <strong>By time</strong> and tap a time slot.</p>';
             return html;
         }
+        const todayKey = getTodayEST();
+        const nowSlot = getCurrentHourSlotEST();
         blocks.forEach(block => {
             const blockRef = block.isPreset ? "'preset-" + block.start + "-" + block.end + "'" : block.id;
             const presetClass = block.preset ? ' preset-' + block.preset : '';
+            const done = !isReadonly && isScheduleBlockDone(dateKey, block);
+            const isNow = dateKey === todayKey && nowSlot >= block.start && nowSlot < block.end;
             const text = (block.text || 'Blocked').replace(/</g,'&lt;').replace(/>/g,'&gt;');
             const timeR = hourToLabel(block.start) + ' – ' + hourToLabel(block.end);
             const badge = block.isPreset ? '<span class="calendar-activity-badge">Default</span>' : '';
+            const nowBadge = isNow ? '<span class="calendar-now-badge">Now</span>' : '';
+            const doneBtn = isReadonly ? '' : buildDoneToggleHtml(dateKey, block);
             if (isReadonly) {
                 html += '<div class="calendar-activity-card blocked' + presetClass + '" style="cursor:default">';
                 html += '<div class="calendar-activity-meta">' + timeR + badge + '</div>';
                 html += '<div class="calendar-activity-title">' + text + '</div></div>';
             } else {
                 const onClick = 'onclick="clickCalendarSlot(\'' + escapedDate + '\',' + block.start + ',' + blockRef + ')"';
-                html += '<button type="button" class="calendar-activity-card blocked' + presetClass + '" ' + onClick + '>';
-                html += '<div class="calendar-activity-meta">' + timeR + badge + '</div>';
+                html += '<div class="calendar-activity-card blocked' + presetClass + (done ? ' is-done' : '') + '">';
+                html += '<div class="calendar-activity-card-row">';
+                html += '<button type="button" class="calendar-activity-card-main" style="border:0;background:transparent;padding:0;cursor:pointer;font:inherit;color:inherit" ' + onClick + '>';
+                html += '<div class="calendar-activity-meta">' + nowBadge + timeR + badge + '</div>';
                 html += '<div class="calendar-activity-title">' + text + '</div>';
                 html += '<span class="calendar-activity-tap-hint">Tap to edit or replace</span></button>';
+                html += doneBtn;
+                html += '</div></div>';
             }
         });
         return html;
@@ -5051,21 +5497,26 @@
         const toolbar = document.getElementById('calendarToolbar');
         const jumpBtn = document.getElementById('calendarJumpNowBtn');
         if (toolbar) {
-            toolbar.style.display = mobileUI ? 'flex' : 'none';
-            toolbar.setAttribute('aria-hidden', (!mobileUI).toString());
+            toolbar.style.display = 'flex';
+            toolbar.setAttribute('aria-hidden', 'false');
         }
         const listMode = mobileUI && calendarMobileView === 'list';
         const tl = document.getElementById('calendarViewTimelineBtn');
         const li = document.getElementById('calendarViewListBtn');
-        if (tl && li && mobileUI) {
-            const isList = calendarMobileView === 'list';
+        if (tl && li) {
+            const isList = listMode;
             tl.classList.toggle('active', !isList);
             li.classList.toggle('active', isList);
             tl.setAttribute('aria-selected', (!isList).toString());
             li.setAttribute('aria-selected', isList.toString());
+            // List view is mainly for phones; keep switch visible but prefer timeline on desktop.
+            if (!mobileUI) {
+                tl.style.display = '';
+                li.style.display = '';
+            }
         }
         if (jumpBtn) {
-            const showJump = mobileUI && !listMode && calendarSelectedDateKey === todayKey && !isReadonly;
+            const showJump = calendarSelectedDateKey === todayKey && !isReadonly;
             jumpBtn.style.display = showJump ? 'inline-block' : 'none';
         }
 
@@ -5073,19 +5524,20 @@
         if (isReadonly) {
             hint.textContent = 'This day is in the past—view only.';
         } else if (mobileUI) {
-            hint.textContent = listMode ? 'Tap a card to edit. + Add activity uses the current time—if that slot is busy, you can edit the activity there.' : 'Tap a free row to add, or a filled row to edit. If a time is already taken, you\'ll open that activity to edit (not a second one).';
+            hint.textContent = listMode ? 'Check off blocks when finished. Tap a card to edit. + Add activity uses the current time.' : 'Orange NOW row is the current half-hour. Check ✓ when a block is done; tap the row to edit.';
         } else {
-            hint.textContent = 'Click an empty hour to add a block, or a filled block to edit.';
+            hint.textContent = 'Orange NOW row is the current half-hour. Check ✓ when done; click a block to edit.';
         }
 
         const grid = document.getElementById('calendarHourGrid');
         const cardsEl = document.getElementById('calendarCardsList');
         const escapedDate = (calendarSelectedDateKey || '').replace(/'/g, "\\'");
+        const nowSlot = calendarSelectedDateKey === todayKey ? getCurrentHourSlotEST() : null;
 
         if (listMode && cardsEl) {
             grid.style.display = 'none';
             cardsEl.classList.add('is-visible');
-            cardsEl.innerHTML = buildCalendarCardsHtml(blocks, isReadonly, escapedDate);
+            cardsEl.innerHTML = buildCalendarCardsHtml(blocks, isReadonly, escapedDate, calendarSelectedDateKey);
         } else {
             grid.style.display = '';
             if (cardsEl) cardsEl.classList.remove('is-visible');
@@ -5095,15 +5547,20 @@
                 const block = getBlockAtHour(blocks, h);
                 const blockText = block ? (block.text || 'No description') : '';
                 const presetClass = block?.preset ? ' preset-' + block.preset : '';
-                const slotClass = block ? 'blocked' + presetClass : 'free';
+                const done = !!(block && !isReadonly && isScheduleBlockDone(calendarSelectedDateKey, block));
+                const isNow = nowSlot != null && h === nowSlot;
+                const isBlockStart = !!(block && block.start === h);
+                const slotClass = (block ? 'blocked' + presetClass : 'free') + (done ? ' is-done' : '');
                 const readonlyClass = isReadonly ? 'readonly' : '';
-                const rowClass = block ? '' : 'free';
+                const rowClass = (block ? '' : 'free') + (isNow ? ' is-now' : '');
                 const blockRef = block ? (block.isPreset ? "'preset-" + block.start + "-" + block.end + "'" : block.id) : 'null';
                 const onClick = isReadonly ? '' : `onclick="clickCalendarSlot('${escapedDate}',${h},${blockRef})"`;
+                const nowBadge = isNow ? '<span class="calendar-now-badge">Now</span>' : '';
+                const doneBtn = (block && isBlockStart && !isReadonly) ? buildDoneToggleHtml(calendarSelectedDateKey, block) : '';
                 html += `<div class="calendar-hour-row ${rowClass}" data-hour="${h}">
                 <div class="calendar-hour-label">${hourToLabel(h)}</div>
                 <div class="calendar-hour-slot ${slotClass} ${readonlyClass}" ${onClick}>
-                    ${blockText ? `<span class="calendar-block-text">${blockText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>` : ''}
+                    ${nowBadge}${blockText ? `<span class="calendar-block-text">${blockText.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>` : ''}${doneBtn}
                 </div>
             </div>`;
             }
@@ -5561,17 +6018,17 @@
                 : '<p style="color:var(--text-muted);margin:0;font-size:0.9rem;">No ledger entries yet. They appear after Monday base, weekday results, and Friday transfers.</p>';
         }
         syncGoalsTabLabel();
+        try { renderFocusNowCard(); } catch (e) { /* ignore */ }
+        syncFocusAlertsButton();
     }
 
     let worksheetQuestionsCache = [];
-    let worksheetCatalogSubjects = ['Math', 'Reading'];
-    let worksheetSetColumnAvailable = true;
+    let worksheetCatalogSubjects = ['Math'];
     let activeWorksheetSubject = null;
     let activeWorksheetQuestionIndex = 0;
     let worksheetGenerateInFlight = {};
     let worksheetGenUi = { active: false, label: '', startedAt: 0, timerId: null, error: null };
     const WORKSHEET_GEN_ESTIMATE_MS = 90000;
-    const WORKSHEET_QUESTIONS_PER_SUBJECT = 10;
 
     function getParentRegenerateDifficulty() {
         const sel = document.getElementById('parentRegenerateDifficulty');
@@ -5584,7 +6041,6 @@
         const body = {
             student_id: WORKSHEET_STUDENT_ID,
             question_date: getTodayISODateEST(),
-            worksheet_set: opts.worksheetSet || 1,
             replace_existing: !!opts.replaceExisting
         };
         if (opts.subjects && opts.subjects.length) body.subjects = opts.subjects;
@@ -5595,10 +6051,9 @@
         return body;
     }
 
-    function clearWorksheetProgressForSet(setNum, subjects) {
+    function clearWorksheetProgress(subjects) {
         const ids = new Set();
         worksheetQuestionsCache.forEach(function(q) {
-            if (getWorksheetSetNumber(q) !== setNum) return;
             if (subjects && subjects.length && subjects.indexOf(q.subject) < 0) return;
             ids.add(String(q.id));
         });
@@ -5609,10 +6064,6 @@
         state.worksheetSkippedToday = (state.worksheetSkippedToday || []).filter(function(id) {
             return !ids.has(String(id));
         });
-        if (setNum === 1 && subjects && subjects.length === 1) {
-            if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
-            state.worksheetActiveSet[subjects[0]] = 1;
-        }
     }
 
     function beginWorksheetGenUi(label) {
@@ -5650,7 +6101,11 @@
         });
         const statusEl = document.getElementById('worksheetStudentGenStatus');
         if (statusEl && !statusEl.hidden) {
-            statusEl.querySelector('.ws-gen-progress-fill').style.width = pct + '%';
+            // statusEl may currently be showing a previous error message instead
+            // of the loading card, in which case it has no progress-fill/eta
+            // children — guard instead of assuming they exist.
+            const fill = statusEl.querySelector('.ws-gen-progress-fill');
+            if (fill) fill.style.width = pct + '%';
             const eta = statusEl.querySelector('.ws-gen-eta');
             if (eta) eta.textContent = 'About ' + remainingSec + 's remaining…';
         }
@@ -5659,14 +6114,14 @@
     function renderWorksheetGenLoadingHtml(label) {
         return '<article class="student-worksheet-card ws-gen-card">' +
             '<h4 class="worksheet-subject-title">' + escapeHtml(label) + '</h4>' +
-            '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating worksheet questions — about 10 per subject, usually takes 60–90 seconds.</p>' +
+            '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating today’s math worksheet — usually takes 60–90 seconds.</p>' +
             '<div class="student-worksheet-progress ws-gen-progress" aria-hidden="true"><div class="student-worksheet-progress-fill ws-gen-progress-fill" style="width:8%"></div></div>' +
             '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">About 90s remaining…</p>' +
             '</article>';
     }
 
     async function fetchWorksheetCatalogSubjects() {
-        if (!supabaseClient) return ['Math', 'Reading'];
+        if (!supabaseClient) return ['Math'];
         try {
             const { data, error } = await supabaseClient
                 .from('tasks')
@@ -5679,87 +6134,37 @@
                 if (row.subject && subjects.indexOf(row.subject) < 0) subjects.push(row.subject);
             });
             subjects.sort();
-            return subjects.length ? subjects : ['Math', 'Reading'];
+            return subjects.length ? subjects : ['Math'];
         } catch (e) {
             console.warn('Worksheet subject catalog load failed:', e);
-            return ['Math', 'Reading'];
+            return ['Math'];
         }
     }
 
     async function fetchTodayWorksheetQuestions() {
         if (!supabaseClient) return [];
         const todayIso = getTodayISODateEST();
-        const fullSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, worksheet_set, task_id';
-        const baseSelect = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, expected_answer, is_assigned_as_chore, task_id';
-        let data = null;
-        let error = null;
-        const fullResp = await supabaseClient
+        // Deliberately no `expected_answer` here — grading now happens entirely
+        // server-side (POST /tutor/message), so the correct answer never has to
+        // travel to the browser at all.
+        const select = 'id, subject, topic, difficulty_level, question_text, scaffolding_hints, is_assigned_as_chore, task_id';
+        const { data, error } = await supabaseClient
             .from('daily_generated_questions')
-            .select(fullSelect)
+            .select(select)
             .eq('student_id', WORKSHEET_STUDENT_ID)
             .eq('question_date', todayIso)
             .order('subject')
             .order('topic');
-        data = fullResp.data;
-        error = fullResp.error;
-        if (error && /worksheet_set|column|schema cache/i.test(String(error.message || error.details || ''))) {
-            worksheetSetColumnAvailable = false;
-            const baseResp = await supabaseClient
-                .from('daily_generated_questions')
-                .select(baseSelect)
-                .eq('student_id', WORKSHEET_STUDENT_ID)
-                .eq('question_date', todayIso)
-                .order('subject')
-                .order('topic');
-            data = baseResp.data;
-            error = baseResp.error;
-        } else {
-            worksheetSetColumnAvailable = true;
-        }
         if (error) {
             console.warn('Worksheet load failed:', error);
             return [];
         }
-        return (data || []).map(function(row) {
-            if (row.worksheet_set == null) row.worksheet_set = 1;
-            return row;
-        });
-    }
-
-    function getWorksheetSetNumber(q) {
-        return q && q.worksheet_set != null ? Number(q.worksheet_set) : 1;
-    }
-
-    function getActiveWorksheetSet(subject) {
-        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
-        return state.worksheetActiveSet[subject] || 1;
-    }
-
-    function setActiveWorksheetSet(subject, setNum) {
-        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
-        state.worksheetActiveSet[subject] = setNum;
-    }
-
-    function getQuestionsForSubjectSet(subject, setNum) {
-        return worksheetQuestionsCache.filter(function(q) {
-            return q.subject === subject && getWorksheetSetNumber(q) === setNum;
-        });
-    }
-
-    function getMaxWorksheetSetForSubject(subject) {
-        let maxSet = 1;
-        worksheetQuestionsCache.forEach(function(q) {
-            if (q.subject === subject) {
-                const s = getWorksheetSetNumber(q);
-                if (s > maxSet) maxSet = s;
-            }
-        });
-        return maxSet;
+        return data || [];
     }
 
     async function callWorksheetGenerate(opts) {
         opts = opts || {};
-        const key = (opts.subjects || []).join(',') + ':' + (opts.worksheetSet || 1) + ':' + (opts.replaceExisting ? 'r' : 'n');
+        const key = (opts.subjects || []).join(',') + ':' + (opts.replaceExisting ? 'r' : 'n');
         if (worksheetGenerateInFlight[key]) return worksheetGenerateInFlight[key];
         const promise = (async function() {
             const res = await fetch(WORKSHEET_API_URL + '/generate', {
@@ -5785,18 +6190,24 @@
         }
     }
 
-    async function autoGenerateWorksheet(subject, setNum, opts) {
+    async function autoGenerateWorksheet(subject, opts) {
         opts = opts || {};
         if (subject) {
-            const existing = getQuestionsForSubjectSet(subject, setNum);
+            const existing = getQuestionsForSubject(subject);
             if (existing.length) return { ok: true, inserted: 0, cached: true };
         }
-        const label = subject ? (subject + ' worksheet') : 'Daily worksheets';
-        beginWorksheetGenUi(label);
+        const label = subject ? (subject + ' worksheet') : 'Daily worksheet';
+        try {
+            beginWorksheetGenUi(label);
+        } catch (e) {
+            // A UI-render glitch here must not leave worksheetGenUi.active stuck
+            // true forever with no request ever made and no error ever shown.
+            console.warn('beginWorksheetGenUi failed:', e);
+            worksheetGenUi.active = false;
+        }
         try {
             const payload = await callWorksheetGenerate({
                 subjects: subject ? [subject] : undefined,
-                worksheetSet: setNum,
                 replaceExisting: false
             });
             endWorksheetGenUi();
@@ -5824,156 +6235,6 @@
         return taskId ? state.completedToday.includes(taskId) : false;
     }
 
-    function isBonusSetPaid(subject, setNum) {
-        const paid = (state.worksheetBonusSetsPaid || {})[subject] || [];
-        return paid.indexOf(setNum) >= 0;
-    }
-
-    function markBonusSetPaid(subject, setNum) {
-        if (!state.worksheetBonusSetsPaid) state.worksheetBonusSetsPaid = {};
-        if (!state.worksheetBonusSetsPaid[subject]) state.worksheetBonusSetsPaid[subject] = [];
-        if (state.worksheetBonusSetsPaid[subject].indexOf(setNum) < 0) {
-            state.worksheetBonusSetsPaid[subject].push(setNum);
-        }
-    }
-
-    function awardWorksheetBonusCredit(subject, setNum) {
-        if (setNum < 2 || isBonusSetPaid(subject, setNum)) return false;
-        const cfg = getCfg();
-        const amount = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
-        if (amount <= 0) {
-            markBonusSetPaid(subject, setNum);
-            return false;
-        }
-        const todayKey = getTodayEST();
-        const id = 'ws_bonus_' + WORKSHEET_STUDENT_ID + '_' + lidDateKey(todayKey) + '_' + subject.replace(/\s+/g, '_') + '_s' + setNum;
-        const posted = postLedgerUnique(id, 'WORKSHEET_BONUS', todayKey, amount,
-            'Bonus worksheet: ' + subject + ' (round ' + setNum + ')');
-        if (posted) {
-            markBonusSetPaid(subject, setNum);
-            flashWeeklyPotDisplay('up');
-            showToast('Bonus worksheet complete! +$' + amount.toFixed(2) + ' added to your Weekly Pot.', 'level-up');
-            return true;
-        }
-        markBonusSetPaid(subject, setNum);
-        return false;
-    }
-
-    function canOfferBonusWorksheet(subject) {
-        if (!isWorksheetSubjectMastered(subject)) return false;
-        if (!isWorksheetChoreDone(subject)) return false;
-        const activeSet = getActiveWorksheetSet(subject);
-        if (activeSet > 1 && !getWorksheetProgressForSubject(subject).complete) return false;
-        return true;
-    }
-
-    function updateWorksheetBonusOfferUI() {
-        const panel = document.getElementById('worksheetBonusOffer');
-        const textEl = document.getElementById('worksheetBonusOfferText');
-        const acceptBtn = document.getElementById('worksheetBonusAcceptBtn');
-        if (!panel || !activeWorksheetSubject) return;
-        const subject = activeWorksheetSubject;
-        const cfg = getCfg();
-        const bonusAmt = cfg.worksheetBonusAmount != null ? cfg.worksheetBonusAmount : 2;
-        const activeSet = getActiveWorksheetSet(subject);
-        const prog = getWorksheetProgressForSubject(subject);
-        const choreDone = isWorksheetChoreDone(subject);
-        const set1Done = getWorksheetProgressForSubjectSet(subject, 1).complete;
-
-        if (activeSet >= 2 && prog.complete) {
-            panel.hidden = false;
-            textEl.textContent = 'Bonus round complete! Want another bonus worksheet for +$' + bonusAmt.toFixed(2) + '?';
-            if (acceptBtn) acceptBtn.textContent = 'Yes — another bonus (+$' + bonusAmt.toFixed(2) + ')';
-            return;
-        }
-        if (canOfferBonusWorksheet(subject) && set1Done && choreDone && activeSet === 1 && prog.complete) {
-            panel.hidden = false;
-            textEl.textContent = 'Great job finishing your worksheet chore! Want a bonus round for +$' + bonusAmt.toFixed(2) + ' toward your Weekly Pot?';
-            if (acceptBtn) acceptBtn.textContent = 'Yes — bonus worksheet (+$' + bonusAmt.toFixed(2) + ')';
-            return;
-        }
-        panel.hidden = true;
-    }
-
-    function getWorksheetProgressForSubjectSet(subject, setNum) {
-        const qs = getQuestionsForSubjectSet(subject, setNum);
-        const mastered = qs.filter(function(q) { return isQuestionMastered(q.id); }).length;
-        const skipped = qs.filter(function(q) { return !isQuestionMastered(q.id) && isQuestionSkipped(q.id); }).length;
-        return { total: qs.length, mastered: mastered, skipped: skipped, complete: qs.length > 0 && mastered === qs.length };
-    }
-
-    window.maybeOfferBonusWorksheet = function(subject) {
-        if (!subject) return;
-        activeWorksheetSubject = subject;
-        setActiveWorksheetSet(subject, 1);
-        window.setAppMainTab('worksheets');
-        showWorksheetPlayerView();
-        renderWorksheetPlayer();
-    };
-
-    window.acceptBonusWorksheet = async function() {
-        if (!activeWorksheetSubject) return;
-        const subject = activeWorksheetSubject;
-        const currentSet = getActiveWorksheetSet(subject);
-
-        if (currentSet === 1) {
-            if (!isWorksheetSubjectMastered(subject) || !isWorksheetChoreDone(subject)) {
-                showToast('Finish your worksheet chore first, then you can try a bonus round.', 'info');
-                return;
-            }
-        } else if (!getWorksheetProgressForSubjectSet(subject, currentSet).complete) {
-            showToast('Finish this bonus round first.', 'info');
-            return;
-        }
-
-        let nextSet = currentSet === 1 ? 2 : currentSet + 1;
-        while (getQuestionsForSubjectSet(subject, nextSet).length &&
-            getWorksheetProgressForSubjectSet(subject, nextSet).complete) {
-            nextSet++;
-        }
-
-        const acceptBtn = document.getElementById('worksheetBonusAcceptBtn');
-        if (acceptBtn) { acceptBtn.disabled = true; acceptBtn.textContent = 'Creating worksheet…'; }
-
-        if (!getQuestionsForSubjectSet(subject, nextSet).length) {
-            const gen = await autoGenerateWorksheet(subject, nextSet, { silent: true });
-            await refreshWorksheetPanel();
-            if (!getQuestionsForSubjectSet(subject, nextSet).length) {
-                if (acceptBtn) { acceptBtn.disabled = false; updateWorksheetBonusOfferUI(); }
-                showToast('Could not create bonus worksheet. ' + (gen.error || 'Try again in a moment.'), 'warning');
-                return;
-            }
-        }
-
-        setActiveWorksheetSet(subject, nextSet);
-        activeWorksheetQuestionIndex = 0;
-        if (acceptBtn) { acceptBtn.disabled = false; }
-        document.getElementById('worksheetBonusOffer').hidden = true;
-        await saveAction({ skipRender: true });
-        renderWorksheetPlayer();
-        showToast('Bonus worksheet ready — good luck!', 'success');
-        const el = document.getElementById('worksheetPlayerAnswer');
-        if (el) el.focus();
-    };
-
-    window.declineBonusWorksheet = function() {
-        const panel = document.getElementById('worksheetBonusOffer');
-        if (panel) panel.hidden = true;
-    };
-
-    async function handleWorksheetSetCompleted(subject) {
-        const activeSet = getActiveWorksheetSet(subject);
-        if (activeSet >= 2) {
-            awardWorksheetBonusCredit(subject, activeSet);
-            updateWorksheetBonusOfferUI();
-            renderStudentWorksheetPanel();
-            renderUI();
-            await saveAction({ skipRender: true });
-            return;
-        }
-        updateWorksheetBonusOfferUI();
-    }
-
     function getWorksheetSubjectFromTask(task) {
         if (!task || !task.name) return null;
         const prefix = 'Worksheet: ';
@@ -5986,7 +6247,7 @@
     }
 
     function getQuestionsForSubject(subject) {
-        return getQuestionsForSubjectSet(subject, getActiveWorksheetSet(subject));
+        return worksheetQuestionsCache.filter(function(q) { return q.subject === subject; });
     }
 
     function isQuestionMastered(questionId) {
@@ -6011,11 +6272,14 @@
     }
 
     function getWorksheetProgressForSubject(subject) {
-        return getWorksheetProgressForSubjectSet(subject, getActiveWorksheetSet(subject));
+        const qs = getQuestionsForSubject(subject);
+        const mastered = qs.filter(function(q) { return isQuestionMastered(q.id); }).length;
+        const skipped = qs.filter(function(q) { return !isQuestionMastered(q.id) && isQuestionSkipped(q.id); }).length;
+        return { total: qs.length, mastered: mastered, skipped: skipped, complete: qs.length > 0 && mastered === qs.length };
     }
 
     function isWorksheetSubjectMastered(subject) {
-        return getWorksheetProgressForSubjectSet(subject, 1).complete;
+        return getWorksheetProgressForSubject(subject).complete;
     }
 
     function getWorksheetTaskIdForSubject(subject) {
@@ -6025,57 +6289,12 @@
         return task ? task.id : null;
     }
 
-    function normalizeWorksheetAnswer(text) {
-        return String(text || '').trim().toLowerCase()
-            .replace(/\$/g, '')
-            .replace(/,/g, '')
-            .replace(/\s+/g, ' ');
-    }
-
-    function worksheetAnswersMatch(student, expected) {
-        const a = normalizeWorksheetAnswer(student);
-        const b = normalizeWorksheetAnswer(expected);
-        if (!a || !b) return false;
-        if (a === b) return true;
-        const na = parseFloat(a), nb = parseFloat(b);
-        if (!isNaN(na) && !isNaN(nb) && Math.abs(na - nb) < 0.02) return true;
-        return false;
-    }
-
-    async function logWorksheetAttempt(question, studentAnswer, isCorrect) {
-        if (!supabaseClient || !question) return;
-        try {
-            const row = {
-                student_id: WORKSHEET_STUDENT_ID,
-                subject: question.subject,
-                topic: question.topic,
-                question_id: question.id,
-                question_text: question.question_text,
-                student_answer: studentAnswer,
-                expected_answer: question.expected_answer,
-                is_correct: isCorrect,
-                score: isCorrect ? 100 : 0,
-                entry_date: getTodayISODateEST()
-            };
-            if (question.task_id) row.task_id = question.task_id;
-            await supabaseClient.from('worksheet_entries').insert(row);
-        } catch (e) {
-            console.warn('Worksheet entry log failed:', e);
-        }
-    }
-
     function getAssignedWorksheetSubjects() {
         const todayNum = getDayNumEST(0);
         return state.tasks
             .filter(function(t) { return t.days.includes(todayNum) && getWorksheetSubjectFromTask(t); })
             .map(function(t) { return getWorksheetSubjectFromTask(t); })
             .filter(function(s, i, arr) { return s && arr.indexOf(s) === i; });
-    }
-
-    function updateWorksheetRewardBanner() {
-        const bonusEl = document.getElementById('worksheetRewardBonusLine');
-        if (!bonusEl) return;
-        bonusEl.textContent = 'Finish the main sheet, then chase bonus rounds — every extra sheet drops another dollar into your Weekly Pot! 💵';
     }
 
     const WORKSHEET_SUBJECT_PALETTE = [
@@ -6105,7 +6324,6 @@
     }
 
     function renderStudentWorksheetPanel() {
-        updateWorksheetRewardBanner();
         const list = document.getElementById('studentWorksheetList');
         const statusEl = document.getElementById('worksheetStudentGenStatus');
         if (!list) return;
@@ -6127,27 +6345,22 @@
             return;
         }
         list.innerHTML = assigned.map(function(subject) {
-            const activeSet = getActiveWorksheetSet(subject);
-            if (activeSet === 1) setActiveWorksheetSet(subject, 1);
-            const prog = getWorksheetProgressForSubjectSet(subject, activeSet > 1 ? activeSet : 1);
+            const prog = getWorksheetProgressForSubject(subject);
             const pct = prog.total ? Math.round((prog.mastered / prog.total) * 100) : 0;
             const skipNote = prog.skipped ? (' · ' + prog.skipped + ' skipped') : '';
-            const qs = getQuestionsForSubjectSet(subject, activeSet > 1 ? activeSet : 1);
-            const set1Done = getWorksheetProgressForSubjectSet(subject, 1).complete;
-            const choreDone = isWorksheetChoreDone(subject);
-            const bonusAvail = set1Done && choreDone;
+            const qs = getQuestionsForSubject(subject);
+            const done = prog.complete;
             const visual = worksheetSubjectVisual(subject);
             if (!qs.length) {
                 return '<article class="student-worksheet-card" style="--ws-subject-color:' + visual.color + ';">' +
                     '<div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4></div>' +
                     '<p class="worksheet-empty">Preparing your worksheet — open again in a moment.</p></article>';
             }
-            const btnLabel = !set1Done ? 'Work on worksheet' : (bonusAvail ? 'Bonus worksheet available' : (prog.complete ? 'Review worksheet' : 'Work on worksheet'));
-            return '<article class="student-worksheet-card' + (set1Done ? ' is-done' : '') + (bonusAvail ? ' has-bonus' : '') + '" style="--ws-subject-color:' + visual.color + ';">' +
+            const btnLabel = done ? 'Review worksheet' : 'Work on worksheet';
+            return '<article class="student-worksheet-card' + (done ? ' is-done' : '') + '" style="--ws-subject-color:' + visual.color + ';">' +
                 '<div class="worksheet-subject-head"><div class="worksheet-subject-head-main">' + worksheetSubjectIconHtml(subject) + '<div><h4 class="worksheet-subject-title">' + escapeHtml(subject) + '</h4>' +
                 '<p class="worksheet-subject-meta">' + prog.mastered + ' of ' + prog.total + ' questions correct' + skipNote + '</p></div></div>' +
-                (bonusAvail ? '<span class="worksheet-bonus-badge">Bonus +$' + (getCfg().worksheetBonusAmount != null ? getCfg().worksheetBonusAmount : 2) + '</span>' :
-                    (set1Done ? '<span class="worksheet-chore-badge done">Ready ✓</span>' : '<span class="worksheet-chore-badge">Keep going</span>')) +
+                (done ? '<span class="worksheet-chore-badge done">Ready ✓</span>' : '<span class="worksheet-chore-badge">Keep going</span>') +
                 '</div><div class="student-worksheet-progress" aria-hidden="true"><div class="student-worksheet-progress-fill" style="width:' + pct + '%"></div></div>' +
                 '<div class="worksheet-actions"><button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(subject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">' +
                 btnLabel + '</button></div></article>';
@@ -6184,17 +6397,137 @@
         }).join('');
     }
 
+    let worksheetTutorHistory = {};
+
+    function currentTutorQuestionId() {
+        if (!activeWorksheetSubject) return null;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs[activeWorksheetQuestionIndex];
+        return q ? String(q.id) : null;
+    }
+
+    function renderTutorThread(qid, opts) {
+        const el = document.getElementById('worksheetTutorThread');
+        if (!el) return;
+        opts = opts || {};
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs.find(function(item) { return String(item.id) === qid; });
+        const turns = worksheetTutorHistory[qid] || [];
+        const opener = (q && Array.isArray(q.scaffolding_hints) && q.scaffolding_hints[0]) ||
+            "Let's work through this together — what's the first step you'd try?";
+        let html = '<div class="ws-tutor-bubble tutor">' + escapeHtml(opener) + '</div>';
+        turns.forEach(function(turn) {
+            const cls = turn.role === 'student' ? 'student' : 'tutor';
+            html += '<div class="ws-tutor-bubble ' + cls + '">' + escapeHtml(turn.content) + '</div>';
+        });
+        if (opts.thinking) {
+            html += '<div class="ws-tutor-bubble tutor thinking">Thinking…</div>';
+        }
+        el.innerHTML = html;
+        el.scrollTop = el.scrollHeight;
+    }
+
+    async function handleQuestionSolved(q) {
+        if (!isQuestionMastered(q.id)) {
+            if (!state.worksheetMasteredToday) state.worksheetMasteredToday = [];
+            state.worksheetMasteredToday.push(String(q.id));
+            clearQuestionSkipped(q.id);
+            await saveAction({ skipRender: true });
+        }
+        showToast('Correct! Great job.', 'success');
+        const nextIdx = getNextUnmasteredQuestionIndex(activeWorksheetSubject);
+        if (nextIdx >= 0 && nextIdx !== activeWorksheetQuestionIndex) {
+            setTimeout(function() {
+                activeWorksheetQuestionIndex = nextIdx;
+                renderWorksheetPlayer();
+                const el = document.getElementById('worksheetTutorInput');
+                if (el && !el.disabled) el.focus();
+            }, 900);
+        } else if (isWorksheetSubjectMastered(activeWorksheetSubject)) {
+            renderWorksheetPlayer();
+            renderStudentWorksheetPanel();
+            renderUI();
+            launchConfettiBurst();
+            showToast('All worksheet questions correct! Mark the chore done when ready.', 'level-up');
+        } else {
+            renderWorksheetPlayer();
+        }
+        renderStudentWorksheetPanel();
+    }
+
+    window.sendTutorMessage = async function() {
+        if (!activeWorksheetSubject) return;
+        const qs = getQuestionsForSubject(activeWorksheetSubject);
+        const q = qs[activeWorksheetQuestionIndex];
+        if (!q || isQuestionMastered(q.id)) return;
+        const qid = String(q.id);
+        const input = document.getElementById('worksheetTutorInput');
+        const message = (input.value || '').trim();
+        if (!message) {
+            showToast('Type a message first.', 'info');
+            return;
+        }
+
+        if (!worksheetTutorHistory[qid]) worksheetTutorHistory[qid] = [];
+        const priorHistory = worksheetTutorHistory[qid].slice();
+
+        input.value = '';
+        input.disabled = true;
+        const sendBtn = document.getElementById('worksheetTutorSendBtn');
+        if (sendBtn) sendBtn.disabled = true;
+
+        worksheetTutorHistory[qid].push({ role: 'student', content: message });
+        renderTutorThread(qid, { thinking: true });
+
+        try {
+            const res = await fetch(WORKSHEET_API_URL + '/tutor/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    student_id: WORKSHEET_STUDENT_ID,
+                    question_id: qid,
+                    message: message,
+                    history: priorHistory
+                })
+            });
+            const raw = await res.text();
+            let payload = {};
+            try { payload = raw ? JSON.parse(raw) : {}; } catch (parseErr) { /* plain-text error body */ }
+            if (!res.ok) {
+                const detail = payload.detail;
+                throw new Error(typeof detail === 'string' ? detail : (raw || res.statusText));
+            }
+
+            worksheetTutorHistory[qid].push({ role: 'tutor', content: payload.reply || '' });
+            if (currentTutorQuestionId() === qid) renderTutorThread(qid);
+
+            if (payload.solved) {
+                await handleQuestionSolved(q);
+            }
+        } catch (e) {
+            console.warn('Tutor message failed:', e);
+            worksheetTutorHistory[qid].push({
+                role: 'tutor',
+                content: "Sorry, I couldn't connect just now — try sending that again?"
+            });
+            if (currentTutorQuestionId() === qid) renderTutorThread(qid);
+        } finally {
+            if (currentTutorQuestionId() === qid) {
+                input.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+    };
+
     function renderWorksheetPlayer() {
         if (!activeWorksheetSubject) return;
         const qs = getQuestionsForSubject(activeWorksheetSubject);
-        const playerCard = document.querySelector('#worksheetPlayerView .worksheet-player-card');
-        const playerActions = document.querySelector('#worksheetPlayerView .worksheet-player-actions');
-        const playerAnswer = document.getElementById('worksheetPlayerAnswer');
-        const playerSubmit = document.getElementById('worksheetPlayerSubmitBtn');
+        const playerInput = document.getElementById('worksheetTutorInput');
+        const playerSend = document.getElementById('worksheetTutorSendBtn');
         const playerSkip = document.getElementById('worksheetPlayerSkipBtn');
         const playerComplete = document.getElementById('worksheetPlayerCompleteBtn');
-        const playerHints = document.getElementById('worksheetPlayerHints');
-        const playerFeedback = document.getElementById('worksheetPlayerFeedback');
+        const playerThread = document.getElementById('worksheetTutorThread');
         const playerTopic = document.getElementById('worksheetPlayerTopic');
         const playerQuestion = document.getElementById('worksheetPlayerQuestion');
 
@@ -6208,27 +6541,47 @@
                 if (playerTopic) { playerTopic.style.display = 'none'; playerTopic.textContent = ''; }
                 if (playerQuestion) {
                     playerQuestion.style.display = 'block';
-                    playerQuestion.innerHTML = '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating worksheet questions — about 10 per subject, usually takes 60–90 seconds.</p>' +
+                    playerQuestion.innerHTML = '<p class="worksheet-empty" style="margin-bottom:0.5rem;">Creating today’s math worksheet — usually takes 60–90 seconds.</p>' +
                         '<div class="student-worksheet-progress ws-gen-progress"><div class="student-worksheet-progress-fill ws-gen-progress-fill" style="width:8%"></div></div>' +
                         '<p class="ws-gen-eta" style="font-size:0.75rem;color:var(--text-muted);margin:0.45rem 0 0;">About 90s remaining…</p>';
                 }
-                if (playerHints) playerHints.style.display = 'none';
-                if (playerAnswer) playerAnswer.style.display = 'none';
-                if (playerSubmit) playerSubmit.style.display = 'none';
+                if (playerThread) playerThread.style.display = 'none';
+                if (playerInput) playerInput.style.display = 'none';
+                if (playerSend) playerSend.style.display = 'none';
                 if (playerSkip) playerSkip.style.display = 'none';
                 if (playerComplete) playerComplete.style.display = 'none';
-                if (playerFeedback) playerFeedback.style.display = 'none';
-                document.getElementById('worksheetBonusOffer').hidden = true;
                 updateWorksheetGenProgressUi();
                 return;
             }
+            // Generation finished (or was never started) and still no questions —
+            // show why instead of leaving the "Creating…" message frozen on screen.
+            document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
+            document.getElementById('worksheetPlayerStatsText').textContent = '';
+            document.getElementById('worksheetPlayerSkippedText').textContent = '';
+            document.getElementById('worksheetPlayerProgressFill').style.width = '0%';
+            document.getElementById('worksheetPlayerNav').innerHTML = '';
+            if (playerTopic) { playerTopic.style.display = 'none'; playerTopic.textContent = ''; }
+            if (playerQuestion) {
+                playerQuestion.style.display = 'block';
+                const msg = worksheetGenUi.error
+                    ? 'Could not create the worksheet: ' + escapeHtml(worksheetGenUi.error)
+                    : 'No worksheet questions yet.';
+                playerQuestion.innerHTML = '<p class="worksheet-empty" style="color:var(--danger);margin-bottom:0.75rem;">' + msg + '</p>' +
+                    '<button type="button" class="btn btn-primary" data-ws-subject="' + escapeHtml(activeWorksheetSubject).replace(/"/g, '&quot;') + '" onclick="openWorksheetWork(this.dataset.wsSubject)">Try again</button>';
+            }
+            if (playerThread) playerThread.style.display = 'none';
+            if (playerInput) playerInput.style.display = 'none';
+            if (playerSend) playerSend.style.display = 'none';
+            if (playerSkip) playerSkip.style.display = 'none';
+            if (playerComplete) playerComplete.style.display = 'none';
             return;
         }
 
         if (playerTopic) playerTopic.style.display = '';
         if (playerQuestion) playerQuestion.style.display = '';
-        if (playerAnswer) playerAnswer.style.display = '';
-        if (playerSubmit) playerSubmit.style.display = '';
+        if (playerThread) playerThread.style.display = '';
+        if (playerInput) playerInput.style.display = '';
+        if (playerSend) playerSend.style.display = '';
         if (playerSkip) playerSkip.style.display = '';
         if (playerQuestion && playerQuestion.innerHTML && playerQuestion.querySelector('.ws-gen-progress')) {
             playerQuestion.textContent = '';
@@ -6241,9 +6594,7 @@
         const q = qs[activeWorksheetQuestionIndex];
         const prog = getWorksheetProgressForSubject(activeWorksheetSubject);
         const pct = prog.total ? Math.round((prog.mastered / prog.total) * 100) : 0;
-        const activeSet = getActiveWorksheetSet(activeWorksheetSubject);
-        const setLabel = activeSet > 1 ? ' (bonus round ' + activeSet + ')' : '';
-        document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet' + setLabel;
+        document.getElementById('worksheetPlayerTitle').textContent = activeWorksheetSubject + ' worksheet';
         document.getElementById('worksheetPlayerStatsText').textContent =
             prog.mastered + ' of ' + prog.total + ' correct · Question ' + (activeWorksheetQuestionIndex + 1) + ' of ' + qs.length;
         const skippedEl = document.getElementById('worksheetPlayerSkippedText');
@@ -6258,36 +6609,23 @@
         renderWorksheetPlayerNav();
         document.getElementById('worksheetPlayerTopic').textContent = q.topic || '';
         document.getElementById('worksheetPlayerQuestion').textContent = q.question_text || '';
-        const hintsEl = document.getElementById('worksheetPlayerHints');
-        const hints = Array.isArray(q.scaffolding_hints) ? q.scaffolding_hints : [];
-        if (hints.length) {
-            hintsEl.style.display = 'block';
-            hintsEl.innerHTML = '<strong>Hints:</strong> ' + hints.map(escapeHtml).join(' · ');
-        } else {
-            hintsEl.style.display = 'none';
-            hintsEl.innerHTML = '';
-        }
-        const fb = document.getElementById('worksheetPlayerFeedback');
-        fb.style.display = 'none';
-        fb.textContent = '';
-        fb.className = 'worksheet-work-feedback';
-        const ans = document.getElementById('worksheetPlayerAnswer');
-        ans.value = '';
+        const qid = String(q.id);
         const alreadyDone = isQuestionMastered(q.id);
-        ans.disabled = alreadyDone;
-        document.getElementById('worksheetPlayerSubmitBtn').style.display = alreadyDone ? 'none' : '';
+        renderTutorThread(qid);
+        if (playerInput) {
+            playerInput.value = '';
+            playerInput.disabled = alreadyDone;
+            playerInput.placeholder = alreadyDone
+                ? 'Already solved — nice work!'
+                : 'Type your answer, your work, or ask a question…';
+        }
+        if (playerSend) playerSend.style.display = alreadyDone ? 'none' : '';
         const skipBtn = document.getElementById('worksheetPlayerSkipBtn');
         skipBtn.style.display = alreadyDone ? 'none' : '';
         skipBtn.disabled = alreadyDone;
-        if (alreadyDone) {
-            fb.style.display = 'block';
-            fb.className = 'worksheet-work-feedback ok';
-            fb.textContent = 'You already got this one correct.';
-        }
         const completeBtn = document.getElementById('worksheetPlayerCompleteBtn');
-        const showChoreBtn = activeSet === 1 && prog.complete && !isWorksheetChoreDone(activeWorksheetSubject);
+        const showChoreBtn = prog.complete && !isWorksheetChoreDone(activeWorksheetSubject);
         completeBtn.style.display = showChoreBtn ? 'block' : 'none';
-        updateWorksheetBonusOfferUI();
     }
 
     function showWorksheetPlayerView() {
@@ -6309,32 +6647,10 @@
         window.setAppMainTab('worksheets');
         showWorksheetPlayerView();
 
-        if (!getQuestionsForSubjectSet(subject, 1).length) {
-            renderWorksheetPlayer();
-            await autoGenerateWorksheet(subject, 1, { silent: true });
-            await refreshWorksheetPanel();
-        }
-
-        if (isWorksheetSubjectMastered(subject) && isWorksheetChoreDone(subject)) {
-            let bonusSet = 2;
-            while (getQuestionsForSubjectSet(subject, bonusSet).length &&
-                getWorksheetProgressForSubjectSet(subject, bonusSet).complete) {
-                bonusSet++;
-            }
-            if (getQuestionsForSubjectSet(subject, bonusSet).length &&
-                !getWorksheetProgressForSubjectSet(subject, bonusSet).complete) {
-                setActiveWorksheetSet(subject, bonusSet);
-            } else {
-                setActiveWorksheetSet(subject, 1);
-            }
-        } else {
-            setActiveWorksheetSet(subject, 1);
-        }
-
         let qs = getQuestionsForSubject(subject);
-        if (!qs.length && getActiveWorksheetSet(subject) === 1) {
+        if (!qs.length) {
             renderWorksheetPlayer();
-            await autoGenerateWorksheet(subject, 1, { silent: true });
+            await autoGenerateWorksheet(subject, { silent: true });
             await refreshWorksheetPanel();
             qs = getQuestionsForSubject(subject);
         }
@@ -6347,7 +6663,7 @@
         activeWorksheetQuestionIndex = nextIdx >= 0 ? nextIdx : 0;
         renderWorksheetPlayer();
         setTimeout(function() {
-            const el = document.getElementById('worksheetPlayerAnswer');
+            const el = document.getElementById('worksheetTutorInput');
             if (el && !el.disabled) el.focus();
         }, 120);
     };
@@ -6364,7 +6680,7 @@
         if (index < 0 || index >= qs.length) return;
         activeWorksheetQuestionIndex = index;
         renderWorksheetPlayer();
-        const el = document.getElementById('worksheetPlayerAnswer');
+        const el = document.getElementById('worksheetTutorInput');
         if (el && !el.disabled) el.focus();
     };
 
@@ -6389,63 +6705,8 @@
         }
         renderWorksheetPlayer();
         renderStudentWorksheetPanel();
-        const el = document.getElementById('worksheetPlayerAnswer');
+        const el = document.getElementById('worksheetTutorInput');
         if (el && !el.disabled) el.focus();
-    };
-
-    window.submitWorksheetAnswer = async function() {
-        if (!activeWorksheetSubject) return;
-        const qs = getQuestionsForSubject(activeWorksheetSubject);
-        const q = qs[activeWorksheetQuestionIndex];
-        if (!q) return;
-        const input = document.getElementById('worksheetPlayerAnswer');
-        const answer = (input.value || '').trim();
-        if (!answer) {
-            showToast('Type an answer first.', 'info');
-            return;
-        }
-        const correct = worksheetAnswersMatch(answer, q.expected_answer);
-        await logWorksheetAttempt(q, answer, correct);
-        const fb = document.getElementById('worksheetPlayerFeedback');
-        fb.style.display = 'block';
-        if (correct) {
-            if (!isQuestionMastered(q.id)) {
-                if (!state.worksheetMasteredToday) state.worksheetMasteredToday = [];
-                state.worksheetMasteredToday.push(String(q.id));
-                clearQuestionSkipped(q.id);
-                await saveAction({ skipRender: true });
-            }
-            fb.className = 'worksheet-work-feedback ok';
-            fb.textContent = 'Correct! Great job.';
-            showToast('Correct!', 'success');
-            const nextIdx = getNextUnmasteredQuestionIndex(activeWorksheetSubject);
-            if (nextIdx >= 0 && nextIdx !== activeWorksheetQuestionIndex) {
-                setTimeout(function() {
-                    activeWorksheetQuestionIndex = nextIdx;
-                    renderWorksheetPlayer();
-                    document.getElementById('worksheetPlayerAnswer').focus();
-                }, 700);
-            } else if (isWorksheetSubjectMastered(activeWorksheetSubject) && getActiveWorksheetSet(activeWorksheetSubject) === 1) {
-                renderWorksheetPlayer();
-                renderStudentWorksheetPanel();
-                renderUI();
-                launchConfettiBurst();
-                showToast('All worksheet questions correct! Mark the chore done when ready.', 'level-up');
-            } else if (getWorksheetProgressForSubject(activeWorksheetSubject).complete) {
-                renderWorksheetPlayer();
-                renderStudentWorksheetPanel();
-                renderUI();
-                await handleWorksheetSetCompleted(activeWorksheetSubject);
-            } else {
-                renderWorksheetPlayer();
-            }
-        } else {
-            fb.className = 'worksheet-work-feedback retry';
-            fb.textContent = 'Not quite — try again. Read the hints and check your work.';
-            input.select();
-            showToast('Try again — you need every answer correct.', 'warning');
-        }
-        renderStudentWorksheetPanel();
     };
 
     window.finishWorksheetChore = function() {
@@ -6468,7 +6729,7 @@
 
     function groupWorksheetQuestionsBySubject(rows) {
         const bySubject = {};
-        (rows || []).filter(function(row) { return getWorksheetSetNumber(row) === 1; }).forEach(function(row) {
+        (rows || []).forEach(function(row) {
             const subject = row.subject || 'Other';
             if (!bySubject[subject]) bySubject[subject] = { subject: subject, questions: [], topics: {} };
             bySubject[subject].questions.push(row);
@@ -6503,7 +6764,7 @@
         const seen = {};
         const out = [];
         (rows || []).forEach(function(row) {
-            const key = getWorksheetSetNumber(row) + '|' + (row.subject || '') + '|' + normalizeWorksheetQuestionKey(row.question_text);
+            const key = (row.subject || '') + '|' + normalizeWorksheetQuestionKey(row.question_text);
             if (seen[key]) return;
             seen[key] = true;
             out.push(row);
@@ -6645,7 +6906,7 @@
             return;
         }
         el.hidden = false;
-        el.innerHTML = '<p class="parent-ws-progress-title">Today&rsquo;s set 1 questions</p>' + grouped.map(function(g) {
+        el.innerHTML = '<p class="parent-ws-progress-title">Today&rsquo;s questions</p>' + grouped.map(function(g) {
             return '<p class="parent-ws-today-subject">' + escapeHtml(g.subject) + ' (' + g.questions.length + ')</p>' +
                 g.questions.slice(0, 8).map(function(q) {
                     return '<p class="parent-ws-today-q">' + difficultyPillHtml(q.difficulty_level) + ' ' +
@@ -6669,39 +6930,41 @@
     async function refreshWorksheetPanel() {
         worksheetCatalogSubjects = await fetchWorksheetCatalogSubjects();
         worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
-        const set1Any = worksheetQuestionsCache.some(function(q) { return getWorksheetSetNumber(q) === 1; });
-        if (!set1Any && !worksheetGenUi.active) {
-            await autoGenerateWorksheet(null, 1, { silent: true });
+        // Skip auto-retrying generation here if the last attempt just failed —
+        // otherwise a persistent failure (e.g. no API key configured) gets
+        // silently retried on every refresh, repeatedly overwriting the error
+        // message with "generating…" before anyone can read it. A fresh
+        // attempt only happens via an explicit user action (opening the
+        // worksheet, tapping "Try again", or Regenerate), which resets
+        // worksheetGenUi.error back to null.
+        if (!worksheetQuestionsCache.length && !worksheetGenUi.active && !worksheetGenUi.error) {
+            await autoGenerateWorksheet(null, { silent: true });
             worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
         }
         const assigned = getAssignedWorksheetSubjects();
         for (let i = 0; i < assigned.length; i++) {
-            if (!getQuestionsForSubjectSet(assigned[i], 1).length && !worksheetGenUi.active) {
-                await autoGenerateWorksheet(assigned[i], 1, { silent: true });
+            if (!getQuestionsForSubject(assigned[i]).length && !worksheetGenUi.active && !worksheetGenUi.error) {
+                await autoGenerateWorksheet(assigned[i], { silent: true });
             }
         }
         worksheetQuestionsCache = dedupeWorksheetRows(await fetchTodayWorksheetQuestions());
         renderStudentWorksheetPanel();
+        if (activeWorksheetSubject) renderWorksheetPlayer();
         try { await refreshParentWorksheetInsights(); } catch (e) { /* ignore */ }
     }
 
     window.parentGenerateWorksheets = async function() {
         const statusEl = document.getElementById('worksheetGenStatus');
         if (statusEl) statusEl.textContent = 'Replacing today\u2019s questions…';
-        if (!confirm('Replace today\u2019s worksheet questions? This resets progress on the current sheet (bonus sheets are kept).')) {
+        if (!confirm('Replace today\u2019s worksheet questions? This resets progress on the current sheet.')) {
             if (statusEl) statusEl.textContent = '';
             return;
         }
         worksheetQuestionsCache = await fetchTodayWorksheetQuestions();
-        clearWorksheetProgressForSet(1);
-        if (!state.worksheetActiveSet) state.worksheetActiveSet = {};
-        Object.keys(state.worksheetActiveSet).forEach(function(subj) {
-            if (getActiveWorksheetSet(subj) === 1) state.worksheetActiveSet[subj] = 1;
-        });
-        beginWorksheetGenUi('Regenerating worksheets');
+        clearWorksheetProgress();
+        beginWorksheetGenUi('Regenerating worksheet');
         try {
             const payload = await callWorksheetGenerate({
-                worksheetSet: 1,
                 replaceExisting: true,
                 forParentRegenerate: true
             });
@@ -6847,7 +7110,23 @@
 
     loadCloudData().finally(function() {
         restoreAppMainTab();
+        try { renderFocusNowCard(); } catch (e) { /* ignore */ }
+        syncFocusAlertsButton();
     });
+
+    // Keep "Right now" fresh and fire block-start alerts while the app is open.
+    let lastFocusTickSlot = null;
+    setInterval(function() {
+        try { renderFocusNowCard(); } catch (e) { /* ignore */ }
+        try {
+            const slot = getCurrentHourSlotEST();
+            if (slot !== lastFocusTickSlot) {
+                lastFocusTickSlot = slot;
+                if (calendarSelectedDateKey === getTodayEST()) renderCalendar();
+            }
+        } catch (e) { /* ignore */ }
+        try { tickFocusBlockAlerts(); } catch (e) { /* ignore */ }
+    }, 30000);
 
     function registerRewardHubServiceWorker() {
         if (!('serviceWorker' in navigator)) return;
